@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Автомобілі - Car Rental System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            color: #333;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .search-form {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-form input,
+        .search-form select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 1rem;
+        }
+
+        .cars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .car-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .car-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .car-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .car-details {
+            padding: 1.5rem;
+        }
+
+        .car-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .car-info p {
+            margin: 0.5rem 0;
+            color: #666;
+        }
+
+        .car-price {
+            font-size: 1.5rem;
+            color: #667eea;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .car-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rented {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .btn-rent {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+
+        .btn-rent:hover {
+            background: #5568d3;
+        }
+
+        .btn-rent:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="container">
+        <nav>
+            <div class="logo">🚗 Car Rental</div>
+            <ul>
+                <li><a href="/">Головна</a></li>
+                <li><a href="/cars">Автомобілі</a></li>
+                <li th:if="${session.userId != null}"><a href="/orders">Мої замовлення</a></li>
+                <li th:if="${session.userId == null}"><a href="/auth/login">Увійти</a></li>
+                <li th:if="${session.userId != null}"><a href="/auth/logout">Вийти</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="container">
+        <div class="page-header">
+            <h1>Доступні автомобілі</h1>
+            <div th:if="${session.userRole != null && session.userRole.name() == 'ADMIN'}">
+                <a href="/cars/add" class="btn">+ Додати автомобіль</a>
+            </div>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="search-form">
+            <form action="/cars/search" method="get">
+                <input type="text" name="brand" placeholder="Марка автомобіля" th:value="${searchBrand}">
+                <input type="number" name="maxPrice" placeholder="Макс. ціна" th:value="${searchMaxPrice}">
+                <button type="submit" class="btn">Пошук</button>
+                <a href="/cars" class="btn" style="background: #6c757d;">Скинути</a>
+            </form>
+        </div>
+
+        <div class="cars-grid">
+            <div class="car-card" th:each="car : ${cars}">
+                <div class="car-image">🚗</div>
+                <div class="car-details">
+                    <h3 class="car-title" th:text="${car.brand + ' ' + car.model}">Brand Model</h3>
+                    <p><strong>Рік:</strong> <span th:text="${car.year}">2023</span></p>
+
+                    <div class="car-info">
+                        <p>🔧 <span th:text="${car.transmissionType.displayName}">Transmission</span></p>
+                        <p>⛽ <span th:text="${car.fuelType.displayName}">Fuel</span></p>
+                        <p>👥 <span th:text="${car.seatsCount}">5</span> місць</p>
+                        <p>📍 <span th:text="${car.registrationNumber}">AA1234BB</span></p>
+                    </div>
+
+                    <div class="car-price">
+                        <span th:text="${car.dailyRate}">500</span> грн/день
+                    </div>
+
+                    <span class="car-status"
+                          th:classappend="${car.status.name() == 'AVAILABLE'} ? 'status-available' : 'status-rented'"
+                          th:text="${car.status.displayName}">
+                            Статус
+                        </span>
+
+                    <a th:href="@{/cars/{id}(id=${car.carId})}" class="btn-rent">Детальніше</a>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${cars.isEmpty()}" style="text-align: center; padding: 3rem;">
+            <h2>Автомобілі не знайдені</h2>
+            <p>Спробуйте змінити параметри пошуку</p>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="container">
+        <p>&copy; 2025 Car Rental System. Всі права захищені.</p>
+    </div>
+</footer>
+</body>
+</html>

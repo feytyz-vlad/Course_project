@@ -1,12 +1,15 @@
 package ua.com.kisit.course_project.Service;
 
+import org.springframework.stereotype.Service;
 import ua.com.kisit.course_project.Entity.Client;
 import ua.com.kisit.course_project.Repository.ClientRepository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service  // FIXED: додана анотація — без неї Spring не бачить цей клас як bean
 public class ClientService {
+
     private final ClientRepository clientRepository;
 
     public ClientService(ClientRepository clientRepository) {
@@ -23,6 +26,36 @@ public class ClientService {
         if (clientRepository.existsByDriverLicense(client.getDriverLicenseNumber())) {
             throw new IllegalArgumentException("Клієнт з таким водійським посвідченням вже зареєстрований");
         }
+        return clientRepository.save(client);
+    }
+
+    /**
+     * FIXED: Доданий метод для створення профілю після реєстрації.
+     * Викликається з WebHomeController після заповнення форми профілю.
+     */
+    public Client createClientProfile(Long userId, String firstName, String lastName,
+                                      String phone, String driverLicense) {
+        // Перевірка чи профіль вже існує
+        if (clientRepository.findByUserId(userId).isPresent()) {
+            throw new IllegalStateException("Профіль для цього користувача вже існує");
+        }
+
+        if (clientRepository.existsByPhone(phone)) {
+            throw new IllegalArgumentException("Клієнт з таким телефоном вже зареєстрований");
+        }
+
+        if (driverLicense != null && !driverLicense.isBlank()
+                && clientRepository.existsByDriverLicense(driverLicense)) {
+            throw new IllegalArgumentException("Клієнт з таким водійським посвідченням вже зареєстрований");
+        }
+
+        Client client = new Client();
+        client.setUserId(userId);
+        client.setFirstName(firstName);
+        client.setLastName(lastName);
+        client.setPhone(phone);
+        client.setDriverLicenseNumber(driverLicense);
+
         return clientRepository.save(client);
     }
 

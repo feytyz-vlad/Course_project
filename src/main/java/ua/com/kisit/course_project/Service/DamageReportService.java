@@ -1,5 +1,6 @@
 package ua.com.kisit.course_project.Service;
 
+import org.springframework.stereotype.Service;
 import ua.com.kisit.course_project.Entity.DamageReport;
 import ua.com.kisit.course_project.Entity.DamageReport.RepairStatus;
 import ua.com.kisit.course_project.Repository.DamageReportRepository;
@@ -10,7 +11,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+@Service  // FIXED: додана анотація — без неї Spring не бачить цей клас як bean
 public class DamageReportService {
+
     private final DamageReportRepository damageReportRepository;
     private final CarRepository carRepository;
 
@@ -55,7 +58,8 @@ public class DamageReportService {
         boolean updated = damageReportRepository.updateStatus(reportId, RepairStatus.COMPLETED);
 
         if (updated) {
-            carRepository.updateStatus(report.getCarId(), ua.com.kisit.course_project.Entity.Car.CarStatus.AVAILABLE);
+            carRepository.updateStatus(report.getCarId(),
+                    ua.com.kisit.course_project.Entity.Car.CarStatus.AVAILABLE);
         }
         return updated;
     }

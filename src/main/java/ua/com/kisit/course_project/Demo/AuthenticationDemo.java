@@ -1,162 +1,104 @@
 package ua.com.kisit.course_project.Demo;
 
-import ua.com.kisit.course_project.Controller.AuthenticationController;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 import ua.com.kisit.course_project.Entity.User;
 import ua.com.kisit.course_project.Entity.UserRole;
-import ua.com.kisit.course_project.Repository.UserRepository;
-import ua.com.kisit.course_project.Repository.UserRepositoryImpl;
-import ua.com.kisit.course_project.Repository.UserSessionRepository;
-import ua.com.kisit.course_project.Repository.UserSessionRepositoryImpl;
 import ua.com.kisit.course_project.Service.AuthenticationService;
-import ua.com.kisit.course_project.Utility.DatabaseConnection;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.util.Optional;
 import java.util.Scanner;
 
 /**
- * Demo application showing authentication system usage
- * This is an example of how to use the authentication system
+ * Demo — запускається тільки з профілем "demo":
+ *   java -jar app.jar --spring.profiles.active=demo
+ *
+ * В звичайному режимі цей клас ІГНОРУЄТЬСЯ Spring Boot.
  */
-public class AuthenticationDemo {
+@Component
+@Profile("demo")   // FIXED: не заважає нормальному запуску додатку
+public class AuthenticationDemo implements CommandLineRunner {
 
-    private static AuthenticationController authController;
-    private static Scanner scanner;
+    // FIXED: Spring сам інжектує сервіс — більше не треба Connection вручну
+    private final AuthenticationService authService;
+    private final Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) {
-        scanner = new Scanner(System.in);
+    private String currentSessionToken = null;
 
-        try {
-            // Initialize database connection
-            Connection connection = DatabaseConnection.getConnection();
-            System.out.println("=== Car Rental System - Authentication Demo ===\n");
-
-            // Initialize repositories
-            UserRepository userRepository = new UserRepositoryImpl(connection);
-            UserSessionRepository sessionRepository = new UserSessionRepositoryImpl(connection);
-
-            // Initialize services
-            AuthenticationService authService = new AuthenticationService(
-                    userRepository,
-                    sessionRepository
-            );
-
-            // Initialize controller
-            authController = new AuthenticationController(authService);
-
-            // Run demo menu
-            runMenu();
-
-        } catch (SQLException e) {
-            System.err.println("Database connection error: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            scanner.close();
-            DatabaseConnection.closeConnection();
-        }
+    public AuthenticationDemo(AuthenticationService authService) {
+        this.authService = authService;
     }
 
-    private static void runMenu() {
+    @Override
+    public void run(String... args) {
+        System.out.println("=== Car Rental System - Authentication Demo ===\n");
         boolean running = true;
 
         while (running) {
-            if (!authController.isLoggedIn()) {
+            if (currentSessionToken == null) {
                 System.out.println("\n=== Menu (Not logged in) ===");
                 System.out.println("1. Login");
-                System.out.println("2. Register as Client");
-                System.out.println("3. Register as Admin");
+                System.out.println("2. Register");
                 System.out.println("0. Exit");
                 System.out.print("Choose option: ");
 
-                int choice = getIntInput();
-
-                switch (choice) {
-                    case 1:
-                        handleLogin();
-                        break;
-                    case 2:
-                        handleRegistration(UserRole.CLIENT);
-                        break;
-                    case 3:
-                        handleRegistration(UserRole.ADMIN);
-                        break;
-                    case 0:
-                        running = false;
-                        System.out.println("Goodbye!");
-                        break;
-                    default:
-                        System.out.println("Invalid option!");
+                switch (getIntInput()) {
+                    case 1 -> handleLogin();
+                    case 2 -> handleRegistration();
+                    case 0 -> { running = false; System.out.println("Goodbye!"); }
+                    default -> System.out.println("Invalid option!");
                 }
             } else {
-                User currentUser = authController.getCurrentUser();
-                System.out.println("\n=== Menu (Logged in as: " + currentUser.getEmail() + ") ===");
-                System.out.println("Role: " + currentUser.getRole().getDisplayName());
+                Optional<User> userOpt = authService.validateSession(currentSessionToken);
+                if (userOpt.isEmpty()) {
+                    System.out.println("Session expired. Please login again.");
+                    currentSessionToken = null;
+                    continue;
+                }
+
+                User user = userOpt.get();
+                System.out.println("\n=== Menu (Logged in as: " + user.getEmail() + ") ===");
+                System.out.println("Role: " + user.getRole().getDisplayName());
                 System.out.println("1. View Profile");
                 System.out.println("2. Change Password");
                 System.out.println("3. Logout");
-                System.out.println("4. Logout from all devices");
-
-                if (authController.isCurrentUserAdmin()) {
-                    System.out.println("5. Admin Panel (example)");
-                } else {
-                    System.out.println("5. Browse Cars (example)");
-                }
-
                 System.out.println("0. Exit");
                 System.out.print("Choose option: ");
 
-                int choice = getIntInput();
-
-                switch (choice) {
-                    case 1:
-                        handleViewProfile();
-                        break;
-                    case 2:
-                        handleChangePassword();
-                        break;
-                    case 3:
-                        handleLogout();
-                        break;
-                    case 4:
-                        handleLogoutAll();
-                        break;
-                    case 5:
-                        handleRoleSpecificAction();
-                        break;
-                    case 0:
-                        running = false;
-                        System.out.println("Goodbye!");
-                        break;
-                    default:
-                        System.out.println("Invalid option!");
+                switch (getIntInput()) {
+                    case 1 -> handleViewProfile(user);
+                    case 2 -> handleChangePassword(user);
+                    case 3 -> handleLogout();
+                    case 0 -> { running = false; System.out.println("Goodbye!"); }
+                    default -> System.out.println("Invalid option!");
                 }
             }
         }
+        scanner.close();
     }
 
-    private static void handleLogin() {
+    private void handleLogin() {
         System.out.println("\n=== Login ===");
         System.out.print("Email: ");
         String email = scanner.nextLine();
-
         System.out.print("Password: ");
         String password = scanner.nextLine();
 
-        if (authController.login(email, password)) {
+        try {
+            currentSessionToken = authService.login(email, password);
             System.out.println("✓ Login successful!");
-        } else {
-            System.out.println("✗ Login failed!");
+        } catch (Exception e) {
+            System.out.println("✗ " + e.getMessage());
         }
     }
 
-    private static void handleRegistration(UserRole role) {
-        System.out.println("\n=== Registration (" + role.getDisplayName() + ") ===");
+    private void handleRegistration() {
+        System.out.println("\n=== Registration ===");
         System.out.print("Email: ");
         String email = scanner.nextLine();
-
         System.out.print("Password (min 6 characters): ");
         String password = scanner.nextLine();
-
         System.out.print("Confirm password: ");
         String confirmPassword = scanner.nextLine();
 
@@ -165,33 +107,29 @@ public class AuthenticationDemo {
             return;
         }
 
-        if (authController.registerUser(email, password, role)) {
+        try {
+            authService.register(email, password, UserRole.CLIENT);
             System.out.println("✓ Registration successful! You can now login.");
-        } else {
-            System.out.println("✗ Registration failed!");
+        } catch (Exception e) {
+            System.out.println("✗ " + e.getMessage());
         }
     }
 
-    private static void handleViewProfile() {
-        User user = authController.getCurrentUser();
-        if (user != null) {
-            System.out.println("\n=== Profile ===");
-            System.out.println("User ID: " + user.getUserId());
-            System.out.println("Email: " + user.getEmail());
-            System.out.println("Role: " + user.getRole().getDisplayName());
-            System.out.println("Active: " + (user.isActive() ? "Yes" : "No"));
-            System.out.println("Created: " + user.getCreatedAt());
-        }
+    private void handleViewProfile(User user) {
+        System.out.println("\n=== Profile ===");
+        System.out.println("User ID: " + user.getUserId());
+        System.out.println("Email:   " + user.getEmail());
+        System.out.println("Role:    " + user.getRole().getDisplayName());
+        System.out.println("Active:  " + (user.isActive() ? "Yes" : "No"));
+        System.out.println("Created: " + user.getCreatedAt());
     }
 
-    private static void handleChangePassword() {
+    private void handleChangePassword(User user) {
         System.out.println("\n=== Change Password ===");
         System.out.print("Old password: ");
         String oldPassword = scanner.nextLine();
-
         System.out.print("New password: ");
         String newPassword = scanner.nextLine();
-
         System.out.print("Confirm new password: ");
         String confirmPassword = scanner.nextLine();
 
@@ -200,62 +138,30 @@ public class AuthenticationDemo {
             return;
         }
 
-        if (authController.changePassword(oldPassword, newPassword)) {
-            System.out.println("✓ Password changed successfully!");
-        } else {
-            System.out.println("✗ Password change failed!");
-        }
-    }
-
-    private static void handleLogout() {
-        if (authController.logout()) {
-            System.out.println("✓ Logged out successfully!");
-        } else {
-            System.out.println("✗ Logout failed!");
-        }
-    }
-
-    private static void handleLogoutAll() {
-        System.out.print("Are you sure you want to logout from all devices? (y/n): ");
-        String confirm = scanner.nextLine();
-
-        if (confirm.equalsIgnoreCase("y")) {
-            if (authController.logoutAll()) {
-                System.out.println("✓ Logged out from all devices!");
-            } else {
-                System.out.println("✗ Logout failed!");
-            }
-        }
-    }
-
-    private static void handleRoleSpecificAction() {
         try {
-            if (authController.isCurrentUserAdmin()) {
-                authController.requireAdmin();
-                System.out.println("\n=== Admin Panel ===");
-                System.out.println("This is where admin features would be implemented");
-                System.out.println("- Manage cars");
-                System.out.println("- View all orders");
-                System.out.println("- Manage damage reports");
-                System.out.println("- View statistics");
+            boolean changed = authService.changePassword(user.getUserId(), oldPassword, newPassword);
+            if (changed) {
+                System.out.println("✓ Password changed! Please login again.");
+                currentSessionToken = null;
             } else {
-                authController.requireClient();
-                System.out.println("\n=== Browse Cars ===");
-                System.out.println("This is where client features would be implemented");
-                System.out.println("- View available cars");
-                System.out.println("- Make rental order");
-                System.out.println("- View my orders");
-                System.out.println("- Make payment");
+                System.out.println("✗ Failed to change password.");
             }
-        } catch (SecurityException e) {
+        } catch (Exception e) {
             System.out.println("✗ " + e.getMessage());
         }
     }
 
-    private static int getIntInput() {
+    private void handleLogout() {
+        if (currentSessionToken != null) {
+            authService.logout(currentSessionToken);
+            currentSessionToken = null;
+            System.out.println("✓ Logged out successfully!");
+        }
+    }
+
+    private int getIntInput() {
         try {
-            String input = scanner.nextLine();
-            return Integer.parseInt(input);
+            return Integer.parseInt(scanner.nextLine().trim());
         } catch (NumberFormatException e) {
             return -1;
         }

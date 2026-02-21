@@ -1,5 +1,6 @@
 package ua.com.kisit.course_project.Service;
 
+import org.springframework.stereotype.Service;
 import ua.com.kisit.course_project.Entity.User;
 import ua.com.kisit.course_project.Entity.UserRole;
 import ua.com.kisit.course_project.Entity.UserSession;
@@ -16,6 +17,7 @@ import java.util.Optional;
 /**
  * Service for handling user authentication and authorization
  */
+@Service
 public class AuthenticationService {
 
     private final UserRepository userRepository;
@@ -29,44 +31,27 @@ public class AuthenticationService {
 
     /**
      * Register new user
-     * @param email user email
-     * @param password plain text password
-     * @param role user role
-     * @return created user or null if registration failed
      */
     public User register(String email, String password, UserRole role) {
-        // Check if email already exists
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Користувач з таким email вже існує");
         }
-
-        // Validate email format
         if (!isValidEmail(email)) {
             throw new IllegalArgumentException("Невірний формат email");
         }
-
-        // Validate password strength
         if (!isValidPassword(password)) {
             throw new IllegalArgumentException("Пароль повинен містити мінімум 6 символів");
         }
 
-        // Hash password
         String passwordHash = hashPassword(password);
-
-        // Create new user
         User user = new User(email, passwordHash, role);
-
         return userRepository.save(user);
     }
 
     /**
      * Login user and create session
-     * @param email user email
-     * @param password plain text password
-     * @return session token or null if login failed
      */
     public String login(String email, String password) {
-        // Find user by email
         Optional<User> userOptional = userRepository.findByEmail(email);
 
         if (userOptional.isEmpty()) {
@@ -75,17 +60,14 @@ public class AuthenticationService {
 
         User user = userOptional.get();
 
-        // Check if user is active
         if (!user.isActive()) {
             throw new IllegalStateException("Обліковий запис деактивовано");
         }
 
-        // Verify password
         if (!verifyPassword(password, user.getPasswordHash())) {
             throw new IllegalArgumentException("Невірний email або пароль");
         }
 
-        // Create session
         String sessionToken = generateSessionToken();
         LocalDateTime expiresAt = LocalDateTime.now().plusHours(SESSION_DURATION_HOURS);
 
@@ -97,8 +79,6 @@ public class AuthenticationService {
 
     /**
      * Logout user by invalidating session
-     * @param sessionToken session token
-     * @return true if logout successful
      */
     public boolean logout(String sessionToken) {
         return sessionRepository.invalidateSession(sessionToken);
@@ -106,17 +86,13 @@ public class AuthenticationService {
 
     /**
      * Logout user from all devices
-     * @param userId user ID
-     * @return true if logout successful
      */
     public boolean logoutAll(Long userId) {
         return sessionRepository.invalidateAllUserSessions(userId);
     }
 
     /**
-     * Validate session token
-     * @param sessionToken session token
-     * @return user if session is valid, empty otherwise
+     * Validate session token and return user
      */
     public Optional<User> validateSession(String sessionToken) {
         Optional<UserSession> sessionOptional = sessionRepository.findByToken(sessionToken);
@@ -127,22 +103,16 @@ public class AuthenticationService {
 
         UserSession session = sessionOptional.get();
 
-        // Check if session is expired
         if (session.isExpired()) {
             sessionRepository.invalidateSession(sessionToken);
             return Optional.empty();
         }
 
-        // Get user
         return userRepository.findById(session.getUserId());
     }
 
     /**
      * Change user password
-     * @param userId user ID
-     * @param oldPassword old password
-     * @param newPassword new password
-     * @return true if password changed successfully
      */
     public boolean changePassword(Long userId, String oldPassword, String newPassword) {
         Optional<User> userOptional = userRepository.findById(userId);
@@ -153,21 +123,17 @@ public class AuthenticationService {
 
         User user = userOptional.get();
 
-        // Verify old password
         if (!verifyPassword(oldPassword, user.getPasswordHash())) {
             throw new IllegalArgumentException("Невірний старий пароль");
         }
 
-        // Validate new password
         if (!isValidPassword(newPassword)) {
             throw new IllegalArgumentException("Новий пароль повинен містити мінімум 6 символів");
         }
 
-        // Hash and update password
         String newPasswordHash = hashPassword(newPassword);
         boolean updated = userRepository.updatePassword(userId, newPasswordHash);
 
-        // Invalidate all sessions to force re-login
         if (updated) {
             sessionRepository.invalidateAllUserSessions(userId);
         }
@@ -175,10 +141,8 @@ public class AuthenticationService {
         return updated;
     }
 
-    /**
-     * Hash password using SHA-256
-     * In production, use BCrypt or Argon2
-     */
+    // ===== Helper methods =====
+
     private String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -189,17 +153,10 @@ public class AuthenticationService {
         }
     }
 
-    /**
-     * Verify password against hash
-     */
     private boolean verifyPassword(String password, String passwordHash) {
-        String hashedInput = hashPassword(password);
-        return hashedInput.equals(passwordHash);
+        return hashPassword(password).equals(passwordHash);
     }
 
-    /**
-     * Generate secure random session token
-     */
     private String generateSessionToken() {
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[32];
@@ -207,40 +164,23 @@ public class AuthenticationService {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    /**
-     * Validate email format
-     */
     private boolean isValidEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            return false;
-        }
+        if (email == null || email.trim().isEmpty()) return false;
         return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     }
 
-    /**
-     * Validate password strength
-     */
     private boolean isValidPassword(String password) {
         return password != null && password.length() >= 6;
     }
 
-    /**
-     * Check if user has specific role
-     */
     public boolean hasRole(User user, UserRole role) {
         return user != null && user.getRole() == role;
     }
 
-    /**
-     * Check if user is admin
-     */
     public boolean isAdmin(User user) {
         return hasRole(user, UserRole.ADMIN);
     }
 
-    /**
-     * Check if user is client
-     */
     public boolean isClient(User user) {
         return hasRole(user, UserRole.CLIENT);
     }

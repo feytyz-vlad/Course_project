@@ -1,5 +1,6 @@
 package ua.com.kisit.course_project.Service;
 
+import org.springframework.stereotype.Service;
 import ua.com.kisit.course_project.Entity.Car;
 import ua.com.kisit.course_project.Entity.Car.*;
 import ua.com.kisit.course_project.Repository.CarRepository;
@@ -8,7 +9,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+@Service  // FIXED: додана анотація — без неї Spring не бачить цей клас як bean
 public class CarService {
+
     private final CarRepository carRepository;
 
     public CarService(CarRepository carRepository) {

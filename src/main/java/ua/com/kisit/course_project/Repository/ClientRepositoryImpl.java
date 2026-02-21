@@ -1,112 +1,87 @@
 package ua.com.kisit.course_project.Repository;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 import ua.com.kisit.course_project.Entity.Client;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementation of ClientRepository using JDBC
- */
+@Repository  // FIXED: додана анотація + замінено Connection → JdbcTemplate
 public class ClientRepositoryImpl implements ClientRepository {
 
-    private final Connection connection;
+    private final JdbcTemplate jdbcTemplate;
 
-    public ClientRepositoryImpl(Connection connection) {
-        this.connection = connection;
+    public ClientRepositoryImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
+
+    private final RowMapper<Client> clientRowMapper = (rs, rowNum) -> {
+        Client client = new Client();
+        client.setClientId(rs.getLong("client_id"));
+        client.setUserId(rs.getLong("user_id"));
+        client.setFirstName(rs.getString("first_name"));
+        client.setLastName(rs.getString("last_name"));
+        client.setPassportSeries(rs.getString("passport_series"));
+        client.setPassportNumber(rs.getString("passport_number"));
+        client.setPassportIssuedBy(rs.getString("passport_issued_by"));
+        Date passportIssueDate = rs.getDate("passport_issue_date");
+        if (passportIssueDate != null) client.setPassportIssueDate(passportIssueDate.toLocalDate());
+        client.setPhone(rs.getString("phone"));
+        client.setAddress(rs.getString("address"));
+        Date dateOfBirth = rs.getDate("date_of_birth");
+        if (dateOfBirth != null) client.setDateOfBirth(dateOfBirth.toLocalDate());
+        client.setDriverLicenseNumber(rs.getString("driver_license_number"));
+        Date licenseDate = rs.getDate("driver_license_issue_date");
+        if (licenseDate != null) client.setDriverLicenseIssueDate(licenseDate.toLocalDate());
+        Timestamp createdAt = rs.getTimestamp("created_at");
+        if (createdAt != null) client.setCreatedAt(createdAt.toLocalDateTime());
+        Timestamp updatedAt = rs.getTimestamp("updated_at");
+        if (updatedAt != null) client.setUpdatedAt(updatedAt.toLocalDateTime());
+        return client;
+    };
 
     @Override
     public Optional<Client> findById(Long clientId) {
-        String sql = "SELECT * FROM clients WHERE client_id = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, clientId);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return Optional.of(mapResultSetToClient(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return Optional.empty();
+        List<Client> result = jdbcTemplate.query(
+                "SELECT * FROM clients WHERE client_id=?", clientRowMapper, clientId);
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     @Override
     public Optional<Client> findByUserId(Long userId) {
-        String sql = "SELECT * FROM clients WHERE user_id = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, userId);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return Optional.of(mapResultSetToClient(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return Optional.empty();
+        List<Client> result = jdbcTemplate.query(
+                "SELECT * FROM clients WHERE user_id=?", clientRowMapper, userId);
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     @Override
     public Optional<Client> findByPassport(String passportSeries, String passportNumber) {
-        String sql = "SELECT * FROM clients WHERE passport_series = ? AND passport_number = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, passportSeries);
-            stmt.setString(2, passportNumber);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return Optional.of(mapResultSetToClient(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return Optional.empty();
+        List<Client> result = jdbcTemplate.query(
+                "SELECT * FROM clients WHERE passport_series=? AND passport_number=?",
+                clientRowMapper, passportSeries, passportNumber);
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     @Override
     public Optional<Client> findByPhone(String phone) {
-        String sql = "SELECT * FROM clients WHERE phone = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, phone);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return Optional.of(mapResultSetToClient(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return Optional.empty();
+        List<Client> result = jdbcTemplate.query(
+                "SELECT * FROM clients WHERE phone=?", clientRowMapper, phone);
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     @Override
     public Optional<Client> findByDriverLicense(String licenseNumber) {
-        String sql = "SELECT * FROM clients WHERE driver_license_number = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, licenseNumber);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return Optional.of(mapResultSetToClient(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return Optional.empty();
+        List<Client> result = jdbcTemplate.query(
+                "SELECT * FROM clients WHERE driver_license_number=?", clientRowMapper, licenseNumber);
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     @Override
@@ -116,223 +91,86 @@ public class ClientRepositoryImpl implements ClientRepository {
                 "date_of_birth, driver_license_number, driver_license_issue_date) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setLong(1, client.getUserId());
-            stmt.setString(2, client.getFirstName());
-            stmt.setString(3, client.getLastName());
-            stmt.setString(4, client.getPassportSeries());
-            stmt.setString(5, client.getPassportNumber());
-            stmt.setString(6, client.getPassportIssuedBy());
-            stmt.setDate(7, client.getPassportIssueDate() != null ?
-                    Date.valueOf(client.getPassportIssueDate()) : null);
-            stmt.setString(8, client.getPhone());
-            stmt.setString(9, client.getAddress());
-            stmt.setDate(10, client.getDateOfBirth() != null ?
-                    Date.valueOf(client.getDateOfBirth()) : null);
-            stmt.setString(11, client.getDriverLicenseNumber());
-            stmt.setDate(12, client.getDriverLicenseIssueDate() != null ?
-                    Date.valueOf(client.getDriverLicenseIssueDate()) : null);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, client.getUserId());
+            ps.setString(2, client.getFirstName());
+            ps.setString(3, client.getLastName());
+            ps.setString(4, client.getPassportSeries());
+            ps.setString(5, client.getPassportNumber());
+            ps.setString(6, client.getPassportIssuedBy());
+            ps.setDate(7, client.getPassportIssueDate() != null ? Date.valueOf(client.getPassportIssueDate()) : null);
+            ps.setString(8, client.getPhone());
+            ps.setString(9, client.getAddress());
+            ps.setDate(10, client.getDateOfBirth() != null ? Date.valueOf(client.getDateOfBirth()) : null);
+            ps.setString(11, client.getDriverLicenseNumber());
+            ps.setDate(12, client.getDriverLicenseIssueDate() != null ? Date.valueOf(client.getDriverLicenseIssueDate()) : null);
+            return ps;
+        }, keyHolder);
 
-            int affectedRows = stmt.executeUpdate();
-
-            if (affectedRows > 0) {
-                ResultSet generatedKeys = stmt.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    client.setClientId(generatedKeys.getLong(1));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+        if (keyHolder.getKey() != null) {
+            client.setClientId(keyHolder.getKey().longValue());
         }
-
         return client;
     }
 
     @Override
     public Client update(Client client) {
-        String sql = "UPDATE clients SET first_name = ?, last_name = ?, passport_series = ?, " +
-                "passport_number = ?, passport_issued_by = ?, passport_issue_date = ?, " +
-                "phone = ?, address = ?, date_of_birth = ?, driver_license_number = ?, " +
-                "driver_license_issue_date = ? WHERE client_id = ?";
+        String sql = "UPDATE clients SET first_name=?, last_name=?, passport_series=?, " +
+                "passport_number=?, passport_issued_by=?, passport_issue_date=?, phone=?, " +
+                "address=?, date_of_birth=?, driver_license_number=?, driver_license_issue_date=? " +
+                "WHERE client_id=?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, client.getFirstName());
-            stmt.setString(2, client.getLastName());
-            stmt.setString(3, client.getPassportSeries());
-            stmt.setString(4, client.getPassportNumber());
-            stmt.setString(5, client.getPassportIssuedBy());
-            stmt.setDate(6, client.getPassportIssueDate() != null ?
-                    Date.valueOf(client.getPassportIssueDate()) : null);
-            stmt.setString(7, client.getPhone());
-            stmt.setString(8, client.getAddress());
-            stmt.setDate(9, client.getDateOfBirth() != null ?
-                    Date.valueOf(client.getDateOfBirth()) : null);
-            stmt.setString(10, client.getDriverLicenseNumber());
-            stmt.setDate(11, client.getDriverLicenseIssueDate() != null ?
-                    Date.valueOf(client.getDriverLicenseIssueDate()) : null);
-            stmt.setLong(12, client.getClientId());
-
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-
+        jdbcTemplate.update(sql,
+                client.getFirstName(), client.getLastName(),
+                client.getPassportSeries(), client.getPassportNumber(), client.getPassportIssuedBy(),
+                client.getPassportIssueDate() != null ? Date.valueOf(client.getPassportIssueDate()) : null,
+                client.getPhone(), client.getAddress(),
+                client.getDateOfBirth() != null ? Date.valueOf(client.getDateOfBirth()) : null,
+                client.getDriverLicenseNumber(),
+                client.getDriverLicenseIssueDate() != null ? Date.valueOf(client.getDriverLicenseIssueDate()) : null,
+                client.getClientId());
         return client;
     }
 
     @Override
     public boolean deleteById(Long clientId) {
-        String sql = "DELETE FROM clients WHERE client_id = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, clientId);
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+        return jdbcTemplate.update("DELETE FROM clients WHERE client_id=?", clientId) > 0;
     }
 
     @Override
     public List<Client> findAll() {
-        String sql = "SELECT * FROM clients ORDER BY created_at DESC";
-        List<Client> clients = new ArrayList<>();
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                clients.add(mapResultSetToClient(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return clients;
+        return jdbcTemplate.query("SELECT * FROM clients ORDER BY created_at DESC", clientRowMapper);
     }
 
     @Override
     public List<Client> searchByName(String searchTerm) {
-        String sql = "SELECT * FROM clients WHERE first_name LIKE ? OR last_name LIKE ? " +
-                "ORDER BY last_name, first_name";
-        List<Client> clients = new ArrayList<>();
         String pattern = "%" + searchTerm + "%";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, pattern);
-            stmt.setString(2, pattern);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                clients.add(mapResultSetToClient(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return clients;
+        return jdbcTemplate.query(
+                "SELECT * FROM clients WHERE first_name LIKE ? OR last_name LIKE ? ORDER BY last_name, first_name",
+                clientRowMapper, pattern, pattern);
     }
 
     @Override
     public boolean existsByPassport(String passportSeries, String passportNumber) {
-        String sql = "SELECT COUNT(*) FROM clients WHERE passport_series = ? AND passport_number = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, passportSeries);
-            stmt.setString(2, passportNumber);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM clients WHERE passport_series=? AND passport_number=?",
+                Integer.class, passportSeries, passportNumber);
+        return count != null && count > 0;
     }
 
     @Override
     public boolean existsByPhone(String phone) {
-        String sql = "SELECT COUNT(*) FROM clients WHERE phone = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, phone);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM clients WHERE phone=?", Integer.class, phone);
+        return count != null && count > 0;
     }
 
     @Override
     public boolean existsByDriverLicense(String licenseNumber) {
-        String sql = "SELECT COUNT(*) FROM clients WHERE driver_license_number = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, licenseNumber);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    /**
-     * Helper method to map ResultSet to Client object
-     */
-    private Client mapResultSetToClient(ResultSet rs) throws SQLException {
-        Client client = new Client();
-        client.setClientId(rs.getLong("client_id"));
-        client.setUserId(rs.getLong("user_id"));
-        client.setFirstName(rs.getString("first_name"));
-        client.setLastName(rs.getString("last_name"));
-        client.setPassportSeries(rs.getString("passport_series"));
-        client.setPassportNumber(rs.getString("passport_number"));
-        client.setPassportIssuedBy(rs.getString("passport_issued_by"));
-
-        Date passportIssueDate = rs.getDate("passport_issue_date");
-        if (passportIssueDate != null) {
-            client.setPassportIssueDate(passportIssueDate.toLocalDate());
-        }
-
-        client.setPhone(rs.getString("phone"));
-        client.setAddress(rs.getString("address"));
-
-        Date dateOfBirth = rs.getDate("date_of_birth");
-        if (dateOfBirth != null) {
-            client.setDateOfBirth(dateOfBirth.toLocalDate());
-        }
-
-        client.setDriverLicenseNumber(rs.getString("driver_license_number"));
-
-        Date licenseIssueDate = rs.getDate("driver_license_issue_date");
-        if (licenseIssueDate != null) {
-            client.setDriverLicenseIssueDate(licenseIssueDate.toLocalDate());
-        }
-
-        Timestamp createdTimestamp = rs.getTimestamp("created_at");
-        if (createdTimestamp != null) {
-            client.setCreatedAt(createdTimestamp.toLocalDateTime());
-        }
-
-        Timestamp updatedTimestamp = rs.getTimestamp("updated_at");
-        if (updatedTimestamp != null) {
-            client.setUpdatedAt(updatedTimestamp.toLocalDateTime());
-        }
-
-        return client;
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM clients WHERE driver_license_number=?", Integer.class, licenseNumber);
+        return count != null && count > 0;
     }
 }

@@ -5,13 +5,15 @@ import ua.com.kisit.course_project.Entity.RentalOrder.OrderStatus;
 import ua.com.kisit.course_project.Entity.Car;
 import ua.com.kisit.course_project.Repository.RentalOrderRepository;
 import ua.com.kisit.course_project.Repository.CarRepository;
-
+import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class RentalOrderService {
     private final RentalOrderRepository orderRepository;
     private final CarRepository carRepository;
@@ -114,5 +116,9 @@ public class RentalOrderService {
 
     public List<RentalOrder> getAllOrders() {
         return orderRepository.findAll();
+    }
+
+    public List<RentalOrder> getClientActiveOrders(Long clientId) {
+        return orderRepository.findByClientIdAndStatus(clientId, OrderStatus.ACTIVE);
     }
 }
