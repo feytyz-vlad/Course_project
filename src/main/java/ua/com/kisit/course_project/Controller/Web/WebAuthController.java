@@ -1,21 +1,20 @@
 package ua.com.kisit.course_project.Controller.Web;
 
-import jakarta.servlet.http.HttpSession;
+import java.util.Optional;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.servlet.http.HttpSession;
 import ua.com.kisit.course_project.Entity.User;
 import ua.com.kisit.course_project.Entity.UserRole;
 import ua.com.kisit.course_project.Service.AuthenticationService;
 
-import java.util.Optional;
-
-/**
- * Web Controller for Authentication
- */
 @Controller
-@RequestMapping("/auth")
 public class WebAuthController {
 
     private final AuthenticationService authService;
@@ -24,59 +23,41 @@ public class WebAuthController {
         this.authService = authService;
     }
 
-    /**
-     * Show login page
-     */
-    @GetMapping("/login")
-    public String showLoginPage() {
+    @GetMapping({"/login", "/auth/login"})
+    public String showLoginPage(HttpSession session) {
+        if (session.getAttribute("userId") != null) return "redirect:/";
         return "auth/login";
     }
 
-    /**
-     * Handle login
-     */
-    @PostMapping("/login")
+    @PostMapping({"/login", "/auth/login"})
     public String login(@RequestParam String email,
                         @RequestParam String password,
                         HttpSession session,
                         RedirectAttributes redirectAttributes) {
         try {
             String sessionToken = authService.login(email, password);
-
             Optional<User> user = authService.validateSession(sessionToken);
             if (user.isPresent()) {
                 session.setAttribute("sessionToken", sessionToken);
                 session.setAttribute("userId", user.get().getUserId());
                 session.setAttribute("userEmail", user.get().getEmail());
                 session.setAttribute("userRole", user.get().getRole());
-
-                redirectAttributes.addFlashAttribute("success", "Вітаємо!");
-
-                if (user.get().getRole() == UserRole.ADMIN) {
-                    return "redirect:/admin/dashboard";
-                } else {
-                    return "redirect:/";
-                }
+                redirectAttributes.addFlashAttribute("success", "Ласкаво просимо!");
+                return user.get().getRole() == UserRole.ADMIN ? "redirect:/cars" : "redirect:/";
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Невірний email або пароль");
         }
-
-        return "redirect:/auth/login";
+        return "redirect:/login";
     }
 
-    /**
-     * Show registration page
-     */
-    @GetMapping("/register")
-    public String showRegisterPage() {
+    @GetMapping({"/register", "/auth/register"})
+    public String showRegisterPage(HttpSession session) {
+        if (session.getAttribute("userId") != null) return "redirect:/";
         return "auth/register";
     }
 
-    /**
-     * Handle registration
-     */
-    @PostMapping("/register")
+    @PostMapping({"/register", "/auth/register"})
     public String register(@RequestParam String email,
                            @RequestParam String password,
                            @RequestParam String confirmPassword,
@@ -84,104 +65,73 @@ public class WebAuthController {
         try {
             if (!password.equals(confirmPassword)) {
                 redirectAttributes.addFlashAttribute("error", "Паролі не співпадають");
-                return "redirect:/auth/register";
+                return "redirect:/register";
             }
-
-            User user = authService.register(email, password, UserRole.CLIENT);
-
-            if (user != null) {
-                redirectAttributes.addFlashAttribute("success",
-                        "Реєстрація успішна! Тепер ви можете увійти.");
-                return "redirect:/auth/login";
+            if (password.length() < 6) {
+                redirectAttributes.addFlashAttribute("error", "Пароль мінімум 6 символів");
+                return "redirect:/register";
             }
+            authService.register(email, password, UserRole.CLIENT);
+            redirectAttributes.addFlashAttribute("success", "Реєстрація успішна! Тепер увійдіть.");
+            return "redirect:/login";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/register";
         }
-
-        return "redirect:/auth/register";
     }
 
-    /**
-     * Handle logout
-     */
     @GetMapping("/logout")
     public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
-        String sessionToken = (String) session.getAttribute("sessionToken");
-
-        if (sessionToken != null) {
-            authService.logout(sessionToken);
-        }
-
+        String token = (String) session.getAttribute("sessionToken");
+        if (token != null) authService.logout(token);
         session.invalidate();
         redirectAttributes.addFlashAttribute("success", "Ви успішно вийшли");
         return "redirect:/";
     }
 
-    /**
-     * Show profile page
-     */
     @GetMapping("/profile")
     public String showProfile(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return "redirect:/auth/login";
-        }
-
-        String sessionToken = (String) session.getAttribute("sessionToken");
-        Optional<User> user = authService.validateSession(sessionToken);
-
+        if (userId == null) return "redirect:/login";
+        String token = (String) session.getAttribute("sessionToken");
+        Optional<User> user = authService.validateSession(token);
         if (user.isPresent()) {
             model.addAttribute("user", user.get());
             return "auth/profile";
         }
-
-        return "redirect:/auth/login";
+        return "redirect:/login";
     }
 
-    /**
-     * Show change password page
-     */
-    @GetMapping("/change-password")
+    @GetMapping("/profile/change-password")
     public String showChangePasswordPage(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return "redirect:/auth/login";
-        }
+        if (session.getAttribute("userId") == null) return "redirect:/login";
         return "auth/change-password";
     }
 
-    /**
-     * Handle password change
-     */
-    @PostMapping("/change-password")
+    @PostMapping("/profile/change-password")
     public String changePassword(@RequestParam String oldPassword,
                                  @RequestParam String newPassword,
                                  @RequestParam String confirmPassword,
                                  HttpSession session,
                                  RedirectAttributes redirectAttributes) {
         Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return "redirect:/auth/login";
-        }
-
+        if (userId == null) return "redirect:/login";
         try {
             if (!newPassword.equals(confirmPassword)) {
                 redirectAttributes.addFlashAttribute("error", "Нові паролі не співпадають");
-                return "redirect:/auth/change-password";
+                return "redirect:/profile/change-password";
             }
-
-            boolean success = authService.changePassword(userId, oldPassword, newPassword);
-
-            if (success) {
+            boolean ok = authService.changePassword(userId, oldPassword, newPassword);
+            if (ok) {
                 session.invalidate();
-                redirectAttributes.addFlashAttribute("success",
-                        "Пароль змінено! Увійдіть з новим паролем.");
-                return "redirect:/auth/login";
+                redirectAttributes.addFlashAttribute("success", "Пароль змінено! Увійдіть знову.");
+                return "redirect:/login";
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Невірний старий пароль");
             }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-
-        return "redirect:/auth/change-password";
+        return "redirect:/profile/change-password";
     }
 }

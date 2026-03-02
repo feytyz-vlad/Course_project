@@ -1,0 +1,1937 @@
+
+@media (max-width:1600px){
+    .style2.st-header-menu-area .st__contact__meta__inner {
+        left: -30px;
+    }
+    .faq__thumb img {
+        max-width: 100%;
+    }
+    .st-header-logo a img {
+        left: 0;
+    }
+    .is-sticky .st__logo__overlay::before {
+       display: block;
+    }    
+    .is-sticky .st__logo__overlay::after {
+       display: block;
+    }
+}
+@media (min-width: 1365px) and (max-width: 1600px) {
+    .st__main__menu {
+        left: 130px;
+    }
+    .main__menu ul li a {
+        font-size: 18px;
+        margin-right: 38px;
+    }
+    .st-header-top-info ul li a {
+        font-size: 14px;
+    }
+    .st-header-top-social span {
+        font-size: 14px;
+    }
+    .st-header-menu-area.style2 .st__logo__overlay::after {
+        left: 19%;
+    }
+    .st-header-top-social ul li a {
+        font-size: 14px;
+    }
+    .st-header-menu ul li a {
+        font-size: 16px;
+        margin-right: 32px;
+    }
+    .st__contact__meta__inner {
+        left: -58px;
+    }
+    .st-contact-icon a i {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        font-size: 20px;
+    }
+    .st-contact-content span {
+        font-size: 15px;
+    }
+    .st-contact-content {
+        font-size: 15px;
+    }
+    .st__btn2 {
+        font-size: 18px;
+        padding: 16px 32px;
+    }    
+    .st__btn {
+        font-size: 18px;
+        padding: 16px 32px;
+    }
+    .st__about__iconbox {
+        padding: 31px 30px 13px;
+    }
+    .st__service__content h2 a {
+        font-size: 22px;
+    }
+    .st__service__icon {
+        top: 38px;
+        left: 14px;
+    }
+    .style2.st-appointment-area .st__btn {
+        padding: 15px 42px;
+    }
+    .st__testi__content h2 {
+        font-size: 24px;
+    }
+    .st__testi__desc p {
+        font-size: 16px;
+		line-height:26px
+    }
+    .st__appointment__shape1 img {
+        max-width: 71%;
+    }
+    .st__appointment__shape1 {
+        right: 4%;
+        bottom: 18%;
+    }
+    .st__project__content h2 a {
+        font-size: 20px;
+    }
+    .st__subscribe__content h2 {
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+    .st__subscribe__content {
+        padding: 0 75px;
+    }
+    .st-header-top-info ul li {
+        margin-right: 15px;
+    }
+    .style2.st-header-top-area::after {
+        width: 184px;
+    }
+    .header-top-btn a {
+        font-size: 14px;
+    }
+    .st__book__info:before {
+        left: 17%;
+    }
+    .st__book__info h4 {
+        font-size: 22px;
+    }
+    .st__testi_quote i {
+        font-size: 100px;
+    }
+    .st__testi_quote {
+        right: 0;
+    }
+    .st__blog__content h2 a {
+        font-size: 26px;
+    }
+    .st-header-top-info ul li:before {
+        display: none;
+    }
+}
+@media (min-width: 1200px) and (max-width: 1364px) {
+    .st__main__menu {
+        left: 110px;
+    }
+    .main__menu ul li a {
+        font-size: 17px;
+        margin-right: 30px;
+    }
+    .st-header-top-info ul li {
+        margin-right: 35px;
+    }
+    .is-sticky::before {
+        width: 285px;
+    }
+    .st-header-menu-area.style2 .st__logo__overlay::after {
+        left: 19%;
+    }
+    .st-header-top-info ul li:before {
+        display: none;
+    }
+    .st-header-top-info ul li a {
+        font-size: 14px;
+    }
+    .st-header-top-social span {
+        font-size: 14px;
+    }
+    .st-header-top-social ul li a {
+        font-size: 14px;
+    }
+    .st-header-menu ul li a {
+        font-size: 16px;
+        margin-right: 18px;
+    }
+    .st__contact__meta__inner {
+        left: -42px;
+    }
+    .st-contact-icon a i {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        font-size: 20px;
+    }
+    .st-contact-content span {
+        font-size: 15px;
+        margin-left: 10px;
+    }
+    .st-contact-content {
+        font-size: 15px;
+        margin-left: 12px;
+    }
+    .st-header-menu-area::before {
+        width: 287px;
+    }
+    .st__about__iconbox {
+        padding: 31px 25px 13px;
+    }
+    .st__section__title h1 {
+        font-size: 42px;
+    }
+    .slider-content h1 {
+        line-height: 60px;
+        font-size: 52px;
+    }
+    .st__btn2 {
+        font-size: 18px;
+        padding: 14px 25px;
+    }
+    .st__service__content h2 a {
+        font-size: 22px;
+    }
+    .st__service__icon {
+        top: 40px;
+        left: 20px;
+    }
+    .st__testi__content h2 {
+        font-size: 22px;
+    }
+    .st__testi__desc p {
+        font-size: 16px;
+    }
+    .st__testi_quote i {
+        font-size: 100px;
+    }
+    .st__testi_quote {
+        right: 0;
+    }
+    .st__appointment__shape1 {
+        display: none;
+    }
+    .st__project__content h2 a {
+        font-size: 19px;
+        margin-bottom: 0;
+    }
+    .st__project__btn {
+        display: none;
+    }
+    .st__subscribe__content {
+        padding: 0 50px;
+    }
+    .st__subscribe__content h2 {
+        font-size: 35px;
+        margin-bottom: 22px;
+    }
+    .st__blog__content h2 a {
+        font-size: 22px;
+        line-height: 32px;
+    }
+    .style2.st-header-menu-area .st__contact__meta__inner {
+        left: -25px;
+    }
+    .style2.st-header-top-area .st-header-top-info ul li:last-child{
+        display: none;
+    }
+    .header-top-btn {
+        display: none;
+    }
+    .style2.st-header-top-area::after {
+       display: none;
+    }
+    .st-service-area.style2 .st__service__content h2 a {
+        font-size: 21px;
+    }
+    .st-service-area.style2 .st__service__content {
+        padding: 26px 0 60px 105px;
+    }
+    .style2.st-appointment-area .st__btn {
+        padding: 13px 25px;
+        font-size: 18px;
+    }
+    .my-accordion li h2 {
+        font-size: 18px;
+    }
+    .my-accordion p {
+        font-size: 14px;
+		line-height: 24px;
+    }
+    .st__book__info {
+        padding: 49px 15px 43px;
+    }
+    .st__book__info p {
+        width: 92%;
+        font-size: 14px;
+    }
+    .st__book__info h4 {
+        font-size: 20px;
+    }
+    .st__book__info a {
+        font-size: 18px;
+    }
+    .st__book__info:before {
+        left: 14%;
+    }
+}
+@media (max-width:1200px){
+    .header-top-btn {
+        display: none;
+    }
+    .style2.st-header-top-area::after {
+        display: none;
+    }
+    .style2.st-header-top-area .st-header-top-info ul li:last-child{
+        display: none;
+    }
+    .style2.st-header-menu-area .st-contact-icon a i {
+        width: 45px;
+        height: 45px;
+        line-height: 45px;
+        font-size: 16px;
+    }
+    .style2.st-header-menu-area .st__contact__meta__inner {
+        left: -25px;
+    }
+    .st__book__info:before {
+        display: none;
+    }
+}
+@media (min-width: 1170px) and (max-width: 1199px) {
+    .st-slider-area {
+        height: 700px;
+    }
+    .st-header-top-info ul li {
+        margin-right: 35px;
+    }
+    .st-header-menu-area.style2 .st__logo__overlay::after {
+        left: 19%;
+    }
+    .st-header-top-info ul li:before {
+        display: none;
+    }
+    .st-header-top-info ul li a {
+        font-size: 14px;
+    }
+    .st-header-top-social span {
+        font-size: 14px;
+    }
+    .st-header-top-social ul li a {
+        font-size: 14px;
+    }
+    .st-header-menu ul li a {
+        font-size: 16px;
+        margin-right: 18px;
+    }
+    .st__contact__meta__inner {
+        left: -42px;
+    }
+    .st-contact-icon a i {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        font-size: 20px;
+    }
+    .st-contact-content span {
+        font-size: 15px;
+        margin-left: 10px;
+    }
+    .st-contact-content {
+        font-size: 15px;
+        margin-left: 6px;
+    }
+    .st-header-menu-area::before {
+        width: 287px;
+    }
+    .st__about__iconbox {
+        padding: 45px 20px 13px;
+        display: inline-block !important;
+        text-align: center;
+    }
+    .st__about__infocontent {
+        font-size: 14px;
+        margin-left: 15px;
+    }
+    .st__about__icon {
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    .st__about__iconcontent {
+        margin-left: 10px;
+    }
+    .st__section__title h1 {
+        font-size: 32px;
+        line-height: 50px;
+    }
+    .slider-content h1 {
+        line-height: 60px;
+        font-size: 52px;
+    }
+    .st__btn2 {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__service__content h2 a {
+        font-size: 22px;
+    }
+    .st__service__icon {
+        top: 40px;
+        left: 20px;
+    }
+    .st__testi__content h2 {
+        font-size: 20px;
+        margin-bottom: 0;
+    }
+    .st__testi__content span {
+        font-size: 14px;
+    }
+    .st__testi__desc p {
+        font-size: 16px;
+    }
+    .st__testi_quote i {
+        font-size: 130px;
+    }
+    .st__appointment__shape1 {
+        display: none;
+    }
+    .st__project__content h2 a {
+        font-size: 19px;
+        margin-bottom: 0;
+    }
+    .st__project__btn {
+        display: none;
+    }
+    .st__subscribe__content {
+        padding: 0 50px;
+    }
+    .st__subscribe__content h2 {
+        font-size: 30px;
+        margin-bottom: 22px;
+    }
+    .st__subscribe__content span {
+        font-size: 20px;
+    }
+    .st__blog__content h2 a {
+        font-size: 19px;
+        line-height: 32px;
+    }
+    .st__service__icon img {
+        max-width: 65%;
+    }
+    .st__contact__position {
+        padding: 81px 50px 35px;
+    }
+    .st__btn {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__btn i {
+        font-size: 16px;
+    }    
+    .st__btn2 i {
+        font-size: 16px;
+    }
+    .st__pricing__body ul li {
+        font-size: 15px;
+    }
+    .st-call-do-action-content h2 {
+        font-size: 38px;
+    }
+    .pt-180 {
+        padding-top: 128px;
+    }
+    .st__subscribe__form button {
+        padding: 17px 37px;
+        font-size: 16px;
+    }
+    .st__meta__top {
+        display: inline-block;
+    }
+    .st__blog__cmt {
+        margin-top: 13px;
+    }
+    .st__meta__top::before {
+        display: none;
+        left: 51%;
+    }
+    .st_blog_btn {
+        font-size: 16px;
+    }
+    .st_blog_btn i {
+        font-size: 26px;
+    }
+    .st__footer__subscribe__form button {
+        padding: 12px 19px;
+        top: 6px;
+        right: 29px;
+    }
+    .st-service-area.style2 .st__service__content h2 a {
+        font-size: 20px;
+    }
+    .st-service-area.style2 .st__service__content {
+        padding: 26px 0 60px 98px;
+    }
+    .style2.st-appointment-area .st__btn {
+        padding: 13px 42px;
+    }
+    .my-accordion li h2 {
+        font-size: 18px;
+    }
+    .st__book__info h4 {
+        font-size: 20px;
+    }
+    .st__book__info {
+        padding: 49px 20px 43px;
+    }
+    .st__book__info a {
+        font-size: 18px;
+    }
+    .st__testi_quote i {
+        font-size: 100px;
+    }
+    .st__testi_quote {
+        right: 0;
+    }
+    .st-subscribe-area.style2 .st__subscribe__content h2 {
+        font-size: 32px;
+    }
+    .is-sticky::before {
+        width: 260px;
+    }
+}
+@media (min-width: 992px) and (max-width: 1169px) {
+    .st-header-menu-area {
+        padding: 30px 0;
+    }
+    .is-sticky::before {
+        width: 220px;
+    }
+    .st__logo__overlay::before {
+        top: -30px;
+    }
+    .st__logo__overlay::after {
+        top: -30px;
+        left: 23%;
+    }
+    .st-header-menu-area.style2 .st__logo__overlay::after {
+        left: 18%;
+    }
+    .st-slider-area {
+        height: 700px;
+    }
+    .st-header-top-info ul li {
+        margin-right: 13px;
+    }
+    .st-header-menu-area.style2 {
+        padding: 32px 0;
+    }
+    .st-header-top-info ul li:before {
+        display: none;
+    }
+    .st-header-top-info ul li a {
+        font-size: 13px;
+    }
+    .st-header-top-social span {
+        font-size: 14px;
+    }
+    .st-header-top-social ul li a {
+        font-size: 14px;
+    }
+    .st-header-menu ul li a {
+        font-size: 14px;
+        margin-right: 15px;
+    }
+    .st__contact__meta__inner {
+        left: -42px;
+    }
+    .st-contact-icon a i {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        font-size: 20px;
+    }
+    .st-contact-content span {
+        font-size: 14px;
+        margin-left: 10px;
+    }
+    .st-contact-content {
+        font-size: 11px;
+        margin-left: 6px;
+    }
+    .st-header-menu-area::before {
+        width: 231px;
+    }
+    .st__about__iconbox {
+        padding: 45px 20px 13px;
+        display: inline-block !important;
+        text-align: center;
+    }
+    .st__about__infocontent {
+        font-size: 14px;
+        margin-left: 15px;
+    }
+    .st__about__icon {
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    .st__about__iconcontent {
+        margin-left: 10px;
+    }
+    .st__section__title h1 {
+        font-size: 32px;
+        line-height: 50px;
+    }
+    .slider-content h1 {
+        line-height: 60px;
+        font-size: 52px;
+    }
+    .st__btn2 {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__service__content h2 a {
+        font-size: 22px;
+    }
+    .st__service__icon {
+        top: 40px;
+        left: 20px;
+    }
+    .st__testi__content h2 {
+        font-size: 20px;
+        margin-bottom: 0;
+    }
+    .st__testi__content span {
+        font-size: 14px;
+    }
+    .st__testi__desc p {
+        font-size: 14px;
+    }
+    .st__testi_quote i {
+        font-size: 130px;
+    }
+    .st__appointment__shape1 {
+        display: none;
+    }
+    .st__project__content h2 a {
+        font-size: 19px;
+        margin-bottom: 0;
+    }
+    .st__project__btn {
+        display: none;
+    }
+    .st__subscribe__content {
+        padding: 0 50px;
+    }
+    .st__subscribe__content h2 {
+        font-size: 30px;
+        margin-bottom: 22px;
+    }
+    .st__subscribe__content span {
+        font-size: 20px;
+    }
+    .st__blog__content h2 a {
+        font-size: 18px;
+        line-height: 32px;
+    }
+    .st__service__icon img {
+        max-width: 65%;
+    }
+    .st__contact__position {
+        padding: 81px 50px 35px;
+    }
+    .st__btn {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__btn i {
+        font-size: 16px;
+    }
+    .st__pricing__body ul li {
+        font-size: 15px;
+    }
+    .st-call-do-action-content h2 {
+        font-size: 38px;
+    }
+    .pt-180 {
+        padding-top: 128px;
+    }
+    .st__subscribe__form button {
+        padding: 17px 37px;
+        font-size: 16px;
+    }
+    .st__meta__top {
+        display: inline-block;
+    }
+    .st__blog__cmt {
+        margin-top: 13px;
+    }
+    .st__meta__top::before {
+        display: none;
+        left: 51%;
+    }
+    .st_blog_btn {
+        font-size: 16px;
+    }
+    .st_blog_btn i {
+        font-size: 26px;
+    }
+    .st__footer__subscribe__form button {
+        padding: 12px 19px;
+        top: 6px;
+        right: 29px;
+    }
+    .st__about__infometa {
+        left: 15px;
+    }
+    .about__list li {
+        font-size: 16px;
+    }
+    .st__about__video__box {
+        margin-right: 0;
+    }
+    .st__about__video__box span {
+        font-size: 16px;
+    }
+    .st-about-area .st__about__btn {
+        display: inline-block;
+        margin-left: 20px;
+    }
+    .st-service-area.style2 .st__service__icon__two {
+        width: 75px;
+        height: 75px;
+        line-height: 75px;
+        position: inherit;
+    }
+    .st-service-area.style2 .st__service__content {
+        padding: 26px 0 60px 50px;
+    }
+    .st__team__content h2 {
+        font-size: 20px;
+    }
+    .st-service-area.style2 .st__service__content p {
+        font-size: 14px;
+    }
+    .st-service-area.style2 .st__service__content h2 a {
+        font-size: 18px;
+    }
+    .style2.st-appointment-area .st__btn {
+        padding: 13px 42px;
+    }
+    .st__btn2 i {
+        font-size: 18px;
+    }
+    .my-accordion li h2 {
+        font-size: 15px;
+    }
+    .st-book-appointment-area .st__contact__position {
+        padding: 79px 32px 47px;
+    }
+    .st__book__info {
+        padding: 49px 10px 43px;
+    }
+    .st__book__info h4 {
+        font-size: 19px;
+    }
+    .st__book__info p {
+        width: 98%;
+    }
+    .st__book__info a {
+        padding: 10px 28px;
+        font-size: 16px;
+    }
+    .st__testi_quote i {
+        font-size: 100px;
+    }
+    .st__testi_quote {
+        right: 0;
+    }
+    .st-subscribe-area.style2 .st__subscribe__content h2 {
+        font-size: 32px;
+    }
+    .sub__bg2 {
+        padding: 20px 0;
+    }
+    .st__footer__logo a img {
+        max-width: 150px;
+    }
+    .st__contact__right__title h2 {
+        font-size: 35px;
+    }
+    .st__contact__title h2 {
+        font-size: 30px;
+    }
+    .st__cinfobox_content h5 {
+        font-size: 20px;
+    }
+    .sidebar__box {
+        padding: 56px 15px 28px;
+    }
+    .heading-one {
+        font-size: 30px;
+    }
+    .sidebar__query__content h2 {
+        font-size: 28px;
+        line-height: 42px;
+    }
+    .servcie__links a {
+        font-size: 18px;
+    }
+    .service__contact__content h2 {
+        font-size: 25px;
+        line-height: 38px;
+    }
+    .service__contact__content h3 {
+        font-size: 25px;
+        color: #ededed;
+        font-weight: 600;
+    }
+    .service__Details__btn a {
+        padding: 22px 5px;
+        font-size: 18px;
+    }
+    .service__details__content1 h3 {
+        font-size: 22px;
+    }
+}
+@media (max-width:991px){
+    .st-header-top-area {
+        display: none;
+    }
+    .col-lg-12.pmt {
+        margin-top: 0;
+    }
+    .st__about__thumb img {
+        margin-bottom: 45px;
+    }
+    .st__testimonial__box {
+        margin-bottom: 30px;
+    }
+    .st__appointment__video {
+        display: none;
+    }
+    .st__subscribe__content {
+        padding: 50px 20px;
+    }
+    .st__subscribe__thumb {
+        text-align: center;
+    }
+    .st__blog__single__box {
+        margin-bottom: 30px;
+    }
+    .st__footer__title {
+        margin-top: 30px;
+    }
+    .st__footer__subscribe__form input {
+        width: 100%;
+    }
+    .st__footer__subscribe__form button {
+        right: 6px;
+    }
+    .ft_borer {
+        padding-bottom: 70px;
+    }
+    .slider-content p {
+        width: 76%;
+    }
+    .st__project__single {
+        margin-bottom: 30px;
+    }
+    .st__pricing__box {
+        margin-bottom: 30px;
+    }
+    .st__about__wrap {
+        padding-left: 0;
+        margin-top: 18px;
+    }
+    .breadcumb__top__content h2 {
+        font-size: 50px;
+    }
+    .st__slider__carousel .owl-nav {
+        display: none;
+    }
+    .st__subscribe__thumb img {
+        width: 100%;
+    }
+    .st__service__box__two.wow.fadeInUp.p-relative {
+        margin-bottom: -50px;
+    }
+    .st-service-area.style2 .st__service__icon__two {
+        position: inherit;
+        height: 70px;
+        width: 70px;
+        line-height: 70px;
+    }
+    .st-service-area.style2 .st__service__content {
+        padding: 26px 0 35px 30px;
+    }
+    .st-service-area.style2 .st__service__content h2 a {
+        font-size: 18px;
+    }
+    .st__team__box {
+        margin-bottom: 30px;
+    }
+    .style2.st-appointment-area .st__btn {
+        padding: 14px 42px;
+    }
+    .st-book-appointment-area .st__contact__position {
+        padding: 79px 12px 47px;
+    }
+    .st-subscribe-area.style2 .st__subscribe__form button {
+        right: 6px;
+    }
+    .right__all__content {
+        margin-left: 0;
+    }
+    .st__footer__copyright__link.text-end {
+        text-align: center !important;
+    }
+    .st__footer__copyright.text-left {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    .footer__scroll {
+        display: none;
+    }
+    .st__contact__right {
+        margin-left: 0;
+        margin-top: 40px;
+    }
+    .st__contact__right__title h2 {
+        font-size: 30px;
+    }
+    .st__contact__title h2 {
+        font-size: 28px;
+    }
+    .st__cinfobox_content h5 {
+        font-size: 20px;
+    }
+    .st__cinfobox_icon i {
+        width: 45px;
+        line-height: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+    .st__team__info {
+        margin-left: 0;
+        margin-top: 15px;
+    }
+    .team__details__right__content {
+        padding-left: 0;
+    }
+    .project-details-accordion {
+        margin-top: 54px;
+    }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+    .st-header-menu-area {
+        padding: 30px 0;
+    }
+    .st-slider-area {
+        height: 700px;
+    }
+    .st-header-top-info ul li {
+        margin-right: 13px;
+    }
+    .st-header-top-info ul li:before {
+        display: none;
+    }
+    .st-header-top-info ul li a {
+        font-size: 13px;
+    }
+    .st-header-top-social span {
+        font-size: 14px;
+    }
+    .st-header-top-social ul li a {
+        font-size: 14px;
+    }
+    .st-header-menu ul li a {
+        font-size: 14px;
+        margin-right: 15px;
+    }
+    .st__contact__meta__inner {
+        left: -42px;
+    }
+    .st-contact-icon a i {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        font-size: 20px;
+    }
+    .st-contact-content span {
+        font-size: 14px;
+        margin-left: 10px;
+    }
+    .st-contact-content {
+        font-size: 11px;
+        margin-left: 6px;
+    }
+    .st-header-menu-area::before {
+        width: 231px;
+    }
+    .st__about__iconbox {
+        padding: 45px 20px 13px;
+        display: block !important;
+        text-align: center;
+    }
+    .st__about__infocontent {
+        font-size: 14px;
+        margin-left: 15px;
+    }
+    .st__about__icon {
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    .st__about__iconcontent {
+        margin-left: 10px;
+    }
+    .st__section__title h1 {
+        font-size: 32px;
+        line-height: 50px;
+    }
+    .slider-content h1 {
+        line-height: 60px;
+        font-size: 52px;
+    }
+    .st__btn2 {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__service__content h2 a {
+        font-size: 22px;
+    }
+    .st__service__icon {
+        top: 40px;
+        left: 20px;
+    }
+    .st__testi__content h2 {
+        font-size: 20px;
+        margin-bottom: 0;
+    }
+    .st__testi__content span {
+        font-size: 14px;
+    }
+    .st__testi__desc p {
+        font-size: 16px;
+    }
+    .st__testi_quote i {
+        font-size: 100px;
+    }
+    .st__testi_quote {
+        right: 0;
+    }
+    .st__appointment__shape1 {
+        display: none;
+    }
+    .st__project__content h2 a {
+        font-size: 19px;
+        margin-bottom: 0;
+    }
+    .st__project__btn {
+        display: none;
+    }
+    .st__subscribe__content h2 {
+        font-size: 30px;
+        margin-bottom: 22px;
+    }
+    .st__subscribe__content span {
+        font-size: 20px;
+    }
+    .st__blog__content h2 a {
+        font-size: 19px;
+        line-height: 32px;
+    }
+    .st__service__icon img {
+        max-width: 65%;
+    }
+    .st__contact__position {
+        padding: 81px 50px 35px;
+    }
+    .st__btn {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__btn i {
+        font-size: 16px;
+    }
+    .st__pricing__body ul li {
+        font-size: 15px;
+    }
+    .st-call-do-action-content h2 {
+        font-size: 38px;
+    }
+    .pt-180 {
+        padding-top: 128px;
+    }
+    .st__subscribe__form button {
+        padding: 17px 37px;
+        font-size: 16px;
+    }
+    .st__meta__top {
+        display: inline-block;
+    }
+    .st__blog__cmt {
+        margin-top: 13px;
+    }
+    .st__meta__top::before {
+        display: none;
+        left: 51%;
+    }
+    .st_blog_btn {
+        font-size: 16px;
+    }
+    .st_blog_btn i {
+        font-size: 26px;
+    }
+    .st__about__infometa {
+        left: 15px;
+    }
+    .st__contact__right__title h2 {
+        font-size: 35px;
+    }
+    .st__contact__title h2 {
+        font-size: 30px;
+    }
+    .st__cinfobox_content h5 {
+        font-size: 20px;
+    }
+    .servcie__links a {
+        font-size: 18px;
+    }
+    .service__contact__content h2 {
+        font-size: 25px;
+        line-height: 38px;
+    }
+    .service__contact__content h3 {
+        font-size: 25px;
+        color: #ededed;
+        font-weight: 600;
+    }
+    .service__Details__btn a {
+        padding: 22px 5px;
+        font-size: 18px;
+    }
+    .service__details__content1 h3 {
+        font-size: 22px;
+    }
+    .heading-one {
+        font-size: 30px;
+    }
+}
+@media only screen and (min-width: 600px) and (max-width: 767px) {
+    .st-header-menu-area {
+        padding: 30px 0;
+    }
+    .st-slider-area {
+        height: 700px;
+    }
+    .st-header-top-info ul li {
+        margin-right: 13px;
+    }
+    .st-header-top-info ul li:before {
+        display: none;
+    }
+    .st-header-top-info ul li a {
+        font-size: 13px;
+    }
+    .st-header-top-social span {
+        font-size: 14px;
+    }
+    .st-header-top-social ul li a {
+        font-size: 14px;
+    }
+    .st-header-menu ul li a {
+        font-size: 14px;
+        margin-right: 15px;
+    }
+    .st__contact__meta__inner {
+        left: -42px;
+    }
+    .st-contact-icon a i {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        font-size: 20px;
+    }
+    .st-contact-content span {
+        font-size: 14px;
+        margin-left: 10px;
+    }
+    .st-contact-content {
+        font-size: 11px;
+        margin-left: 6px;
+    }
+    .st-header-menu-area::before {
+        width: 231px;
+    }
+    .st__about__iconbox {
+        padding: 45px 20px 13px;
+        display: block !important;
+        text-align: center;
+    }
+    .st__about__infocontent {
+        font-size: 14px;
+        margin-left: 15px;
+    }
+    .st__about__icon {
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    .st__about__iconcontent {
+        margin-left: 10px;
+    }
+    .st__section__title h1 {
+        font-size: 32px;
+        line-height: 50px;
+    }
+    .slider-content h1 {
+        line-height: 60px;
+        font-size: 52px;
+    }
+    .st__btn2 {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__service__content h2 a {
+        font-size: 22px;
+    }
+    .st__service__icon {
+        top: 40px;
+        left: 20px;
+    }
+    .st__testi__content h2 {
+        font-size: 20px;
+        margin-bottom: 0;
+    }
+    .st__testi__content span {
+        font-size: 14px;
+    }
+    .st__testi__desc p {
+        font-size: 16px;
+    }
+    .st__testi_quote i {
+        font-size: 130px;
+    }
+    .st__appointment__shape1 {
+        display: none;
+    }
+    .st__project__content h2 a {
+        font-size: 19px;
+        margin-bottom: 0;
+    }
+    .st__project__btn {
+        display: none;
+    }
+    .st__subscribe__content h2 {
+        font-size: 25px;
+        margin-bottom: 22px;
+    }
+    .st__subscribe__content span {
+        font-size: 20px;
+    }
+    .st__blog__content h2 a {
+        font-size: 19px;
+        line-height: 32px;
+    }
+    .st__service__icon img {
+        max-width: 65%;
+    }
+    .st__contact__position {
+        padding: 81px 50px 35px;
+    }
+    .st__btn {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__btn i {
+        font-size: 16px;
+    }
+    .st__pricing__body ul li {
+        font-size: 15px;
+    }
+    .st-call-do-action-content h2 {
+        font-size: 38px;
+    }
+    .pt-180 {
+        padding-top: 128px;
+    }
+    .st__subscribe__form button {
+        padding: 17px 37px;
+        font-size: 16px;
+    }
+    .st__meta__top {
+        display: inline-block;
+    }
+    .st__blog__cmt {
+        margin-top: 13px;
+    }
+    .st__meta__top::before {
+        display: none;
+        left: 51%;
+    }
+    .st_blog_btn {
+        font-size: 16px;
+    }
+    .st_blog_btn i {
+        font-size: 26px;
+    }
+    .st__about__infometa {
+        left: 15px;
+    }
+    .my-accordion li h2 {
+        font-size: 17px;
+    }
+    .st__testi_quote {
+        right: 0;
+    }
+    .st__testi_quote {
+        right: 0;
+    }
+    .st__testi_quote i {
+        font-size: 90px;
+    }
+    .st-subscribe-area.style2 .st__subscribe__content h2 {
+        font-size: 30px;
+    }
+    .st__team__info {
+        padding: 40px 20px 15px;
+    }
+    .servcie__links a {
+        font-size: 18px;
+    }
+    .service__contact__content h2 {
+        font-size: 25px;
+        line-height: 38px;
+    }
+    .service__contact__content h3 {
+        font-size: 25px;
+        color: #ededed;
+        font-weight: 600;
+    }
+    .service__Details__btn a {
+        padding: 22px 5px;
+        font-size: 18px;
+    }
+    .service__details__content1 h3 {
+        font-size: 22px;
+    }
+    .heading-one {
+        font-size: 30px;
+    }
+}
+@media only screen and (min-width: 480px) and (max-width: 599px) {
+    .st-header-menu-area {
+        padding: 30px 0;
+    }
+    .st-slider-area {
+        height: 700px;
+    }
+    .st-header-top-info ul li {
+        margin-right: 13px;
+    }
+    .st-header-top-info ul li:before {
+        display: none;
+    }
+    .st-header-top-info ul li a {
+        font-size: 13px;
+    }
+    .st-header-top-social span {
+        font-size: 14px;
+    }
+    .st-header-top-social ul li a {
+        font-size: 14px;
+    }
+    .st-header-menu ul li a {
+        font-size: 14px;
+        margin-right: 15px;
+    }
+    .st__contact__meta__inner {
+        left: -42px;
+    }
+    .st-contact-icon a i {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        font-size: 20px;
+    }
+    .st-contact-content span {
+        font-size: 14px;
+        margin-left: 10px;
+    }
+    .st-contact-content {
+        font-size: 11px;
+        margin-left: 6px;
+    }
+    .st-header-menu-area::before {
+        width: 231px;
+    }
+    .st__about__iconbox {
+        padding: 45px 20px 13px;
+        display: block !important;
+        text-align: center;
+    }
+    .st__about__infocontent {
+        font-size: 14px;
+        margin-left: 15px;
+    }
+    .st__about__icon {
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    .st__about__iconcontent {
+        margin-left: 10px;
+    }
+    .st__section__title h1 {
+        font-size: 28px;
+        line-height: 50px;
+    }
+    .slider-content h1 {
+        line-height: 48px;
+        font-size: 36px;
+    }
+    .st__btn2 {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__service__content h2 a {
+        font-size: 22px;
+    }
+    .st__service__icon {
+        top: 40px;
+        left: 20px;
+    }
+    .st__testi__content h2 {
+        font-size: 20px;
+        margin-bottom: 0;
+    }
+    .st__testi__content span {
+        font-size: 14px;
+    }
+    .st__testi__desc p {
+        font-size: 16px;
+    }
+    .st__testi_quote i {
+        font-size: 130px;
+    }
+    .st__appointment__shape1 {
+        display: none;
+    }
+    .st__project__content h2 a {
+        font-size: 19px;
+        margin-bottom: 0;
+    }
+    .st__project__btn {
+        display: none;
+    }
+    .st__subscribe__content h2 {
+        font-size: 25px;
+        margin-bottom: 22px;
+    }
+    .st__subscribe__content span {
+        font-size: 20px;
+    }
+    .st__blog__content h2 a {
+        font-size: 19px;
+        line-height: 32px;
+    }
+    .st__service__icon img {
+        max-width: 65%;
+    }
+    .st__contact__position {
+        padding: 81px 50px 35px;
+    }
+    .st__btn {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__btn i {
+        font-size: 16px;
+    }
+    .st__pricing__body ul li {
+        font-size: 15px;
+    }
+    .st-call-do-action-content h2 {
+        font-size: 28px;
+        line-height: 40px;
+    }
+    .pt-180 {
+        padding-top: 128px;
+    }
+    .st__subscribe__form button {
+        padding: 17px 37px;
+        font-size: 16px;
+    }
+    .st__meta__top {
+        display: inline-block;
+    }
+    .st__blog__cmt {
+        margin-top: 13px;
+    }
+    .st__meta__top::before {
+        display: none;
+        left: 51%;
+    }
+    .st_blog_btn {
+        font-size: 16px;
+    }
+    .st_blog_btn i {
+        font-size: 26px;
+    }
+    .st__about__infometa {
+        left: 15px;
+    }
+    .st__service__content {
+        left: 19px;
+    }
+    .st__service__btn {
+        right: 36px;
+    }
+    .st__about__right {
+        display: block;
+    }
+    .st-about-area .st__about__btn {
+        margin-top: 20px;
+    }
+    .st-appointment-area .st__section__title p {
+        width: 90%;
+    }
+    .my-accordion li h2 {
+        font-size: 14px;
+    }
+    .st__testi_quote {
+        right: 0;
+    }
+    .st__testi_quote i {
+        font-size: 90px;
+    }
+    .st-subscribe-area.style2 .st__subscribe__content h2 {
+        font-size: 30px;
+    }   
+    .breadcumb__top__content h2 {
+        font-size: 32px;
+        margin-top: 15px;
+    }
+    .breadcumb__top__content span {
+        font-size: 18px;
+    } 
+    .st__team__info_inner {
+        display: block;
+    }
+    .st__team__info {
+        padding: 40px 10px 15px;
+    }
+    .st__team__info_inner .st__team__social a {
+        display: inline-block;
+    }
+    .servcie__links a {
+        font-size: 18px;
+    }
+    .service__contact__content h2 {
+        font-size: 25px;
+        line-height: 38px;
+    }
+    .service__contact__content h3 {
+        font-size: 25px;
+        color: #ededed;
+        font-weight: 600;
+    }
+    .service__Details__btn a {
+        padding: 22px 5px;
+        font-size: 18px;
+    }
+    .service__details__content1 h3 {
+        font-size: 22px;
+    }
+    .heading-one {
+        font-size: 25px;
+    }
+}
+@media only screen and (min-width: 320px) and (max-width: 479px) {
+    .st-header-menu-area {
+        padding: 30px 0;
+    }
+    .st-slider-area {
+        height: 700px;
+    }
+    .st-header-top-info ul li {
+        margin-right: 13px;
+    }
+    .st-header-top-info ul li:before {
+        display: none;
+    }
+    .st-header-top-info ul li a {
+        font-size: 13px;
+    }
+    .st-header-top-social span {
+        font-size: 14px;
+    }
+    .st-header-top-social ul li a {
+        font-size: 14px;
+    }
+    .st-header-menu ul li a {
+        font-size: 14px;
+        margin-right: 15px;
+    }
+    .st__contact__meta__inner {
+        left: -42px;
+    }
+    .st-contact-icon a i {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        font-size: 20px;
+    }
+    .st-contact-content span {
+        font-size: 14px;
+        margin-left: 10px;
+    }
+    .st-contact-content {
+        font-size: 11px;
+        margin-left: 6px;
+    }
+    .st-header-menu-area::before {
+        width: 231px;
+    }
+    .st__about__iconbox {
+        padding: 45px 20px 13px;
+        display: block !important;
+        text-align: center;
+    }
+    .st__about__infocontent {
+        font-size: 14px;
+        margin-left: 15px;
+    }
+    .st__about__icon {
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    .st__about__iconcontent {
+        margin-left: 10px;
+    }
+    .st__section__title h1 {
+        font-size: 20px;
+        line-height: 35px;
+    }
+    .slider-content h1 {
+        line-height: 38px;
+        font-size: 26px;
+    }
+    .slider-content h5 {
+        font-size: 16px;
+    }
+    .st__btn2 {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__service__content h2 a {
+        font-size: 22px;
+    }
+    .st__service__icon {
+        top: 40px;
+        left: 20px;
+    }
+    .st__testi__content h2 {
+        font-size: 20px;
+        margin-bottom: 0;
+    }
+    .st__testi__content span {
+        font-size: 14px;
+    }
+    .st__testi__desc p {
+        font-size: 16px;
+    }
+    .st__testi_quote i {
+        font-size: 130px;
+    }
+    .st__appointment__shape1 {
+        display: none;
+    }
+    .st__project__content h2 a {
+        font-size: 19px;
+        margin-bottom: 0;
+    }
+    .st__project__btn {
+        display: none;
+    }
+    .st__subscribe__content h2 {
+        font-size: 25px;
+        margin-bottom: 22px;
+        line-height: 38px;
+    }
+    .st__subscribe__content span {
+        font-size: 20px;
+    }
+    .st__blog__content h2 a {
+        font-size: 19px;
+        line-height: 32px;
+    }
+    .st__service__icon img {
+        max-width: 65%;
+    }
+    .st__contact__position {
+        padding: 81px 20px 35px;
+    }
+    .st__btn {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+    .st__btn i {
+        font-size: 16px;
+    }
+    .st__pricing__body ul li {
+        font-size: 15px;
+    }
+    .st-call-do-action-content h2 {
+        font-size: 20px;
+        line-height: 40px;
+        margin-bottom: 32px;
+    }
+    .st-call-do-action .mt-40 {
+        margin-top: 12px;
+    }
+    .pt-180 {
+        padding-top: 128px;
+    }
+    .st__subscribe__form button {
+        padding: 17px 37px;
+        font-size: 16px;
+        display: block;
+        position: inherit;
+        width: 100%;
+    }
+    .st__subscribe__thumb img {
+        max-width: 100%;
+    }
+    .st__meta__top {
+        display: inline-block;
+    }
+    .st__blog__cmt {
+        margin-top: 13px;
+    }
+    .st__meta__top::before {
+        display: none;
+        left: 51%;
+    }
+    .st_blog_btn {
+        font-size: 16px;
+    }
+    .st_blog_btn i {
+        font-size: 26px;
+    }
+    .st__about__infometa {
+        left: 0px;
+    }
+    .st__service__content {
+        left: 19px;
+    }
+    .st__service__btn {
+        right: 36px;
+    }
+    .st__slider__carousel .owl-nav {
+        right: 25px;
+    }
+    .st__section__title h5 {
+        font-size: 17px;
+    }
+    .st__iconmeta__inner {
+        margin-top: 40px;
+    }
+    .st__project__single {
+        margin-bottom: 30px;
+    }
+    .mb-res {
+        margin-top: 0;
+    }
+    .st-call-do-action .st__btn2 {
+        width: 100%;
+    }
+    .brand-title h2 {
+        padding: 13px 0px;
+    }
+    .st__about__right {
+        display: block;
+    }
+    .st-about-area .st__about__btn {
+        margin-top: 20px;
+    }
+    .st-appointment-area .st__section__title p {
+        width: 95%;
+    }
+    .my-accordion li h2 {
+        font-size: 14px;
+    }
+    .st__testi_quote {
+        right: 0;
+    }
+    .st__testi_quote i {
+        font-size: 90px;
+    }
+    .st-subscribe-area.style2 .st__subscribe__content h2 {
+        font-size: 24px;
+    }
+    .st-subscribe-area.style2 .st__subscribe__content span {
+        font-size: 15px;
+    }
+    .slider__style2.st__slider__carousel .owl-nav {
+        display: none;
+    } 
+    .st__slider__carousel.slider__style2::before {
+        display: none;
+    } 
+    .st__team__content h2 {
+        font-size: 22px;
+    }
+    .style2.st-appointment-area .st__btn {
+        margin-left: 0;
+    }
+    .style2.st-appointment-area .st__btn {
+        padding: 14px 29px;
+        margin-top: 20px;
+    }
+    .my-accordion li h2::after {
+        right: -21px;
+        top: 26px;
+        width: 25px;
+        height: 25px;
+        line-height: 28px;
+        font-size: 13px;
+    }
+    .st__book__info {
+        padding: 49px 10px 43px;
+    }
+    .st__book__info h4 {
+        font-size: 20px;
+    }
+    .st__book__info a {
+        padding: 10px 28px;
+        font-size: 16px;
+    }
+    .st__book__info p {
+        width: 100%;
+    }
+    .st-subscribe-area.style2 .st__subscribe__form button {
+        right: 0;
+        position: inherit;
+    }
+    .st-subscribe-area.style2 .st__subscribe__content h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    .breadcumb__top__content h2 {
+        font-size: 32px;
+        margin-top: 15px;
+    }
+    .breadcumb__top__content span {
+        font-size: 18px;
+    }
+    .contact__bg {
+        padding: 60px 0px 61px;
+    }
+    .st__contact__title h2 {
+        font-size: 22px;
+    }
+    .st__cinfobox_content h5 {
+        font-size: 20px;
+        margin-top: 20px;
+    }
+    .st__cinfobox_content {
+        margin-left: 0;
+    }
+    .st__cinfobox {
+        display: block;
+        padding: 25px 15px;
+        text-align: center;
+    }
+    .st__team__info_inner {
+        display: block;
+    }
+    .st__team__info {
+        padding: 40px 10px 15px;
+    }
+    .st__team__info_inner .st__team__social a {
+        display: inline-block;
+    }
+    .st__name__info__content h5 {
+        font-size: 20px;
+    }
+    .breadcumb__links ul li a {
+        font-size: 18px;
+    }
+    .servcie__links a {
+        font-size: 18px;
+    }
+    .service__contact__content h2 {
+        font-size: 25px;
+        line-height: 38px;
+    }
+    .service__contact__content h3 {
+        font-size: 20px;
+        color: #ededed;
+        font-weight: 600;
+    }
+    .service__Details__btn a {
+        padding: 22px 5px;
+        font-size: 18px;
+    }
+    .service__details__content1 h3 {
+        font-size: 22px;
+    }
+    .service__details__wrap h2 {
+        font-size: 20px;
+    }
+    .service__details__content1 ul li {
+        margin-left: 30px;
+    }
+    .service__details__content1 {
+        padding-left: 0;
+        padding-top: 30px;
+    }
+    .heading-one {
+        font-size: 22px;
+    }
+    .blog__tags {
+        margin-right: 0;
+    }
+    .blog__tags span {
+        display: block;
+    }
+    .blog__tags a {
+        display: block;
+        margin-bottom: 15px;
+    }
+    .blog__tags span {
+        margin-bottom: 20px;
+    }
+    .blogdetails__items {
+        margin-top: 25px;
+    }
+    .blogdetails__items {
+        display: block;
+    }
+    .blogdetails__title h2 {
+        font-size: 22px;
+    }
+    .blogdetails__comments {
+        margin-right: 0;
+    }
+    .blogdetails__comment__reply.ml {
+        margin-left: 0;
+    }
+    .sidebar__title h2 {
+        font-size: 22px;
+    }
+    .sidebar__query__content h2 {
+        font-size: 28px;
+        line-height: 40px;
+    }
+    .tagcloud a {
+        display: block;
+    }
+
+}

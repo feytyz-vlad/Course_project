@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ua.com.kisit.course_project.Entity.Car;
+import ua.com.kisit.course_project.Entity.Car.*;
 import ua.com.kisit.course_project.Entity.UserRole;
 import ua.com.kisit.course_project.Service.CarService;
 
@@ -13,9 +14,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Web Controller for Cars
- */
 @Controller
 @RequestMapping("/cars")
 public class WebCarController {
@@ -26,94 +24,101 @@ public class WebCarController {
         this.carService = carService;
     }
 
-    /**
-     * Show all cars
-     */
+    private void addEnumsToModel(Model model) {
+        model.addAttribute("transmissionTypes", TransmissionType.values());
+        model.addAttribute("fuelTypes", FuelType.values());
+        model.addAttribute("carStatuses", CarStatus.values());
+    }
+
     @GetMapping
     public String listCars(Model model) {
-        List<Car> cars = carService.getAllCars();
-        model.addAttribute("cars", cars);
+        model.addAttribute("cars", carService.getAllCars());
+        model.addAttribute("title", "Всі автомобілі");
+        addEnumsToModel(model);
         return "cars/list";
     }
 
-    /**
-     * Show car details
-     */
+    @GetMapping("/available")
+    public String availableCars(Model model) {
+        model.addAttribute("cars", carService.getAvailableCars());
+        model.addAttribute("title", "Доступні автомобілі");
+        addEnumsToModel(model);
+        return "cars/list";
+    }
+
+    // FIXED: enum параметри як String щоб уникнути 400 Bad Request
+    // при порожніх значеннях зі select-форми
+    @GetMapping("/search")
+    public String searchCars(
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String transmission,
+            @RequestParam(required = false) String fuel,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            Model model) {
+
+        TransmissionType transmissionEnum = parseEnum(TransmissionType.class, transmission);
+        FuelType fuelEnum = parseEnum(FuelType.class, fuel);
+
+        List<Car> cars = carService.searchCars(brand, null, transmissionEnum, fuelEnum, maxPrice);
+
+        model.addAttribute("cars", cars);
+        model.addAttribute("title", "Результати пошуку");
+        model.addAttribute("searchBrand", brand);
+        model.addAttribute("searchTransmission", transmissionEnum);
+        model.addAttribute("searchFuel", fuelEnum);
+        model.addAttribute("searchMaxPrice", maxPrice);
+        addEnumsToModel(model);
+
+        return "cars/list";
+    }
+
     @GetMapping("/{id}")
     public String carDetails(@PathVariable Long id, Model model) {
-        Optional<Car> car = carService.getCarById(id);
-        if (car.isEmpty()) {
-            return "redirect:/cars";
-        }
-        model.addAttribute("car", car.get());
+        Optional<Car> carOpt = carService.getCarById(id);
+        if (carOpt.isEmpty()) return "redirect:/cars/available";
+        model.addAttribute("car", carOpt.get());
         return "cars/details";
     }
 
-    /**
-     * Show create car form (admin only)
-     */
     @GetMapping("/add")
-    public String showAddForm(HttpSession session) {
-        UserRole userRole = (UserRole) session.getAttribute("userRole");
-        if (userRole != UserRole.ADMIN) {
-            return "redirect:/";
-        }
-        return "cars/add";
+    public String showAddForm(HttpSession session, Model model) {
+        if (!isAdmin(session)) return "redirect:/cars/available";
+        model.addAttribute("car", new Car());
+        addEnumsToModel(model);
+        return "cars/form";
     }
 
-    /**
-     * Create new car (admin only)
-     */
     @PostMapping("/add")
-    public String addCar(@ModelAttribute Car car,
-                         HttpSession session,
+    public String addCar(@ModelAttribute Car car, HttpSession session,
                          RedirectAttributes redirectAttributes) {
-        UserRole userRole = (UserRole) session.getAttribute("userRole");
-        if (userRole != UserRole.ADMIN) {
-            return "redirect:/";
+        if (!isAdmin(session)) {
+            redirectAttributes.addFlashAttribute("error", "Доступ заборонено!");
+            return "redirect:/cars/available";
         }
-
         try {
-            carService.addCar(car);
-            redirectAttributes.addFlashAttribute("success", "Автомобіль додано успішно!");
-            return "redirect:/cars";
+            Car saved = carService.addCar(car);
+            redirectAttributes.addFlashAttribute("success", "Автомобіль успішно додано!");
+            return "redirect:/cars/" + saved.getCarId();
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/cars/add";
         }
     }
 
-    /**
-     * Show edit car form (admin only)
-     */
     @GetMapping("/{id}/edit")
-    public String showEditForm(@PathVariable Long id, Model model, HttpSession session) {
-        UserRole userRole = (UserRole) session.getAttribute("userRole");
-        if (userRole != UserRole.ADMIN) {
-            return "redirect:/";
-        }
-
-        Optional<Car> car = carService.getCarById(id);
-        if (car.isEmpty()) {
-            return "redirect:/cars";
-        }
-        model.addAttribute("car", car.get());
-        return "cars/edit";
+    public String showEditForm(@PathVariable Long id, HttpSession session, Model model) {
+        if (!isAdmin(session)) return "redirect:/cars/" + id;
+        Optional<Car> carOpt = carService.getCarById(id);
+        if (carOpt.isEmpty()) return "redirect:/cars/available";
+        model.addAttribute("car", carOpt.get());
+        addEnumsToModel(model);
+        return "cars/form";
     }
 
-    /**
-     * Update car (admin only)
-     */
     @PostMapping("/{id}/edit")
-    public String updateCar(@PathVariable Long id,
-                            @ModelAttribute Car car,
-                            HttpSession session,
-                            RedirectAttributes redirectAttributes) {
-        UserRole userRole = (UserRole) session.getAttribute("userRole");
-        if (userRole != UserRole.ADMIN) {
-            return "redirect:/";
-        }
-
+    public String editCar(@PathVariable Long id, @ModelAttribute Car car,
+                          HttpSession session, RedirectAttributes redirectAttributes) {
+        if (!isAdmin(session)) return "redirect:/cars/" + id;
         try {
             car.setCarId(id);
             carService.updateCar(car);
@@ -125,39 +130,44 @@ public class WebCarController {
         }
     }
 
-    /**
-     * Delete car (admin only)
-     */
     @PostMapping("/{id}/delete")
-    public String deleteCar(@PathVariable Long id,
-                            HttpSession session,
+    public String deleteCar(@PathVariable Long id, HttpSession session,
                             RedirectAttributes redirectAttributes) {
-        UserRole userRole = (UserRole) session.getAttribute("userRole");
-        if (userRole != UserRole.ADMIN) {
-            return "redirect:/";
-        }
-
+        if (!isAdmin(session)) return "redirect:/cars/" + id;
         try {
             carService.deleteCar(id);
             redirectAttributes.addFlashAttribute("success", "Автомобіль видалено!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/cars/" + id;
         }
-
         return "redirect:/cars";
     }
 
-    /**
-     * Search cars
-     */
-    @GetMapping("/search")
-    public String searchCars(@RequestParam(required = false) String brand,
-                             @RequestParam(required = false) BigDecimal maxPrice,
-                             Model model) {
-        List<Car> cars = carService.searchCars(brand, null, null, null, maxPrice);
-        model.addAttribute("cars", cars);
-        model.addAttribute("searchBrand", brand);
-        model.addAttribute("searchMaxPrice", maxPrice);
-        return "cars/list";
+    @PostMapping("/{id}/status")
+    public String updateStatus(@PathVariable Long id, @RequestParam String status,
+                               HttpSession session, RedirectAttributes redirectAttributes) {
+        if (!isAdmin(session)) return "redirect:/cars/" + id;
+        try {
+            carService.updateCarStatus(id, CarStatus.valueOf(status));
+            redirectAttributes.addFlashAttribute("success", "Статус оновлено!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/cars/" + id;
+    }
+
+    private boolean isAdmin(HttpSession session) {
+        UserRole role = (UserRole) session.getAttribute("userRole");
+        return role == UserRole.ADMIN;
+    }
+
+    private <T extends Enum<T>> T parseEnum(Class<T> enumClass, String value) {
+        if (value == null || value.trim().isEmpty()) return null;
+        try {
+            return Enum.valueOf(enumClass, value.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

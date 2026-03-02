@@ -1,0 +1,198 @@
+/* Theme Dark CSS */
+.st__dark .is-sticky,
+.st__dark .is-sticky,
+.st__dark .st-about-area,
+.st__dark .st__service__content,
+.st__dark .st__feature__box,
+.st__dark .st__logo__overlay::after,
+.st__dark .line:after,
+.st__dark .st-header-menu-area,
+.st__dark .st-testimonial-area,
+.st__dark .st__project__area,
+.st__dark .st-contact-section,
+.st__dark .st-pricing-area,
+.st__dark .brand-title h2,
+.st__dark .st-blog-area,
+.st__dark .st-subscribe-area,
+.st__dark .st-brand-area{
+    background: var(--st-theme-dark-color);
+}
+.st__dark .st__about__iconbox,
+.st__dark .st-appointment-area,
+.st__dark .st__testimonial__box,
+.st__dark .st__feature__icon::before,
+.st__dark .st__pricing__box,
+.st__dark .st-feature-area,
+.st__dark .st__blog__content,
+.st__dark .st__subscribe__form input,
+.st__dark .sub__bg{
+    background: var(--st-theme-dark-color-two);
+}
+.st__dark .st__section__title h1,
+.st__dark .st__about__iconcontent h3,
+.st__dark .st__about__infocontent span,
+.st__dark .st__service__content h2 a,
+.st__dark .st__pricing__content h4,
+.st__dark .st__subscribe__content h2,
+.st__dark .st__blog__content h2 a,
+.st__dark .st__feature__content h2,
+.st__dark .main__menu ul li a,
+.st__dark .st-price,
+.st__dark .st__testi__content h2{
+    color: var(--st-theme-color-white);
+}
+.st__dark p,
+.st__dark .st__testi__content span,
+.st__dark .st__subscribe__content span,
+.st__dark .st__blog__meta__content span,
+.st__dark .st__blog__cmt span,
+.st__dark .st__pricing__body ul li{
+    color: var(--st-theme-dark-color-text);
+}
+.st__dark .st-service-area{
+    background: var(--st-theme-dark-color-three);
+}
+.st__dark .st__subscribe__form input{
+    border: 1px solid rgba(235,235,235,0.1);
+    color: var(--st-theme-color-white);
+}
+.st__dark .st__about__infocontent {
+   color: var(--st-theme-color-one);
+}
+.st__dark .st__about__info__icon a i {
+    background: var(--st-theme-color-two);
+    -webkit-animation: pulsedark linear 1000ms infinite;
+    animation: pulsedark linear 1000ms infinite;
+    -webkit-transition: all 0.4s;
+}
+@keyframes pulsedark{
+    0% {
+      -webkit-box-shadow: 0 0 0 0 var(--st-theme-color-two);
+      box-shadow: 0 0 0 0 var(--st-theme-color-two);
+    }
+    70% {
+      -webkit-box-shadow: 0 0 0 20px rgba(94, 223, 255, 0);
+      box-shadow: 0 0 0 20px rgba(94, 223, 255, 0);
+    }
+    100% {
+      -webkit-box-shadow: 0 0 0 0 rgba(94, 223, 255, 0);
+      box-shadow: 0 0 0 0 rgba(94, 223, 255, 0);
+    }
+}
+.st__dark .st__service__content span{
+    color: var(--st-theme-color-white) !important;
+}
+.st__dark .st__service__box:hover .st__service__content span{
+    color: var(--st-theme-color-white);
+}
+.st__dark  .st__testi_quote i {
+    color: rgba(238,238,238,0.1);
+    opacity: 0.2;
+}
+.st__dark .st-brand-area{
+    border-top: 1px solid rgba(235,235,235,0.1);
+}
+.st__dark .brand-title h2 {
+    color: #616161;
+}
+.st__dark .st__brand__thumb img {
+    opacity: 0.1;
+    transition: .5s;
+    -webkit-transition: .5s;
+    -moz-transition: .5s;
+    -ms-transition: .5s;
+    -o-transition: .5s;
+}
+.st__dark .st__brand__thumb:hover {
+    background: var(--st-theme-dark-color-four);
+}
+.st__dark .st__brand__thumb:hover img{
+    opacity: 0.5;
+}
+.st__dark .st__testi__inner{
+    border-bottom: 1px solid rgba(235,235,235,0.1);
+}
+.st__dark .st__pricing__body ul li {
+    border-bottom: 1px solid rgba(235,235,235,0.1);
+}
+.st__dark .st__meta__top::before {
+    background: rgba(235,235,235,0.1);
+}
+/* Home Dark Two */
+.st__dark .style2.st-header-top-area,
+.st__dark .st-404-section,
+.st__dark .style2.st-header-top-area::before,
+.st__dark .st-contact-icon a i {
+    background: var(--st-theme-dark-bg4);
+}
+.st__dark .style2.st-header-top-area .st-header-top-info ul li a,
+.st__dark .style2.st-header-top-area .st-header-top-social span,
+.st__dark .style2.st-header-top-area .st-header-top-social ul li a,
+.st__dark .style2.st-header-menu-area .st-contact-content span,
+.st__dark .style2.st-header-menu-area .st-contact-content,
+.st__dark .about__list li,
+.st__dark .st__cinfobox_content h5,
+.st__dark .st__cinfobox_content span,
+.st__dark .st__contact__right__title h2,
+.st__dark .st__blog__pagination ul li a,
+.st__dark .st__about__video__box span,
+.st__dark .st__slider__carousel.slider__style2::before,
+.st__dark .st-service-area.style2 .st__service__content h2 a,
+.st__dark .my-accordion li h2 {
+    color: var(--st-theme-color-white);
+}
+.st__dark .style2.st-header-top-area::after {
+    background: var(--st-theme-color-one);
+}
+.st__dark .st-header-menu-area.style2,
+.st__dark .st-header-menu-area.style2 .st-header-logo::after {
+    background: #070a11;
+}
+.st__dark .main__menu ul li a::before {
+    background: var(--st-theme-color-white);
+}
+.st__dark .st__section__title.style2 h5{
+    color: var(--st-theme-color-one);
+}
+/* Section BG */
+.st__dark .st-about-area.style2,
+.st__dark .st-team-area,
+.st__dark .st-faq-section,
+.st__dark .contact__bg,
+.st__dark .st__cinfobox,
+.st__dark .st-book-appointment-area,
+.st__dark .st-blog-area.style2,
+.st__dark .st-subscribe-area.style2{
+    background: var(--st-theme-dark-bg2);
+}
+.st__dark .st-header-menu-area.style2 .st__logo__overlay::after,
+.st__dark .st-header-menu-area.style2 .is-sticky,
+.st__dark .st-service-area.style2,
+.st__dark .slider__style2.st__slider__carousel .owl-nav,
+.st__dark .my-accordion li,
+.st__dark .st-testimonial-area.style2,
+.st__dark .st-blog-area.style2 .st__blog__content,
+.st__dark .sub__bg2{
+    background: var(--st-theme-dark-bg3);
+}
+.st__dark .st-service-area.style2 .st__service__content,
+.st__dark .st-testimonial-area.style2 .st__testimonial__box{
+    background: var(--st-theme-dark-bg4);
+}
+.st__dark .book__container,
+.st__dark .st-book-appointment-area .st__contact__position{
+    background: var(--st-theme-dark-bg5);
+}
+.st__dark .st-testimonial-area.style2 .st__section__title h5::after,
+.st__dark .st-testimonial-area.style2 .circle::after{
+    background: var(--st-theme-color-two);
+}
+.st__dark .st-footer-area.style2{
+    background: var(--st-theme-dark-bg6);
+}
+.st__dark .st-footer-copyright-area{
+    background: var(--st-theme-dark-bg3) !important;
+}
+.st__dark .st-subscribe-area.style2 .st__subscribe__content span{
+    color: #b1b1b1;
+}
