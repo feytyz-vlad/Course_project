@@ -74,12 +74,12 @@
                 <!-- Якщо не залогінено -->
                 <th:block th:unless="${session.userId != null}">
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/login}">
+                        <a class="nav-link" th:href="@{/auth/login}">
                             <i class="fas fa-sign-in-alt me-1"></i>Вхід
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-outline-light ms-2" th:href="@{/register}">Реєстрація</a>
+                        <a class="btn btn-outline-light ms-2" th:href="@{/auth/register}">Реєстрація</a>
                     </li>
                 </th:block>
             </ul>

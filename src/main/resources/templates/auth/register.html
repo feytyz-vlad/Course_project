@@ -1,57 +1,36 @@
 <!DOCTYPE html>
-<html lang="uk" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout}">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" th:replace="~{Layout :: layout}">
 <body>
 <main th:fragment="content">
-    <div th:replace="~{fragments/hero :: hero(title='Реєстрація', subtitle='Створіть обліковий запис, щоб орендувати авто', bg='/vendor/logistcwr/assets/images/slider/slider-3.jpg')}"></div>
-    <div class="container py-5">
+    <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-7 col-lg-6">
-                <div class="card shadow">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <i class="fas fa-user-plus fa-4x text-primary mb-3"></i>
-                            <h2>Реєстрація</h2>
-                            <p class="text-muted">Створіть обліковий запис</p>
-                        </div>
-
-                        <form th:action="@{/register}" method="post">
+            <div class="col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3>Реєстрація</h3>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                        
+                        <form action="/auth/register" method="post">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                    <input type="email" class="form-control" id="email" name="email"
-                                           required placeholder="example@email.com" autofocus>
-                                </div>
+                                <input type="email" class="form-control" id="email" name="email" required>
                             </div>
-
                             <div class="mb-3">
                                 <label for="password" class="form-label">Пароль</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                    <input type="password" class="form-control" id="password" name="password"
-                                           required placeholder="Мінімум 6 символів" minlength="6">
-                                </div>
+                                <input type="password" class="form-control" id="password" name="password" required>
                             </div>
-
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label for="confirmPassword" class="form-label">Підтвердіть пароль</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                    <input type="password" class="form-control" id="confirmPassword"
-                                           name="confirmPassword" required placeholder="Повторіть пароль">
-                                </div>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                             </div>
-
-                            <button type="submit" class="btn btn-primary w-100 mb-3">
-                                <i class="fas fa-user-plus me-2"></i>Зареєструватись
-                            </button>
-
-                            <div class="text-center">
-                                <p class="mb-0">Вже маєте обліковий запис?
-                                    <a th:href="@{/login}" class="text-decoration-none">Увійти</a>
-                                </p>
-                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Зареєструватися</button>
                         </form>
+                        
+                        <div class="text-center mt-3">
+                            <p>Вже є акаунт? <a th:href="@{/auth/login}">Увійти</a></p>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,7 @@
-<!-- Hero fragment for pages — accepts parameters: title, subtitle, bg. ctaText/ctaLink are optional variables if provided by caller -->
-<div xmlns:th="http://www.thymeleaf.org" th:fragment="hero(title, subtitle, bg)">
-    <section class="st-page-title-area py-5 text-white" th:style="${bg} != null ? 'background-image: url(' + bg + '); background-size: cover; background-position: center;' : ''">
+<!DOCTYPE html>
+<!-- Hero fragment for pages — accepts parameters: title, subtitle, bg, ctaText, ctaLink -->
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="hero(title, subtitle, bg, ctaText, ctaLink)">
+    <section class="st-page-title-area py-5 text-white" th:style="${bg} != null ? 'background-image: url(' + ${bg} + '); background-size: cover; background-position: center;' : ''">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-7">

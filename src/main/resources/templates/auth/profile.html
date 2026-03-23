@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="uk" th:replace="~{layout :: layout}">
+<body>
+<main th:fragment="content">
+    <div class="container mt-4">
+        <h2>Профіль користувача</h2>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Персональні дані</h5>
+                <p><strong>Email:</strong> <span th:text="${user.email}">user@example.com</span></p>
+                <p><strong>Роль:</strong> <span th:text="${user.role.displayName}">Клієнт</span></p>
+                
+                <a th:href="@{/profile/change-password}" class="btn btn-primary">Змінити пароль</a>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a th:href="@{/orders}" class="btn btn-secondary">Мої замовлення</a>
+            <a th:href="@{/logout}" class="btn btn-outline-danger">Вийти</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>
