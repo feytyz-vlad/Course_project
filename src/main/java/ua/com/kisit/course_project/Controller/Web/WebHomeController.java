@@ -1,16 +1,16 @@
 package ua.com.kisit.course_project.Controller.Web;
 
-import jakarta.servlet.http.HttpSession;
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import jakarta.servlet.http.HttpSession;
 import ua.com.kisit.course_project.Entity.Car;
 import ua.com.kisit.course_project.Entity.UserRole;
 import ua.com.kisit.course_project.Service.CarService;
-import ua.com.kisit.course_project.Service.ClientService;
 import ua.com.kisit.course_project.Service.RentalOrderService;
-
-import java.util.List;
 
 /**
  * Web Controller for Home page
@@ -19,14 +19,11 @@ import java.util.List;
 public class WebHomeController {
 
     private final CarService carService;
-    private final ClientService clientService;
     private final RentalOrderService orderService;
 
     public WebHomeController(CarService carService,
-                             ClientService clientService,
                              RentalOrderService orderService) {
         this.carService = carService;
-        this.clientService = clientService;
         this.orderService = orderService;
     }
 

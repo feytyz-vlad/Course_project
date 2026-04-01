@@ -1,18 +1,44 @@
 package ua.com.kisit.course_project.Controller;
 
-import ua.com.kisit.course_project.Entity.Car;
-import ua.com.kisit.course_project.Entity.Car.*;
-import ua.com.kisit.course_project.Service.CarService;
-
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import ua.com.kisit.course_project.Entity.Car;
+import ua.com.kisit.course_project.Service.CarService;
+
+@Controller
+@RequestMapping("/cars")
 public class CarController {
     private final CarService carService;
 
     public CarController(CarService carService) {
         this.carService = carService;
+    }
+
+    @GetMapping("/available")
+    public String listAvailableCars(Model model) {
+        List<Car> cars = carService.getAvailableCars();
+        model.addAttribute("cars", cars);
+        model.addAttribute("totalCars", carService.getTotalCarsCount());
+        return "cars/list";
+    }
+
+    @GetMapping("/{id}")
+    public String showCarDetails(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Car> carOpt = carService.getCarById(id);
+        if (carOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Автомобіль не знайдено");
+            return "redirect:/cars/available";
+        }
+        model.addAttribute("car", carOpt.get());
+        return "cars/detail";
     }
 
     public Car addCar(Car car) {
@@ -49,8 +75,8 @@ public class CarController {
         return carService.getAvailableCars();
     }
 
-    public List<Car> searchCars(String brand, CarStatus status, TransmissionType transmission,
-                                FuelType fuel, BigDecimal maxPrice) {
+    public List<Car> searchCars(String brand, Car.CarStatus status, Car.TransmissionType transmission,
+                                Car.FuelType fuel, java.math.BigDecimal maxPrice) {
         return carService.searchCars(brand, status, transmission, fuel, maxPrice);
     }
 

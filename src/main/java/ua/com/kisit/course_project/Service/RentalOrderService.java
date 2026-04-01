@@ -1,17 +1,18 @@
 package ua.com.kisit.course_project.Service;
 
-import ua.com.kisit.course_project.Entity.RentalOrder;
-import ua.com.kisit.course_project.Entity.RentalOrder.OrderStatus;
-import ua.com.kisit.course_project.Entity.Car;
-import ua.com.kisit.course_project.Repository.RentalOrderRepository;
-import ua.com.kisit.course_project.Repository.CarRepository;
-import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import ua.com.kisit.course_project.Entity.Car;
+import ua.com.kisit.course_project.Entity.RentalOrder;
+import ua.com.kisit.course_project.Entity.RentalOrder.OrderStatus;
+import ua.com.kisit.course_project.Repository.CarRepository;
+import ua.com.kisit.course_project.Repository.RentalOrderRepository;
 
 @Service
 public class RentalOrderService {

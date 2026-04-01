@@ -1,10 +1,19 @@
 package ua.com.kisit.course_project.Controller.Web;
 
-import jakarta.servlet.http.HttpSession;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.servlet.http.HttpSession;
 import ua.com.kisit.course_project.Entity.Car;
 import ua.com.kisit.course_project.Entity.Client;
 import ua.com.kisit.course_project.Entity.RentalOrder;
@@ -12,10 +21,6 @@ import ua.com.kisit.course_project.Entity.UserRole;
 import ua.com.kisit.course_project.Service.CarService;
 import ua.com.kisit.course_project.Service.ClientService;
 import ua.com.kisit.course_project.Service.RentalOrderService;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Web Controller for Rental Orders
@@ -91,6 +96,7 @@ public class WebRentalOrderController {
     public String createOrder(@RequestParam Long carId,
                               @RequestParam String startDate,
                               @RequestParam String endDate,
+                              @RequestParam(required = false) String additionalNotes, // Добавлено
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
         Long userId = (Long) session.getAttribute("userId");
