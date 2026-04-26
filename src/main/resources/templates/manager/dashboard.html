@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org" th:replace="~{Layout :: layout}">
+<body>
+<main th:fragment="content">
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="fw-bold">Панель менеджера</h2>
+                <p class="text-muted">Керування автопарком та фіксація пошкоджень.</p>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm bg-success text-white">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-uppercase mb-2">Всього авто</h6>
+                                <h2 class="fw-bold mb-0" th:text="${totalCars}">0</h2>
+                            </div>
+                            <i class="fas fa-car fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm bg-info text-white">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-uppercase mb-2">Доступно</h6>
+                                <h2 class="fw-bold mb-0" th:text="${availableCars}">0</h2>
+                            </div>
+                            <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm bg-danger text-white">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-uppercase mb-2">Пошкодження</h6>
+                                <h2 class="fw-bold mb-0" th:text="${totalDamages}">0</h2>
+                            </div>
+                            <i class="fas fa-car-crash fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">Швидкі дії</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <a th:href="@{/cars}" class="btn btn-outline-primary btn-lg w-100 py-4">
+                            <i class="fas fa-list-ul d-block mb-2 fs-3"></i>
+                            Перегляд всіх авто
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a th:href="@{/manager/damages}" class="btn btn-outline-danger btn-lg w-100 py-4">
+                            <i class="fas fa-tools d-block mb-2 fs-3"></i>
+                            Управління пошкодженнями
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

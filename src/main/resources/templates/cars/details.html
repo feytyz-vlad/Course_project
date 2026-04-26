@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uk" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout}">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{Layout :: layout}">
 <body>
 <main th:fragment="content">
     <div th:replace="~{fragments/hero :: hero(title=${car.fullName != null ? car.fullName : car.brand + ' ' + car.model}, subtitle='Деталі автомобіля', bg=${car.imageUrl != null ? car.imageUrl : '/vendor/logistcwr/assets/images/project/p1.jpg'})}"></div>
@@ -43,16 +43,26 @@
                     </ul>
 
                     <div class="d-flex gap-2">
-                        <a th:if="${car.status.name() == 'AVAILABLE' and session.userId != null}" th:href="@{/orders/create(carId=${car.carId})}" class="st__btn st__btn--large">Орендувати</a>
-                        <a th:if="${car.status.name() == 'AVAILABLE' and session.userId == null}" th:href="@{/login}" class="btn btn-outline-primary">Увійдіть для оренди</a>
+                        <a th:if="${car.status.name() == 'AVAILABLE'}" sec:authorize="isAuthenticated()" th:href="@{/orders/create(carId=${car.carId})}" class="st__btn st__btn--large">Орендувати</a>
+                        <a th:if="${car.status.name() == 'AVAILABLE'}" sec:authorize="!isAuthenticated()" th:href="@{/login}" class="btn btn-outline-primary">Увійдіть для оренди</a>
                         <div th:if="${car.status.name() != 'AVAILABLE'}" class="alert alert-warning mb-0 py-2 px-3">Автомобіль недоступний для оренди</div>
                     </div>
 
-                    <div th:if="${session.userRole != null and session.userRole.name() == 'ADMIN'}" class="mt-3 d-flex gap-2">
-                        <a th:href="@{/cars/{id}/edit(id=${car.carId})}" class="btn btn-warning">Редагувати</a>
-                        <form th:action="@{/cars/{id}/delete(id=${car.carId})}" method="post" onsubmit="return confirm('Видалити автомобіль?')">
-                            <button type="submit" class="btn btn-danger">Видалити</button>
-                        </form>
+                    <div sec:authorize="hasAnyRole('ADMIN', 'MANAGER')" class="mt-4 p-3 bg-light rounded border shadow-sm">
+                        <h5 class="mb-3"><i class="fas fa-tools me-2 text-primary"></i>Управління авто</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a th:href="@{/cars/{id}/edit(id=${car.carId})}" class="btn btn-outline-warning">
+                                <i class="fas fa-edit me-1"></i> Редагувати
+                            </a>
+                            <a th:href="@{/manager/cars/{id}/damage/add(id=${car.carId})}" class="btn btn-outline-danger">
+                                <i class="fas fa-car-crash me-1"></i> Фіксувати пошкодження
+                            </a>
+                            <form th:if="${#authorization.expression('hasRole(''ADMIN'')')}" th:action="@{/cars/{id}/delete(id=${car.carId})}" method="post" onsubmit="return confirm('Видалити автомобіль?')" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash me-1"></i> Видалити
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

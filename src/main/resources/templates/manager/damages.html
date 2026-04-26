@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org" th:replace="~{Layout :: layout}">
+<body>
+<main th:fragment="content">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Пошкодження автомобілів</h2>
+        </div>
+
+        <div th:if="${damages.isEmpty()}" class="alert alert-info shadow-sm">
+            <i class="fas fa-info-circle me-2"></i> Жодних пошкоджень не зафіксовано.
+        </div>
+
+        <div th:if="${!damages.isEmpty()}" class="table-responsive shadow-sm rounded">
+            <table class="table table-hover align-middle mb-0 bg-white">
+                <thead class="table-danger">
+                <tr>
+                    <th>#</th>
+                    <th>Автомобіль</th>
+                    <th>Дата</th>
+                    <th>Опис</th>
+                    <th>Сума ремонту</th>
+                    <th>Статус</th>
+                    <th>Дії</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="damage : ${damages}">
+                    <td th:text="${damage.reportId}">1</td>
+                    <td>
+                        <a th:href="@{/cars/{id}(id=${damage.carId})}" th:text="${'Авто #' + damage.carId}" class="text-decoration-none fw-bold">Авто</a>
+                    </td>
+                    <td th:text="${damage.damageDate}">2025-01-01</td>
+                    <td th:text="${damage.damageDescription}">Опис</td>
+                    <td>
+                        <span th:if="${damage.repairCost != null}" th:text="${damage.repairCost + ' грн'}" class="fw-bold text-danger">500 грн</span>
+                        <span th:if="${damage.repairCost == null}" class="text-muted">Не виставлено</span>
+                    </td>
+                    <td>
+                        <span class="badge" th:classappend="${damage.repairStatus.name() == 'COMPLETED'} ? 'bg-success' : 'bg-warning text-dark'" 
+                              th:text="${damage.repairStatus.name()}">Статус</span>
+                    </td>
+                    <td>
+                        <!-- Form to issue invoice (if cost is null) -->
+                        <form th:if="${damage.repairCost == null}" th:action="@{/manager/damages/{id}/invoice(id=${damage.reportId})}" method="post" class="d-flex gap-1">
+                            <input type="number" name="cost" class="form-control form-control-sm" style="width: 80px;" required placeholder="Сума">
+                            <button type="submit" class="btn btn-sm btn-primary">Рахунок</button>
+                        </form>
+                        
+                        <!-- Button to mark as completed (if cost is set but not completed) -->
+                        <form th:if="${damage.repairCost != null and damage.repairStatus.name() != 'COMPLETED'}" th:action="@{/manager/damages/{id}/complete(id=${damage.reportId})}" method="post">
+                            <button type="submit" class="btn btn-sm btn-success">Завершити ремонт</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

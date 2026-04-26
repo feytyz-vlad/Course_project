@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="uk" th:replace="~{Layout :: layout}">
+<body>
+<main th:fragment="content">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-sm border-danger">
+                    <div class="card-header bg-danger text-white text-center">
+                        <h4 class="mb-0">Налаштування спец-користувачів</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Ця сторінка призначена тільки для початкового налаштування. 
+                            Будь ласка, видаліть її або закрийте доступ після створення адміністратора.
+                        </div>
+
+                        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                        
+                        <form th:action="@{/setup/admin}" method="post">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required placeholder="admin@example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Пароль</label>
+                                <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                            </div>
+                            <div class="mb-4">
+                                <label for="role" class="form-label">Оберіть роль</label>
+                                <select class="form-select" id="role" name="role" required>
+                                    <option value="ADMIN">Адміністратор</option>
+                                    <option value="MANAGER">Менеджер</option>
+                                    <option value="CLIENT">Клієнт</option>
+                                </select>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-danger">Створити користувача</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

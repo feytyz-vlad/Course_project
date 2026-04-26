@@ -14,10 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import ua.com.kisit.course_project.Entity.Car;
 import ua.com.kisit.course_project.Entity.Client;
 import ua.com.kisit.course_project.Entity.RentalOrder;
+import ua.com.kisit.course_project.Entity.User;
 import ua.com.kisit.course_project.Entity.UserRole;
+import ua.com.kisit.course_project.Repository.UserRepository;
 import ua.com.kisit.course_project.Service.CarService;
 import ua.com.kisit.course_project.Service.ClientService;
 import ua.com.kisit.course_project.Service.RentalOrderService;
@@ -32,13 +36,16 @@ public class WebRentalOrderController {
     private final RentalOrderService orderService;
     private final CarService carService;
     private final ClientService clientService;
+    private final UserRepository userRepository;
 
     public WebRentalOrderController(RentalOrderService orderService,
                                     CarService carService,
-                                    ClientService clientService) {
+                                    ClientService clientService,
+                                    UserRepository userRepository) {
         this.orderService = orderService;
         this.carService = carService;
         this.clientService = clientService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -46,28 +53,32 @@ public class WebRentalOrderController {
      */
     @GetMapping
     public String listOrders(HttpSession session, Model model) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
             return "redirect:/auth/login";
         }
-
-        UserRole userRole = (UserRole) session.getAttribute("userRole");
+        Optional<User> userOpt = userRepository.findByEmail(auth.getName());
+        if (userOpt.isEmpty()) return "redirect:/auth/login";
+        
+        Long userId = userOpt.get().getUserId();
+        UserRole userRole = userOpt.get().getRole();
 
         if (userRole == UserRole.ADMIN) {
             List<RentalOrder> orders = orderService.getAllOrders();
             model.addAttribute("orders", orders);
-            return "orders/admin-list";
+            return "orders/list";
         } else {
             // For clients, show their orders
             Optional<Client> client = clientService.getClientByUserId(userId);
             if (client.isPresent()) {
                 List<RentalOrder> orders = orderService.getClientOrders(client.get().getClientId());
                 model.addAttribute("orders", orders);
-                return "orders/client-list";
+                model.addAttribute("title", "Мої замовлення");
+                return "orders/list";
+            } else {
+                return "redirect:/profile/complete";
             }
         }
-
-        return "redirect:/";
     }
 
     /**
@@ -75,9 +86,17 @@ public class WebRentalOrderController {
      */
     @GetMapping("/create")
     public String showCreateForm(@RequestParam Long carId, Model model, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
             return "redirect:/auth/login";
+        }
+        Optional<User> userOpt = userRepository.findByEmail(auth.getName());
+        if (userOpt.isEmpty()) return "redirect:/auth/login";
+        Long userId = userOpt.get().getUserId();
+        
+        Optional<Client> client = clientService.getClientByUserId(userId);
+        if (client.isEmpty() && userOpt.get().getRole() != UserRole.ADMIN) {
+            return "redirect:/profile/complete";
         }
 
         Optional<Car> car = carService.getCarById(carId);
@@ -99,16 +118,18 @@ public class WebRentalOrderController {
                               @RequestParam(required = false) String additionalNotes, // Добавлено
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
             return "redirect:/auth/login";
         }
+        Optional<User> userOpt = userRepository.findByEmail(auth.getName());
+        if (userOpt.isEmpty()) return "redirect:/auth/login";
+        Long userId = userOpt.get().getUserId();
 
         try {
             Optional<Client> client = clientService.getClientByUserId(userId);
             if (client.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Клієнт не знайдений");
-                return "redirect:/cars";
+                return "redirect:/profile/complete";
             }
 
             RentalOrder order = orderService.createOrder(
@@ -133,8 +154,8 @@ public class WebRentalOrderController {
     public String approveOrder(@PathVariable Long id,
                                HttpSession session,
                                RedirectAttributes redirectAttributes) {
-        UserRole userRole = (UserRole) session.getAttribute("userRole");
-        if (userRole != UserRole.ADMIN) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/";
         }
 
@@ -156,8 +177,8 @@ public class WebRentalOrderController {
                               @RequestParam String reason,
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
-        UserRole userRole = (UserRole) session.getAttribute("userRole");
-        if (userRole != UserRole.ADMIN) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/";
         }
 
@@ -179,8 +200,8 @@ public class WebRentalOrderController {
                                 @RequestParam String actualReturnDate,
                                 HttpSession session,
                                 RedirectAttributes redirectAttributes) {
-        UserRole userRole = (UserRole) session.getAttribute("userRole");
-        if (userRole != UserRole.ADMIN) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/";
         }
 
@@ -199,8 +220,8 @@ public class WebRentalOrderController {
      */
     @GetMapping("/pending")
     public String pendingOrders(HttpSession session, Model model) {
-        UserRole userRole = (UserRole) session.getAttribute("userRole");
-        if (userRole != UserRole.ADMIN) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/";
         }
 

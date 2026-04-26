@@ -1,36 +1,31 @@
 package ua.com.kisit.course_project.Service;
 
-import org.springframework.stereotype.Service;
-import ua.com.kisit.course_project.Entity.User;
-import ua.com.kisit.course_project.Entity.UserRole;
-import ua.com.kisit.course_project.Entity.UserSession;
-import ua.com.kisit.course_project.Repository.UserRepository;
-import ua.com.kisit.course_project.Repository.UserSessionRepository;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 
-/**
- * Service for handling user authentication and authorization
- */
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import ua.com.kisit.course_project.Entity.User;
+import ua.com.kisit.course_project.Entity.UserRole;
+import ua.com.kisit.course_project.Repository.UserRepository;
+
 @Service
 public class AuthenticationService {
 
     private final UserRepository userRepository;
-    private final UserSessionRepository sessionRepository;
-    private static final int SESSION_DURATION_HOURS = 24;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationService(UserRepository userRepository, UserSessionRepository sessionRepository) {
+    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.sessionRepository = sessionRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
-     * Register new user
+     * Реєстрація нового користувача
      */
     public User register(String email, String password, UserRole role) {
         if (userRepository.existsByEmail(email)) {
@@ -43,77 +38,15 @@ public class AuthenticationService {
             throw new IllegalArgumentException("Пароль повинен містити мінімум 6 символів");
         }
 
-        String passwordHash = hashPassword(password);
+        String passwordHash = passwordEncoder.encode(password);
         User user = new User(email, passwordHash, role);
         return userRepository.save(user);
     }
 
     /**
-     * Login user and create session
+     * Зміна пароля користувача
      */
-    public String login(String email, String password) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-
-        if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("Невірний email або пароль");
-        }
-
-        User user = userOptional.get();
-
-        if (!user.isActive()) {
-            throw new IllegalStateException("Обліковий запис деактивовано");
-        }
-
-        if (!verifyPassword(password, user.getPasswordHash())) {
-            throw new IllegalArgumentException("Невірний email або пароль");
-        }
-
-        String sessionToken = generateSessionToken();
-        LocalDateTime expiresAt = LocalDateTime.now().plusHours(SESSION_DURATION_HOURS);
-
-        UserSession session = new UserSession(user.getUserId(), sessionToken, expiresAt);
-        sessionRepository.save(session);
-
-        return sessionToken;
-    }
-
-    /**
-     * Logout user by invalidating session
-     */
-    public boolean logout(String sessionToken) {
-        return sessionRepository.invalidateSession(sessionToken);
-    }
-
-    /**
-     * Logout user from all devices
-     */
-    public boolean logoutAll(Long userId) {
-        return sessionRepository.invalidateAllUserSessions(userId);
-    }
-
-    /**
-     * Validate session token and return user
-     */
-    public Optional<User> validateSession(String sessionToken) {
-        Optional<UserSession> sessionOptional = sessionRepository.findByToken(sessionToken);
-
-        if (sessionOptional.isEmpty()) {
-            return Optional.empty();
-        }
-
-        UserSession session = sessionOptional.get();
-
-        if (session.isExpired()) {
-            sessionRepository.invalidateSession(sessionToken);
-            return Optional.empty();
-        }
-
-        return userRepository.findById(session.getUserId());
-    }
-
-    /**
-     * Change user password
-     */
+    @Transactional
     public boolean changePassword(Long userId, String oldPassword, String newPassword) {
         Optional<User> userOptional = userRepository.findById(userId);
 
@@ -123,7 +56,8 @@ public class AuthenticationService {
 
         User user = userOptional.get();
 
-        if (!verifyPassword(oldPassword, user.getPasswordHash())) {
+        // Проверяем старый пароль с поддержкой обоих форматов
+        if (!checkPassword(oldPassword, user.getPasswordHash())) {
             throw new IllegalArgumentException("Невірний старий пароль");
         }
 
@@ -131,19 +65,34 @@ public class AuthenticationService {
             throw new IllegalArgumentException("Новий пароль повинен містити мінімум 6 символів");
         }
 
-        String newPasswordHash = hashPassword(newPassword);
-        boolean updated = userRepository.updatePassword(userId, newPasswordHash);
-
-        if (updated) {
-            sessionRepository.invalidateAllUserSessions(userId);
-        }
-
-        return updated;
+        // При смене пароля всегда используем BCrypt
+        String newPasswordHash = passwordEncoder.encode(newPassword);
+        int updatedRows = userRepository.updatePassword(userId, newPasswordHash);
+        return updatedRows > 0;
     }
 
-    // ===== Helper methods =====
+    /**
+     * Проверка пароля с поддержкой обоих форматов (BCrypt и SHA-256)
+     */
+    public boolean checkPassword(String rawPassword, String encodedPassword) {
+        // Если пароль в формате BCrypt
+        if (encodedPassword.startsWith("$2a$") || 
+            encodedPassword.startsWith("$2b$") || 
+            encodedPassword.startsWith("$2y$")) {
+            return passwordEncoder.matches(rawPassword, encodedPassword);
+        }
+        // Если пароль в старом формате SHA-256
+        else {
+            String sha256Hash = hashPasswordSHA256(rawPassword);
+            boolean matches = sha256Hash.equals(encodedPassword);
+            return matches;
+        }
+    }
 
-    private String hashPassword(String password) {
+    /**
+     * Хэширование пароля с использованием SHA-256 (старый метод)
+     */
+    private String hashPasswordSHA256(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(password.getBytes());
@@ -151,26 +100,6 @@ public class AuthenticationService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Error hashing password", e);
         }
-    }
-
-    private boolean verifyPassword(String password, String passwordHash) {
-        return hashPassword(password).equals(passwordHash);
-    }
-
-    private String generateSessionToken() {
-        SecureRandom random = new SecureRandom();
-        byte[] bytes = new byte[32];
-        random.nextBytes(bytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-    }
-
-    private boolean isValidEmail(String email) {
-        if (email == null || email.trim().isEmpty()) return false;
-        return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
-    }
-
-    private boolean isValidPassword(String password) {
-        return password != null && password.length() >= 6;
     }
 
     public boolean hasRole(User user, UserRole role) {
@@ -183,5 +112,14 @@ public class AuthenticationService {
 
     public boolean isClient(User user) {
         return hasRole(user, UserRole.CLIENT);
+    }
+
+    private boolean isValidEmail(String email) {
+        if (email == null || email.trim().isEmpty()) return false;
+        return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    }
+
+    private boolean isValidPassword(String password) {
+        return password != null && password.length() >= 6;
     }
 }

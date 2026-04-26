@@ -1,18 +1,28 @@
 package ua.com.kisit.course_project.Controller.Web;
 
-import jakarta.servlet.http.HttpSession;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import ua.com.kisit.course_project.Entity.Car;
-import ua.com.kisit.course_project.Entity.Car.*;
-import ua.com.kisit.course_project.Entity.UserRole;
-import ua.com.kisit.course_project.Service.CarService;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import ua.com.kisit.course_project.Entity.Car;
+import ua.com.kisit.course_project.Entity.Car.CarStatus;
+import ua.com.kisit.course_project.Entity.Car.FuelType;
+import ua.com.kisit.course_project.Entity.Car.TransmissionType;
+import ua.com.kisit.course_project.Entity.UserRole;
+import ua.com.kisit.course_project.Service.CarService;
 
 @Controller
 @RequestMapping("/cars")
@@ -46,8 +56,6 @@ public class WebCarController {
         return "cars/list";
     }
 
-    // FIXED: enum параметри як String щоб уникнути 400 Bad Request
-    // при порожніх значеннях зі select-форми
     @GetMapping("/search")
     public String searchCars(
             @RequestParam(required = false) String brand,
@@ -81,17 +89,17 @@ public class WebCarController {
     }
 
     @GetMapping("/add")
-    public String showAddForm(HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/cars/available";
+    public String showAddForm(Model model) {
+        if (!canManageCars()) return "redirect:/cars/available";
         model.addAttribute("car", new Car());
         addEnumsToModel(model);
         return "cars/form";
     }
 
     @PostMapping("/add")
-    public String addCar(@ModelAttribute Car car, HttpSession session,
+    public String addCar(@ModelAttribute Car car,
                          RedirectAttributes redirectAttributes) {
-        if (!isAdmin(session)) {
+        if (!canManageCars()) {
             redirectAttributes.addFlashAttribute("error", "Доступ заборонено!");
             return "redirect:/cars/available";
         }
@@ -106,8 +114,8 @@ public class WebCarController {
     }
 
     @GetMapping("/{id}/edit")
-    public String showEditForm(@PathVariable Long id, HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/cars/" + id;
+    public String showEditForm(@PathVariable Long id, Model model) {
+        if (!canManageCars()) return "redirect:/cars/" + id;
         Optional<Car> carOpt = carService.getCarById(id);
         if (carOpt.isEmpty()) return "redirect:/cars/available";
         model.addAttribute("car", carOpt.get());
@@ -117,8 +125,8 @@ public class WebCarController {
 
     @PostMapping("/{id}/edit")
     public String editCar(@PathVariable Long id, @ModelAttribute Car car,
-                          HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!isAdmin(session)) return "redirect:/cars/" + id;
+                          RedirectAttributes redirectAttributes) {
+        if (!canManageCars()) return "redirect:/cars/" + id;
         try {
             car.setCarId(id);
             carService.updateCar(car);
@@ -131,9 +139,8 @@ public class WebCarController {
     }
 
     @PostMapping("/{id}/delete")
-    public String deleteCar(@PathVariable Long id, HttpSession session,
-                            RedirectAttributes redirectAttributes) {
-        if (!isAdmin(session)) return "redirect:/cars/" + id;
+    public String deleteCar(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        if (!isAdmin()) return "redirect:/cars/" + id;
         try {
             carService.deleteCar(id);
             redirectAttributes.addFlashAttribute("success", "Автомобіль видалено!");
@@ -146,8 +153,8 @@ public class WebCarController {
 
     @PostMapping("/{id}/status")
     public String updateStatus(@PathVariable Long id, @RequestParam String status,
-                               HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!isAdmin(session)) return "redirect:/cars/" + id;
+                               RedirectAttributes redirectAttributes) {
+        if (!canManageCars()) return "redirect:/cars/" + id;
         try {
             carService.updateCarStatus(id, CarStatus.valueOf(status));
             redirectAttributes.addFlashAttribute("success", "Статус оновлено!");
@@ -157,9 +164,17 @@ public class WebCarController {
         return "redirect:/cars/" + id;
     }
 
-    private boolean isAdmin(HttpSession session) {
-        UserRole role = (UserRole) session.getAttribute("userRole");
-        return role == UserRole.ADMIN;
+    private boolean canManageCars() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) return false;
+        return auth.getAuthorities().stream().anyMatch(a -> 
+            a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_MANAGER"));
+    }
+
+    private boolean isAdmin() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) return false;
+        return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 
     private <T extends Enum<T>> T parseEnum(Class<T> enumClass, String value) {

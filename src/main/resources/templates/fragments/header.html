@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyApp</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/bootstrap.bundle.min.js}" defer></script>
+    <script th:src="@{/js/scripts.js}" defer></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">MyApp</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" th:href="@{/}">Головна</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/about}">Про нас</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/contact}">Контакти</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="d-flex">
+                    <!-- Показываем профиль и выход, если пользователь аутентифицирован -->
+                    <div th:if="${isAuthenticated}">
+                        <span class="me-2" th:text="${userEmail}">user@example.com</span>
+                        <a class="btn btn-outline-primary me-2" th:href="@{/profile}">Профиль</a>
+                        <a class="btn btn-outline-secondary" th:href="@{/logout}">Выйти</a>
+                    </div>
+
+                    <!-- Показываем вход/регистрацию если не аутентифицирован -->
+                    <div th:if="${!isAuthenticated}">
+                        <a class="btn btn-primary me-2" th:href="@{/auth/login}">Войти</a>
+                        <a class="btn btn-outline-primary" th:href="@{/auth/register}">Реєстрація</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-4">
+        <div th:replace="${page} :: content"></div>
+    </main>
+
+    <footer class="bg-light text-center py-4">
+        <div class="container">
+            <p class="m-0 text-muted">&copy; 2023 MyApp. Всі права захищені.</p>
+        </div>
+    </footer>
+</body>
+</html>

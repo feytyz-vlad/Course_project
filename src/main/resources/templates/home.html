@@ -1,123 +1,81 @@
-<html lang="uk" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout}">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org" th:replace="~{Layout :: layout}">
 <body>
-<main th:fragment="content">
+<div th:fragment="content">
 
-    <!-- Theme slider (single slide version from Logistcwr) -->
-    <div class="st__slider__carousel owl-carousel mb-4">
-        <div class="st-slider-area d-flex align-items-center">
-            <div class="slider__bg" style="background-image: url('/vendor/logistcwr/assets/images/slider/slider-1.jpg'); background-position: center center; background-size: cover; background-repeat: no-repeat;"></div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-7">
-                        <div class="slider-content text-white">
-                            <h5>Оренда автомобілів</h5>
-                            <h1>Experience The Best<br> Auto Rental Service</h1>
-                            <p class="lead">Обирайте з широкого асортименту автомобілів за вигідними цінами.</p>
-                            <a th:href="@{/cars/available}" class="st__btn mt-3">Обрати автомобіль <i class="bi bi-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Hero Section -->
+    <div class="hero-section" th:style="'background: url(' + @{/vendor/logistcwr/assets/images/slider/slider-1.jpg} + ');'">
+        <div class="hero-overlay"></div>
+        <div class="container hero-content text-center">
+            <h1 class="display-3 fw-bold mb-3">Оренда авто в один клік</h1>
+            <p class="lead mb-4 fs-4">Найкращий вибір автомобілів за доступними цінами. Швидко, надійно, професійно.</p>
+            <a th:href="@{/cars/available}" class="btn btn-primary btn-lg px-5 py-3 shadow-lg fw-bold">Обрати автомобіль</a>
         </div>
     </div>
 
-    <!-- Features (small carousel from the theme) -->
-    <div class="st-feature-area pb-4">
-        <div class="container">
-            <div class="row">
-                <div class="st__feature__carousel owl-carousel">
-                    <div class="st__feature__box wow fadeInUp text-center">
-                        <div class="st__feature__icon mb-2">
-                            <img src="/vendor/logistcwr/assets/images/feature/icon1.png" alt="">
-                        </div>
-                        <div class="st__feature__content">
-                            <h4>Тарифи без прихованих платежів</h4>
-                            <p class="text-muted">Чіткі та прозорі умови оренди.</p>
-                        </div>
-                    </div>
-                    <div class="st__feature__box wow fadeInUp text-center">
-                        <div class="st__feature__icon mb-2">
-                            <img src="/vendor/logistcwr/assets/images/feature/icon2.png" alt="">
-                        </div>
-                        <div class="st__feature__content">
-                            <h4>Реальний час відстеження</h4>
-                            <p class="text-muted">Підтримка на кожному етапі оренди.</p>
-                        </div>
-                    </div>
-                    <div class="st__feature__box wow fadeInUp text-center">
-                        <div class="st__feature__icon mb-2">
-                            <img src="/vendor/logistcwr/assets/images/feature/icon3.png" alt="">
-                        </div>
-                        <div class="st__feature__content">
-                            <h4>Підтримка 24/7</h4>
-                            <p class="text-muted">Ми завжди на зв'язку.</p>
-                        </div>
-                    </div>
+    <div class="container">
+        <!-- Stats Section -->
+        <div class="row mb-5 text-center">
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <h2 class="text-primary mb-0" th:text="${totalCars != null ? totalCars : 0}">0</h2>
+                    <p class="text-muted mb-0">Авто в автопарку</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <h2 class="text-success mb-0" th:text="${cars != null ? cars.size() : 0}">0</h2>
+                    <p class="text-muted mb-0">Доступно зараз</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <h2 class="text-info mb-0">100%</h2>
+                    <p class="text-muted mb-0">Задоволених клієнтів</p>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Statistics (simple row) -->
-    <section class="py-3">
-        <div class="container">
-            <div class="row text-center">
-                <div class="col-md-4 mb-3">
-                    <h3 th:text="${totalCars != null ? totalCars : 0}">0</h3>
-                    <p class="text-muted">Автомобілів в автопарку</p>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h3 th:text="${cars != null ? cars.size() : 0}">0</h3>
-                    <p class="text-muted">Доступних зараз</p>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h3>1000+</h3>
-                    <p class="text-muted">Задоволених клієнтів</p>
-                </div>
-            </div>
+        <!-- Available Cars -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Популярні автомобілі</h2>
+            <a th:href="@{/cars/available}" class="btn btn-outline-primary">Всі автомобілі <i class="bi bi-arrow-right"></i></a>
         </div>
-    </section>
 
-    <!-- Доступні автомобілі (адаптовані картки, сохраняем Thymeleaf) -->
-    <section class="pt-4 pb-5">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Доступні автомобілі</h2>
-                <a th:href="@{/cars/available}" class="st__btn st__btn--sm">Переглянути всі</a>
-            </div>
+        <div th:if="${cars == null or cars.isEmpty()}" class="alert alert-info text-center py-5 shadow-sm">
+            <i class="fas fa-info-circle fa-2x mb-3 d-block text-primary"></i>
+            <h4>На даний момент немає доступних автомобілів</h4>
+            <p class="mb-0">Спробуйте зайти пізніше або зверніться до підтримки.</p>
+        </div>
 
-            <div th:if="${cars == null or cars.isEmpty()}" class="alert alert-info text-center">
-                <i class="fas fa-info-circle me-2"></i>На даний момент немає доступних автомобілів
-            </div>
-
-            <div class="row">
-                <div class="col-md-4 mb-4" th:each="car : ${cars}">
-                    <div class="card car-card h-100">
-                        <img th:src="${car.imageUrl != null ? car.imageUrl : '/vendor/logistcwr/assets/images/slider/slider-1.jpg'}" class="card-img-top" alt="Car image" style="height:200px; object-fit:cover;">
-                        <div class="card-body">
-                            <h5 class="card-title" th:text="${car.fullName}">Brand Model</h5>
-                            <p class="text-muted mb-2">
-                                <i class="fas fa-cog me-1"></i><span th:text="${car.transmissionType.displayName}">Auto</span>
-                                &nbsp;•&nbsp;
-                                <i class="fas fa-gas-pump me-1"></i><span th:text="${car.fuelType.displayName}">Fuel</span>
-                            </p>
-                            <div class="d-flex justify-content-between align-items-end mt-3">
-                                <div>
-                                    <div class="car-price" th:text="${car.dailyRate} + ' грн'">1000 грн</div>
-                                    <small class="text-muted">за добу</small>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <a th:href="@{/cars/{id}(id=${car.carId})}" class="btn btn-outline-primary btn-sm">Деталі</a>
-                                    <a th:href="@{/orders/create(carId=${car.carId})}" class="btn btn-primary btn-sm">Орендувати</a>
-                                </div>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4" th:each="car : ${cars}">
+                <div class="card car-card h-100 border-0 shadow-sm overflow-hidden">
+                    <div class="position-relative">
+                        <img th:src="${car.imageUrl != null ? car.imageUrl : '/vendor/logistcwr/assets/images/service/service1.jpg'}" 
+                             class="card-img-top" alt="Car" style="height: 220px; object-fit: cover;">
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-primary px-3 py-2 shadow-sm" th:text="${car.transmissionType.displayName}">Автомат</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h5 class="card-title fw-bold mb-1" th:text="${car.fullName}">Brand Model</h5>
+                        <p class="text-muted mb-3" th:text="${car.fuelType.displayName}">Бензин</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
+                            <div>
+                                <span class="h4 fw-bold text-primary mb-0" th:text="${car.dailyRate}">1000</span>
+                                <small class="text-muted"> грн/добу</small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a th:href="@{/cars/{id}(id=${car.carId})}" class="btn btn-light btn-sm">Деталі</a>
+                                <a th:href="@{/orders/create(carId=${car.carId})}" class="btn btn-primary btn-sm">Замовити</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-
-</main>
+    </div>
+</div>
 </body>
 </html>

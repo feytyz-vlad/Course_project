@@ -34,7 +34,15 @@ public class DamageReportRepositoryImpl implements DamageReportRepository {
         if (damageDate != null) report.setDamageDate(damageDate.toLocalDate());
         report.setRepairCost(rs.getBigDecimal("repair_cost"));
         String status = rs.getString("repair_status");
-        if (status != null) report.setRepairStatus(RepairStatus.valueOf(status));
+        if (status != null) {
+            try {
+                report.setRepairStatus(RepairStatus.valueOf(status.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                report.setRepairStatus(RepairStatus.ASSESSED);
+            }
+        } else {
+            report.setRepairStatus(RepairStatus.ASSESSED);
+        }
         report.setPhotosUrl(rs.getString("photos_url"));
         report.setCreatedByUserId(rs.getLong("created_by_user_id"));
         Timestamp createdAt = rs.getTimestamp("created_at");

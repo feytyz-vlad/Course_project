@@ -1,39 +1,96 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="uk" th:replace="~{layout :: layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="uk" th:replace="~{Layout :: layout}">
 <body>
 <main th:fragment="content">
     <div class="container mt-4">
-        <h2>Доступні автомобілі</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold" th:text="${title ?: 'Автомобілі'}">Наші автомобілі</h2>
+            <div sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
+                <a th:href="@{/cars/add}" class="btn btn-success shadow-sm">
+                    <i class="fas fa-plus me-2"></i>Додати авто
+                </a>
+            </div>
+        </div>
         
-        <div th:if="${cars == null or cars.isEmpty()}" class="alert alert-info">
-            Наразі немає доступних автомобілів.
+        <div th:if="${cars == null or cars.isEmpty()}" class="alert alert-info shadow-sm">
+            <i class="fas fa-info-circle me-2"></i> Наразі немає автомобілів за вашим запитом.
         </div>
 
-        <div class="row">
-            <div class="col-md-4 mb-4" th:each="car : ${cars}">
-                <div class="card h-100">
-                    <img th:src="${car.imageUrl ?: '/vendor/logistcwr/assets/images/slider/slider-1.jpg'}" 
-                         class="card-img-top" alt="Car image" style="height:200px; object-fit:cover;">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="col" th:each="car : ${cars}">
+                <div class="card h-100 border-0 shadow-sm car-card">
+                    <div class="position-relative">
+                        <img th:src="${car.imageUrl ?: '/vendor/logistcwr/assets/images/slider/slider-1.jpg'}" 
+                             class="card-img-top rounded-top" alt="Car image" style="height:220px; object-fit:cover;">
+                        <span class="badge position-absolute top-0 end-0 m-3" 
+                              th:classappend="${car.status.name() == 'AVAILABLE' ? 'bg-success' : 'bg-warning text-dark'}"
+                              th:text="${car.status.displayName}">Статус</span>
+                    </div>
                     <div class="card-body">
-                        <h5 class="card-title" th:text="${car.fullName}">Brand Model</h5>
-                        <p class="text-muted">
-                            <i class="fas fa-cog me-1"></i> 
-                            <span th:text="${car.transmissionType.displayName}">Auto</span>
-                            &nbsp;•&nbsp;
-                            <i class="fas fa-gas-pump me-1"></i> 
-                            <span th:text="${car.fuelType.displayName}">Fuel</span>
-                        </p>
-                        <div class="d-flex justify-content-between align-items-end mt-3">
-                            <div>
-                                <div class="fw-bold" th:text="${car.dailyRate + ' грн/доба'}">1000 грн/доба</div>
+                        <h5 class="card-title fw-bold" th:text="${car.brand + ' ' + car.model}">Brand Model</h5>
+                        <div class="d-flex gap-3 text-muted small mb-3">
+                            <span><i class="fas fa-cog me-1"></i><span th:text="${car.transmissionType.displayName}">Auto</span></span>
+                            <span><i class="fas fa-gas-pump me-1"></i><span th:text="${car.fuelType.displayName}">Fuel</span></span>
+                            <span><i class="fas fa-user-friends me-1"></i><span th:text="${car.seatsCount}">5</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <span class="fs-5 fw-bold text-primary" th:text="${car.dailyRate + ' грн/доба'}">1000 грн</span>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" th:data-bs-target="${'#carModal' + car.carId}">
+                                    <i class="fas fa-eye me-1"></i>Деталі
+                                </button>
+                                <a th:href="@{/cars/{id}(id=${car.carId})}" class="btn btn-primary btn-sm">Перейти</a>
                             </div>
-                            <a th:href="@{/cars/{id}(id=${car.carId})}" class="btn btn-primary btn-sm">Деталі</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal for Quick View -->
+                <div class="modal fade" th:id="${'carModal' + car.carId}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-header border-0 pb-0">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4 pt-0">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <img th:src="${car.imageUrl ?: '/vendor/logistcwr/assets/images/slider/slider-1.jpg'}" 
+                                             class="img-fluid rounded shadow-sm" alt="Car image" style="width: 100%; height: 300px; object-fit: cover;">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h3 class="fw-bold mb-2" th:text="${car.fullName}">Full Name</h3>
+                                        <p class="text-primary fs-4 fw-bold mb-3" th:text="${car.dailyRate + ' грн/день'}">1000 грн</p>
+                                        
+                                        <div class="row g-2 mb-4">
+                                            <div class="col-6"><small class="text-muted d-block">Рік випуску</small><strong th:text="${car.year}">2022</strong></div>
+                                            <div class="col-6"><small class="text-muted d-block">Колір</small><strong th:text="${car.color}">Білий</strong></div>
+                                            <div class="col-6"><small class="text-muted d-block">КПП</small><strong th:text="${car.transmissionType.displayName}">Авто</strong></div>
+                                            <div class="col-6"><small class="text-muted d-block">Паливо</small><strong th:text="${car.fuelType.displayName}">Бензин</strong></div>
+                                        </div>
+                                        
+                                        <div class="d-grid">
+                                            <a th:if="${car.status.name() == 'AVAILABLE'}" th:href="@{/orders/create(carId=${car.carId})}" class="btn btn-primary btn-lg">Орендувати зараз</a>
+                                            <button th:if="${car.status.name() != 'AVAILABLE'}" class="btn btn-secondary btn-lg" disabled>Наразі недоступно</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <style>
+        .car-card {
+            transition: transform 0.2s;
+        }
+        .car-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
 </main>
 </body>
 </html>

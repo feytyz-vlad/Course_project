@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uk" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout}">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{Layout :: layout}">
 <body>
 <main th:fragment="content">
     <div th:replace="~{fragments/hero :: hero(title=${'Деталі замовлення #' + order.orderId}, subtitle='Інформація про замовлення', bg='/vendor/logistcwr/assets/images/slider/slider-2.jpg')}"></div>
@@ -91,7 +91,7 @@
                         </form>
 
                         <!-- Адмін: підтвердити/відхилити -->
-                        <div th:if="${session.userRole != null and session.userRole.name() == 'ADMIN' and order.status.name() == 'PENDING'}">
+                        <div sec:authorize="hasRole('ADMIN')" th:if="${order.status.name() == 'PENDING'}">
                             <form th:action="@{/orders/{id}/approve(id=${order.orderId})}" method="post" class="mb-2">
                                 <button type="submit" class="btn btn-success w-100">
                                     <i class="fas fa-check me-2"></i>Підтвердити
@@ -106,7 +106,7 @@
                         </div>
 
                         <!-- Адмін: завершити -->
-                        <form th:if="${session.userRole != null and session.userRole.name() == 'ADMIN' and order.status.name() == 'ACTIVE'}"
+                        <form sec:authorize="hasRole('ADMIN')" th:if="${order.status.name() == 'ACTIVE'}"
                               th:action="@{/orders/{id}/complete(id=${order.orderId})}" method="post">
                             <div class="mb-2">
                                 <label class="form-label small">Дата повернення</label>

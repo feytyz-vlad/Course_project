@@ -36,11 +36,37 @@ public class CarRepositoryImpl implements CarRepository {
         car.setColor(rs.getString("color"));
         car.setRegistrationNumber(rs.getString("registration_number"));
         car.setVinCode(rs.getString("vin_code"));
-        car.setTransmissionType(TransmissionType.valueOf(rs.getString("transmission_type")));
-        car.setFuelType(FuelType.valueOf(rs.getString("fuel_type")));
+        String transStr = rs.getString("transmission_type");
+        if (transStr != null) {
+            try {
+                car.setTransmissionType(TransmissionType.valueOf(transStr.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                car.setTransmissionType(TransmissionType.MANUAL);
+            }
+        }
+        
+        String fuelStr = rs.getString("fuel_type");
+        if (fuelStr != null) {
+            try {
+                car.setFuelType(FuelType.valueOf(fuelStr.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                car.setFuelType(FuelType.PETROL);
+            }
+        }
+        
         car.setSeatsCount(rs.getInt("seats_count"));
         car.setDailyRate(rs.getBigDecimal("daily_rate"));
-        car.setStatus(CarStatus.valueOf(rs.getString("status")));
+        
+        String statusStr = rs.getString("status");
+        if (statusStr != null) {
+            try {
+                car.setStatus(CarStatus.valueOf(statusStr.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                car.setStatus(CarStatus.AVAILABLE);
+            }
+        } else {
+            car.setStatus(CarStatus.AVAILABLE);
+        }
         car.setMileage(rs.getInt("mileage"));
         car.setImageUrl(rs.getString("image_url"));
         car.setDescription(rs.getString("description"));
@@ -87,8 +113,8 @@ public class CarRepositoryImpl implements CarRepository {
             ps.setString(4, car.getColor());
             ps.setString(5, car.getRegistrationNumber());
             ps.setString(6, car.getVinCode());
-            ps.setString(7, car.getTransmissionType().name());
-            ps.setString(8, car.getFuelType().name());
+            ps.setString(7, car.getTransmissionType() != null ? car.getTransmissionType().name() : TransmissionType.MANUAL.name());
+            ps.setString(8, car.getFuelType() != null ? car.getFuelType().name() : FuelType.PETROL.name());
             ps.setInt(9, car.getSeatsCount());
             ps.setBigDecimal(10, car.getDailyRate());
             ps.setString(11, car.getStatus() != null ? car.getStatus().name() : CarStatus.AVAILABLE.name());
@@ -113,7 +139,8 @@ public class CarRepositoryImpl implements CarRepository {
         jdbcTemplate.update(sql,
                 car.getBrand(), car.getModel(), car.getYear(), car.getColor(),
                 car.getRegistrationNumber(), car.getVinCode(),
-                car.getTransmissionType().name(), car.getFuelType().name(),
+                car.getTransmissionType() != null ? car.getTransmissionType().name() : TransmissionType.MANUAL.name(), 
+                car.getFuelType() != null ? car.getFuelType().name() : FuelType.PETROL.name(),
                 car.getSeatsCount(), car.getDailyRate(), car.getStatus().name(),
                 car.getMileage(), car.getImageUrl(), car.getDescription(),
                 car.getCarId());

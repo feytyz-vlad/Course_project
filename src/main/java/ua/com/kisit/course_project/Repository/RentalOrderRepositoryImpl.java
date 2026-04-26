@@ -39,13 +39,28 @@ public class RentalOrderRepositoryImpl implements RentalOrderRepository {
         order.setTotalDays(rs.getInt("total_days"));
         order.setDailyRate(rs.getBigDecimal("daily_rate"));
         order.setTotalCost(rs.getBigDecimal("total_cost"));
-        order.setStatus(OrderStatus.valueOf(rs.getString("status")));
+        String statusStr = rs.getString("status");
+        if (statusStr != null) {
+            try {
+                order.setStatus(OrderStatus.valueOf(statusStr.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                order.setStatus(OrderStatus.PENDING);
+            }
+        } else {
+            order.setStatus(OrderStatus.PENDING);
+        }
         order.setRejectionReason(rs.getString("rejection_reason"));
         order.setAdditionalNotes(rs.getString("additional_notes"));
-        Timestamp createdAt = rs.getTimestamp("created_at");
-        if (createdAt != null) order.setCreatedAt(createdAt.toLocalDateTime());
-        Timestamp updatedAt = rs.getTimestamp("updated_at");
-        if (updatedAt != null) order.setUpdatedAt(updatedAt.toLocalDateTime());
+        try {
+            Timestamp createdAt = rs.getTimestamp("created_at");
+            if (createdAt != null) order.setCreatedAt(createdAt.toLocalDateTime());
+        } catch (Exception e) { /* Column might not exist */ }
+        
+        try {
+            Timestamp updatedAt = rs.getTimestamp("updated_at");
+            if (updatedAt != null) order.setUpdatedAt(updatedAt.toLocalDateTime());
+        } catch (Exception e) { /* Column might not exist */ }
+        
         return order;
     };
 
@@ -86,13 +101,13 @@ public class RentalOrderRepositoryImpl implements RentalOrderRepository {
     @Override
     public List<RentalOrder> findAll() {
         return jdbcTemplate.query(
-                "SELECT * FROM rental_orders ORDER BY created_at DESC", orderRowMapper);
+                "SELECT * FROM rental_orders", orderRowMapper);
     }
 
     @Override
     public List<RentalOrder> findByClientId(Long clientId) {
         return jdbcTemplate.query(
-                "SELECT * FROM rental_orders WHERE client_id=? ORDER BY created_at DESC",
+                "SELECT * FROM rental_orders WHERE client_id=?",
                 orderRowMapper, clientId);
     }
 

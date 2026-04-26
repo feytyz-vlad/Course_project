@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org" th:replace="~{Layout :: layout}">
+<body>
+<main th:fragment="content">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Очікуючі замовлення</h2>
+            <a th:href="@{/orders}" class="btn btn-outline-secondary">Всі замовлення</a>
+        </div>
+
+        <div th:if="${orders.isEmpty()}" class="alert alert-info shadow-sm">
+            <i class="fas fa-info-circle me-2"></i> Немає нових замовлень, що очікують розгляду.
+        </div>
+
+        <div th:if="${!orders.isEmpty()}" class="table-responsive shadow-sm rounded">
+            <table class="table table-hover align-middle mb-0 bg-white">
+                <thead class="table-warning">
+                <tr>
+                    <th>#</th>
+                    <th>Клієнт</th>
+                    <th>Автомобіль</th>
+                    <th>Період</th>
+                    <th>Сума</th>
+                    <th>Дії</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.orderId}">1</td>
+                    <td th:text="${'Клієнт #' + order.clientId}">Клієнт</td>
+                    <td>
+                        <a th:href="@{/cars/{id}(id=${order.carId})}" th:text="${'Авто #' + order.carId}" class="text-decoration-none">Авто</a>
+                    </td>
+                    <td>
+                        <span th:text="${order.startDate}">2025-01-01</span> - 
+                        <span th:text="${order.endDate}">2025-01-05</span>
+                        <br>
+                        <small class="text-muted" th:text="${order.totalDays + ' днів'}">5 днів</small>
+                    </td>
+                    <td><strong th:text="${order.totalCost + ' грн'}">5000 грн</strong></td>
+                    <td>
+                        <div class="btn-group">
+                            <form th:action="@{/orders/{id}/approve(id=${order.orderId})}" method="post" onsubmit="return confirm('Затвердити це замовлення?')">
+                                <button type="submit" class="btn btn-sm btn-success rounded-start">
+                                    <i class="fas fa-check"></i> Затвердити
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-danger rounded-end" data-bs-toggle="modal" th:data-bs-target="${'#rejectModal' + order.orderId}">
+                                <i class="fas fa-times"></i> Відхилити
+                            </button>
+                        </div>
+
+                        <!-- Modal for Rejection Reason -->
+                        <div class="modal fade" th:id="${'rejectModal' + order.orderId}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form th:action="@{/orders/{id}/reject(id=${order.orderId})}" method="post">
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title">Причина відхилення</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <textarea name="reason" class="form-control" rows="3" required placeholder="Вкажіть причину відмови..."></textarea>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                                            <button type="submit" class="btn btn-danger">Відхилити замовлення</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

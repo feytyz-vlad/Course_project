@@ -246,7 +246,7 @@ new WOW().init();
 
 
 // PreLoader Js	
-$('.preloader__logo img').addClass('logo-blink');
+$('.preloader__logo i').addClass('logo-blink');
 
 (function(){
     function id(v){ return document.getElementById(v); }
@@ -256,30 +256,39 @@ $('.preloader__logo img').addClass('logo-blink');
             img = document.images,
             c = 0,
             tot = img.length;
+
+        function doneLoading(){
+            setTimeout(function(){ 
+                $("#loading").fadeOut(500);
+            }, 100);
+        }
+
+        // Safety timeout - hide preloader after 3 seconds anyway
+        setTimeout(doneLoading, 3000);
+
         if(tot == 0) return doneLoading();
     
         function imgLoaded(){
-        c += 1;
-        var perc = ((100/tot*c) << 0) +"%";
-        prog.style.width = perc;
+            c += 1;
+            var perc = ((100/tot*c) << 0) +"%";
+            if (prog) prog.style.width = perc;
+            if(c===tot) return doneLoading();
+        }
 
-        if(c===tot) return doneLoading();
-        }
-        function doneLoading(){
-        
-        setTimeout(function(){ 
-            $("#loading").fadeOut(500);
-        }, 100);
-        }
         for(var i=0; i<tot; i++) {
-        var tImg     = new Image();
-        tImg.onload  = imgLoaded;
-        tImg.onerror = imgLoaded;
-        tImg.src     = img[i].src;
+            var tImg     = new Image();
+            tImg.onload  = imgLoaded;
+            tImg.onerror = imgLoaded;
+            tImg.src     = img[i].src;
         }    
     }
-    document.addEventListener('DOMContentLoaded', loadbar, false);
-    }());
+    
+    if (document.readyState === 'complete') {
+        loadbar();
+    } else {
+        window.addEventListener('load', loadbar);
+    }
+}());
 
 
 })(jQuery);

@@ -2,91 +2,113 @@ package ua.com.kisit.course_project.Entity;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+/**
+ * JPA entity for users table
+ */
+@Entity
+@Table(name = "users")
 public class User {
-    private Long userId;
-    private String email;
-    private String passwordHash;
-    private UserRole role;
-    private boolean isActive;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
-    // Constructors
-    public User() {
-    }
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "user_id")
+	private Long userId;
 
-    public User(String email, String passwordHash, UserRole role) {
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.role = role;
-        this.isActive = true;
-    }
+	@Column(name = "email", nullable = false, unique = true, length = 255)
+	private String email;
 
-    // Getters and Setters
-    public Long getUserId() {
-        return userId;
-    }
+	@Column(name = "password_hash", nullable = false, length = 512)
+	private String passwordHash;
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+	@Enumerated(EnumType.STRING)
+	@Column(name = "role", nullable = false, length = 50)
+	private ua.com.kisit.course_project.Entity.UserRole role;
 
-    public String getEmail() {
-        return email;
-    }
+	@Column(name = "is_active", nullable = false)
+	private boolean active = true;
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	@Column(name = "created_at", updatable = false)
+	private LocalDateTime createdAt;
 
-    public String getPasswordHash() {
-        return passwordHash;
-    }
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
+	// Constructors
+	public User() {}
 
-    public UserRole getRole() {
-        return role;
-    }
+	public User(String email, String passwordHash, ua.com.kisit.course_project.Entity.UserRole role) {
+		this.email = email;
+		this.passwordHash = passwordHash;
+		this.role = role;
+		this.active = true;
+		this.createdAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
+	}
 
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
+	// Getters and setters
 
-    public boolean isActive() {
-        return isActive;
-    }
+	public Long getUserId() {
+		return userId;
+	}
 
-    public void setActive(boolean active) {
-        isActive = active;
-    }
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
+	public String getPasswordHash() {
+		return passwordHash;
+	}
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+	public void setPasswordHash(String passwordHash) {
+		this.passwordHash = passwordHash;
+	}
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "userId=" + userId +
-                ", email='" + email + '\'' +
-                ", role=" + role +
-                ", isActive=" + isActive +
-                ", createdAt=" + createdAt +
-                '}';
-    }
+	public ua.com.kisit.course_project.Entity.UserRole getRole() {
+		return role;
+	}
+
+	public void setRole(ua.com.kisit.course_project.Entity.UserRole role) {
+		this.role = role;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
 }

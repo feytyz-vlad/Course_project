@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org" th:replace="~{Layout :: layout}">
+<body>
+<main th:fragment="content">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Керування користувачами</h2>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>Роль</th>
+                        <th>Статус</th>
+                        <th>Дата реєстрації</th>
+                        <th>Дії</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.userId}">1</td>
+                        <td th:text="${user.email}">user@example.com</td>
+                        <td>
+                            <form th:action="@{/admin/users/{id}/role(id=${user.userId})}" method="post" class="d-flex align-items-center">
+                                <select name="role" class="form-select form-select-sm me-2" style="width: auto;">
+                                    <option th:each="role : ${roles}" 
+                                            th:value="${role}" 
+                                            th:text="${role}" 
+                                            th:selected="${user.role == role}"></option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </form>
+                        </td>
+                        <td>
+                            <span th:class="${user.active ? 'badge bg-success' : 'badge bg-danger'}" 
+                                  th:text="${user.active ? 'Активний' : 'Заблокований'}">Активний</span>
+                        </td>
+                        <td th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'dd.MM.yyyy HH:mm') : '-'}">01.01.2025</td>
+                        <td>
+                            <div class="btn-group">
+                                <form th:action="@{/admin/users/{id}/toggle-active(id=${user.userId})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm" th:classappend="${user.active ? 'btn-outline-warning' : 'btn-outline-success'}">
+                                        <i th:class="${user.active ? 'fas fa-user-slash' : 'fas fa-user-check'}"></i>
+                                    </button>
+                                </form>
+                                <form th:action="@{/admin/users/{id}/delete(id=${user.userId})}" method="post" class="d-inline" onsubmit="return confirm('Видалити цього користувача назавжди?')">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

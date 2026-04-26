@@ -2,7 +2,8 @@ package ua.com.kisit.course_project.Entity;
 
 public enum UserRole {
     CLIENT("Клієнт"),
-    ADMIN("Адміністратор");
+    ADMIN("Адміністратор"),
+    MANAGER("Менеджер");
 
     private final String displayName;
 
