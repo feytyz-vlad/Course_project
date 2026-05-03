@@ -34,7 +34,7 @@ public class ClientService {
      * Викликається з WebHomeController після заповнення форми профілю.
      */
     public Client createClientProfile(Long userId, String firstName, String lastName,
-                                      String phone, String driverLicense) {
+                                      String phone, String driverLicense, String rnokpp) {
         // Перевірка чи профіль вже існує
         if (clientRepository.findByUserId(userId).isPresent()) {
             throw new IllegalStateException("Профіль для цього користувача вже існує");
@@ -55,6 +55,13 @@ public class ClientService {
         client.setLastName(lastName);
         client.setPhone(phone);
         client.setDriverLicenseNumber(driverLicense);
+        client.setRnokpp(rnokpp);
+        
+        // Prevent NOT NULL constraint violations for fields we no longer collect
+        client.setPassportSeries("");
+        client.setPassportNumber("");
+        client.setPassportIssuedBy("");
+        client.setAddress("");
 
         return clientRepository.save(client);
     }

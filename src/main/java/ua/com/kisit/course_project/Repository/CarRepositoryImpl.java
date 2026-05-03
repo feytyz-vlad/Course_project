@@ -112,7 +112,7 @@ public class CarRepositoryImpl implements CarRepository {
             ps.setInt(3, car.getYear());
             ps.setString(4, car.getColor());
             ps.setString(5, car.getRegistrationNumber());
-            ps.setString(6, car.getVinCode());
+            ps.setString(6, (car.getVinCode() != null && !car.getVinCode().isBlank()) ? car.getVinCode() : null);
             ps.setString(7, car.getTransmissionType() != null ? car.getTransmissionType().name() : TransmissionType.MANUAL.name());
             ps.setString(8, car.getFuelType() != null ? car.getFuelType().name() : FuelType.PETROL.name());
             ps.setInt(9, car.getSeatsCount());
@@ -138,7 +138,8 @@ public class CarRepositoryImpl implements CarRepository {
 
         jdbcTemplate.update(sql,
                 car.getBrand(), car.getModel(), car.getYear(), car.getColor(),
-                car.getRegistrationNumber(), car.getVinCode(),
+                car.getRegistrationNumber(),
+                (car.getVinCode() != null && !car.getVinCode().isBlank()) ? car.getVinCode() : null,
                 car.getTransmissionType() != null ? car.getTransmissionType().name() : TransmissionType.MANUAL.name(), 
                 car.getFuelType() != null ? car.getFuelType().name() : FuelType.PETROL.name(),
                 car.getSeatsCount(), car.getDailyRate(), car.getStatus().name(),
@@ -155,6 +156,18 @@ public class CarRepositoryImpl implements CarRepository {
     @Override
     public List<Car> findAll() {
         return jdbcTemplate.query("SELECT * FROM cars ORDER BY brand, model", carRowMapper);
+    }
+
+    @Override
+    public List<Car> findAllPaginated(int limit, int offset) {
+        return jdbcTemplate.query("SELECT * FROM cars ORDER BY brand, model LIMIT ? OFFSET ?",
+                carRowMapper, limit, offset);
+    }
+
+    @Override
+    public List<Car> findAvailablePaginated(int limit, int offset) {
+        return jdbcTemplate.query("SELECT * FROM cars WHERE status='AVAILABLE' ORDER BY brand, model LIMIT ? OFFSET ?",
+                carRowMapper, limit, offset);
     }
 
     @Override

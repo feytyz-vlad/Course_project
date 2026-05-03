@@ -95,8 +95,10 @@ public class WebRentalOrderController {
         Long userId = userOpt.get().getUserId();
         
         Optional<Client> client = clientService.getClientByUserId(userId);
-        if (client.isEmpty() && userOpt.get().getRole() != UserRole.ADMIN) {
-            return "redirect:/profile/complete";
+        if (userOpt.get().getRole() != UserRole.ADMIN) {
+            if (client.isEmpty() || client.get().getRnokpp() == null || client.get().getPhone() == null || client.get().getFirstName() == null) {
+                return "redirect:/profile/complete";
+            }
         }
 
         Optional<Car> car = carService.getCarById(carId);
@@ -128,8 +130,10 @@ public class WebRentalOrderController {
 
         try {
             Optional<Client> client = clientService.getClientByUserId(userId);
-            if (client.isEmpty()) {
-                return "redirect:/profile/complete";
+            if (userOpt.get().getRole() != UserRole.ADMIN) {
+                if (client.isEmpty() || client.get().getRnokpp() == null || client.get().getPhone() == null || client.get().getFirstName() == null) {
+                    return "redirect:/profile/complete";
+                }
             }
 
             RentalOrder order = orderService.createOrder(

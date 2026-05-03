@@ -39,7 +39,7 @@ public class CarService {
         if (existing.isEmpty()) {
             throw new IllegalArgumentException("Автомобіль не знайдено");
         }
-        return carRepository.save(car);
+        return carRepository.update(car);
     }
 
     public boolean deleteCar(Long carId) {
@@ -58,10 +58,17 @@ public class CarService {
     }
 
     public List<Car> getAvailableCars() {
-        return carRepository.findAll()
-                .stream()
-                .filter(car -> car.getStatus() == CarStatus.AVAILABLE)
-                .collect(Collectors.toList());
+        return carRepository.findAvailableCars();
+    }
+
+    public List<Car> getAllCarsPaginated(int page, int size) {
+        int offset = page * size;
+        return carRepository.findAllPaginated(size, offset);
+    }
+
+    public List<Car> getAvailableCarsPaginated(int page, int size) {
+        int offset = page * size;
+        return carRepository.findAvailablePaginated(size, offset);
     }
 
     public List<Car> searchCars(String brand, CarStatus status, TransmissionType transmission,
@@ -78,12 +85,7 @@ public class CarService {
     }
 
     public boolean updateCarStatus(Long carId, CarStatus newStatus) {
-        Optional<Car> opt = carRepository.findById(carId);
-        if (opt.isEmpty()) return false;
-        Car c = opt.get();
-        c.setStatus(newStatus);
-        carRepository.save(c);
-        return true;
+        return carRepository.updateStatus(carId, newStatus);
     }
 
     public boolean markAsAvailable(Long carId) {
@@ -99,10 +101,10 @@ public class CarService {
     }
 
     public long getTotalCarsCount() {
-        return carRepository.findAll().size();
+        return carRepository.countAll();
     }
 
     public long getAvailableCarsCount() {
-        return getAvailableCars().size();
+        return carRepository.countAvailable();
     }
 }

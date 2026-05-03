@@ -2,9 +2,6 @@ package ua.com.kisit.course_project;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,23 +25,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-/* 
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-*/
-
-/* 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-*/
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -53,7 +33,7 @@ public class SecurityConfig {
                     "/", "/cars/available", "/cars/**",
                     "/auth/login", "/auth/register",
                     "/migrate-passwords", "/setup-user",
-                    "/css/**", "/js/**", "/images/**", "/vendor/**"
+                    "/css/**", "/js/**", "/images/**", "/vendor/**", "/media/**"
                 ).permitAll()
                 .requestMatchers("/orders/**", "/profile/**").authenticated()
                 .requestMatchers("/admin/**").hasRole("ADMIN")

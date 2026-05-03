@@ -78,6 +78,8 @@ public class WebAuthController {
             return "redirect:/auth/login";
         }
         model.addAttribute("user", userOpt.get());
+        Optional<ua.com.kisit.course_project.Entity.Client> clientOpt = clientService.getClientByUserId(userOpt.get().getUserId());
+        clientOpt.ifPresent(client -> model.addAttribute("client", client));
         return "auth/profile";
     }
 
@@ -120,10 +122,10 @@ public class WebAuthController {
     }
 
     @PostMapping("/register/complete")
-    public String completeProfile(@RequestParam String firstName,
-                                  @RequestParam String lastName,
+    public String completeProfile(@RequestParam String fio,
                                   @RequestParam String phone,
                                   @RequestParam String driverLicense,
+                                  @RequestParam String rnokpp,
                                   RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
@@ -133,12 +135,78 @@ public class WebAuthController {
             Optional<User> userOpt = userRepository.findByEmail(auth.getName());
             if (userOpt.isEmpty()) return "redirect:/auth/login";
             
-            clientService.createClientProfile(userOpt.get().getUserId(), firstName, lastName, phone, driverLicense);
+            // Validation
+            if (fio.length() > 255) {
+                redirectAttributes.addFlashAttribute("error", "ПІБ не може перевищувати 255 символів");
+                return "redirect:/profile/complete";
+            }
+            if (!phone.matches("^\\+380(-?\\d){9}$")) {
+                redirectAttributes.addFlashAttribute("error", "Телефон має бути у форматі +380XXXXXXXXX або +380-XX-XXX-XX-XX");
+                return "redirect:/profile/complete";
+            }
+            if (!rnokpp.matches("^\\d{10}$")) {
+                redirectAttributes.addFlashAttribute("error", "РНОКПП має містити рівно 10 цифр");
+                return "redirect:/profile/complete";
+            }
+
+            clientService.createClientProfile(userOpt.get().getUserId(), fio, "", phone, driverLicense, rnokpp);
             redirectAttributes.addFlashAttribute("success", "Профіль успішно збережено!");
             return "redirect:/profile";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/profile/complete";
+        }
+    }
+
+    @PostMapping("/profile/update")
+    public String updateProfile(@RequestParam String fio,
+                                @RequestParam String phone,
+                                @RequestParam String driverLicense,
+                                @RequestParam String rnokpp,
+                                RedirectAttributes redirectAttributes) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            return "redirect:/auth/login";
+        }
+        try {
+            Optional<User> userOpt = userRepository.findByEmail(auth.getName());
+            if (userOpt.isEmpty()) return "redirect:/auth/login";
+            
+            Optional<ua.com.kisit.course_project.Entity.Client> clientOpt = clientService.getClientByUserId(userOpt.get().getUserId());
+            if (clientOpt.isEmpty()) {
+                // If the profile doesn't exist yet, simply call completeProfile logic
+                clientService.createClientProfile(userOpt.get().getUserId(), fio, "", phone, driverLicense, rnokpp);
+                redirectAttributes.addFlashAttribute("success", "Профіль успішно збережено!");
+                return "redirect:/profile";
+            }
+            
+            // Validation
+            if (fio.length() > 255) {
+                redirectAttributes.addFlashAttribute("error", "ПІБ не може перевищувати 255 символів");
+                return "redirect:/profile";
+            }
+            if (!phone.matches("^\\+380(-?\\d){9}$")) {
+                redirectAttributes.addFlashAttribute("error", "Телефон має бути у форматі +380XXXXXXXXX або +380-XX-XXX-XX-XX");
+                return "redirect:/profile";
+            }
+            if (!rnokpp.matches("^\\d{10}$")) {
+                redirectAttributes.addFlashAttribute("error", "РНОКПП має містити рівно 10 цифр");
+                return "redirect:/profile";
+            }
+
+            ua.com.kisit.course_project.Entity.Client client = clientOpt.get();
+            client.setFirstName(fio);
+            client.setPhone(phone);
+            client.setDriverLicenseNumber(driverLicense);
+            client.setRnokpp(rnokpp);
+            
+            clientService.updateClient(client);
+            
+            redirectAttributes.addFlashAttribute("success", "Профіль успішно оновлено!");
+            return "redirect:/profile";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/profile";
         }
     }
 }

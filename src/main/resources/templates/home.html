@@ -3,7 +3,8 @@
 <div th:fragment="content">
 
     <!-- Hero Section -->
-    <div class="hero-section" th:style="'background: url(' + @{/vendor/logistcwr/assets/images/slider/slider-1.jpg} + ');'">
+    <div class="hero-section">
+        <img th:src="@{/media/BestCar.png}" class="hero-bg-img" alt="Hero Background">
         <div class="hero-overlay"></div>
         <div class="container hero-content text-center">
             <h1 class="display-3 fw-bold mb-3">Оренда авто в один клік</h1>
@@ -67,8 +68,43 @@
                                 <small class="text-muted"> грн/добу</small>
                             </div>
                             <div class="d-flex gap-2">
-                                <a th:href="@{/cars/{id}(id=${car.carId})}" class="btn btn-light btn-sm">Деталі</a>
+                                <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" th:data-bs-target="${'#carModal' + car.carId}">Деталі</button>
                                 <a th:href="@{/orders/create(carId=${car.carId})}" class="btn btn-primary btn-sm">Замовити</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal for Quick View -->
+                <div class="modal fade" th:id="${'carModal' + car.carId}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-header border-0 pb-0">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4 pt-0">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <img th:src="${car.imageUrl != null ? car.imageUrl : '/vendor/logistcwr/assets/images/slider/slider-1.jpg'}" 
+                                             class="img-fluid rounded shadow-sm" alt="Car image" style="width: 100%; height: 300px; object-fit: cover;">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h3 class="fw-bold mb-2" th:text="${car.fullName}">Full Name</h3>
+                                        <p class="text-primary fs-4 fw-bold mb-3" th:text="${car.dailyRate + ' грн/добу'}">1000 грн</p>
+                                        
+                                        <div class="row g-2 mb-4">
+                                            <div class="col-6"><small class="text-muted d-block">Рік випуску</small><strong th:text="${car.year}">2022</strong></div>
+                                            <div class="col-6"><small class="text-muted d-block">Колір</small><strong th:text="${car.color}">Білий</strong></div>
+                                            <div class="col-6"><small class="text-muted d-block">КПП</small><strong th:text="${car.transmissionType.displayName}">Авто</strong></div>
+                                            <div class="col-6"><small class="text-muted d-block">Паливо</small><strong th:text="${car.fuelType.displayName}">Бензин</strong></div>
+                                        </div>
+                                        
+                                        <div class="d-grid gap-2 d-md-flex">
+                                            <a th:if="${car.status.name() == 'AVAILABLE'}" th:href="@{/orders/create(carId=${car.carId})}" class="btn btn-primary btn-lg flex-grow-1">Орендувати зараз</a>
+                                            <button th:if="${car.status.name() != 'AVAILABLE'}" class="btn btn-secondary btn-lg flex-grow-1" disabled>Наразі недоступно</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

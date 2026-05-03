@@ -55,6 +55,16 @@ public interface CarRepository {
     List<Car> findByStatus(CarStatus status);
 
     /**
+     * Find all cars with pagination
+     */
+    List<Car> findAllPaginated(int limit, int offset);
+
+    /**
+     * Find available cars with pagination
+     */
+    List<Car> findAvailablePaginated(int limit, int offset);
+
+    /**
      * Find available cars
      */
     List<Car> findAvailableCars();

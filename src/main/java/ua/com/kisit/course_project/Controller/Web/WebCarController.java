@@ -41,17 +41,25 @@ public class WebCarController {
     }
 
     @GetMapping
-    public String listCars(Model model) {
-        model.addAttribute("cars", carService.getAllCars());
+    public String listCars(@RequestParam(defaultValue = "0") int page, Model model) {
+        int size = 9;
+        model.addAttribute("cars", carService.getAllCarsPaginated(page, size));
         model.addAttribute("title", "Всі автомобілі");
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", (int) Math.ceil((double) carService.getTotalCarsCount() / size));
+        model.addAttribute("baseUrl", "/cars");
         addEnumsToModel(model);
         return "cars/list";
     }
 
     @GetMapping("/available")
-    public String availableCars(Model model) {
-        model.addAttribute("cars", carService.getAvailableCars());
+    public String availableCars(@RequestParam(defaultValue = "0") int page, Model model) {
+        int size = 9;
+        model.addAttribute("cars", carService.getAvailableCarsPaginated(page, size));
         model.addAttribute("title", "Доступні автомобілі");
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", (int) Math.ceil((double) carService.getAvailableCarsCount() / size));
+        model.addAttribute("baseUrl", "/cars/available");
         addEnumsToModel(model);
         return "cars/list";
     }

@@ -2,7 +2,7 @@
 <html lang="uk" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{Layout :: layout}">
 <body>
 <main th:fragment="content">
-    <div th:replace="~{fragments/hero :: hero(title=${car.fullName != null ? car.fullName : car.brand + ' ' + car.model}, subtitle='Деталі автомобіля', bg=${car.imageUrl != null ? car.imageUrl : '/vendor/logistcwr/assets/images/project/p1.jpg'})}"></div>
+    <!-- Removed hero section as per user request -->
     <section class="pt-5 pb-5">
         <div class="container">
             <!-- Breadcrumb -->

@@ -14,26 +14,30 @@
                         </div>
 
                         <form th:action="@{/register/complete}" method="post">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Ім'я</label>
-                                    <input type="text" class="form-control" name="firstName"
-                                           required placeholder="Ваше ім'я">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Прізвище</label>
-                                    <input type="text" class="form-control" name="lastName"
-                                           required placeholder="Ваше прізвище">
-                                </div>
+                            <div class="mb-3">
+                                <label class="form-label">ФІО</label>
+                                <input type="text" class="form-control" name="fio"
+                                       required placeholder="Прізвище Ім'я По батькові" maxlength="255">
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Телефон</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                    <input type="tel" class="form-control" name="phone"
-                                           required placeholder="+380XXXXXXXXX">
+                                    <input type="tel" class="form-control phone-mask" name="phone"
+                                           required pattern="^\+380-\d{2}-\d{3}-\d{2}-\d{2}$" placeholder="+380-**-***-**-**">
                                 </div>
+                                <div class="form-text">Формат: +380-XX-XXX-XX-XX</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">РНОКПП (ІПН)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                                    <input type="text" class="form-control rnokpp-mask" name="rnokpp"
+                                           required pattern="^\d{10}$" maxlength="10" placeholder="1234567890">
+                                </div>
+                                <div class="form-text">Має містити 10 цифр</div>
                             </div>
 
                             <div class="mb-4">
@@ -54,6 +58,53 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Phone mask
+            const phoneInputs = document.querySelectorAll('.phone-mask');
+            phoneInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    let val = this.value.replace(/\D/g, '');
+                    
+                    // Keep 380 prefix
+                    if (val.length > 0 && !val.startsWith('380')) {
+                        if (val.startsWith('0')) {
+                            val = '38' + val;
+                        } else if (val.startsWith('80')) {
+                            val = '3' + val;
+                        } else {
+                            val = '380' + val;
+                        }
+                    }
+                    if (val.length > 12) val = val.substring(0, 12);
+                    
+                    let formatted = '+';
+                    if (val.length > 0) formatted += val.substring(0, 3);
+                    if (val.length > 3) formatted += '-' + val.substring(3, 5);
+                    if (val.length > 5) formatted += '-' + val.substring(5, 8);
+                    if (val.length > 8) formatted += '-' + val.substring(8, 10);
+                    if (val.length > 10) formatted += '-' + val.substring(10, 12);
+                    
+                    this.value = val.length === 0 ? '' : formatted;
+                });
+                // Initial format if value exists
+                if (input.value) {
+                    input.dispatchEvent(new Event('input'));
+                }
+            });
+
+            // RNOKPP mask
+            const rnokppInputs = document.querySelectorAll('.rnokpp-mask');
+            rnokppInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    let val = this.value.replace(/\D/g, '');
+                    if (val.length > 10) val = val.substring(0, 10);
+                    this.value = val;
+                });
+            });
+        });
+    </script>
 </main>
 </body>
 </html>

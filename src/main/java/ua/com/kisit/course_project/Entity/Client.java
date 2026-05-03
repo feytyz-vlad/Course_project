@@ -21,6 +21,7 @@ public class Client {
     private LocalDate dateOfBirth;
     private String driverLicenseNumber;
     private LocalDate driverLicenseIssueDate;
+    private String rnokpp;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -158,6 +159,14 @@ public class Client {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getRnokpp() {
+        return rnokpp;
+    }
+
+    public void setRnokpp(String rnokpp) {
+        this.rnokpp = rnokpp;
     }
 
     public String getFullName() {

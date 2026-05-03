@@ -41,6 +41,7 @@ public class ClientRepositoryImpl implements ClientRepository {
         client.setDriverLicenseNumber(rs.getString("driver_license_number"));
         Date licenseDate = rs.getDate("driver_license_issue_date");
         if (licenseDate != null) client.setDriverLicenseIssueDate(licenseDate.toLocalDate());
+        client.setRnokpp(rs.getString("rnokpp"));
         Timestamp createdAt = rs.getTimestamp("created_at");
         if (createdAt != null) client.setCreatedAt(createdAt.toLocalDateTime());
         Timestamp updatedAt = rs.getTimestamp("updated_at");
@@ -88,8 +89,8 @@ public class ClientRepositoryImpl implements ClientRepository {
     public Client save(Client client) {
         String sql = "INSERT INTO clients (user_id, first_name, last_name, passport_series, " +
                 "passport_number, passport_issued_by, passport_issue_date, phone, address, " +
-                "date_of_birth, driver_license_number, driver_license_issue_date) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "date_of_birth, driver_license_number, driver_license_issue_date, rnokpp) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(conn -> {
@@ -106,6 +107,7 @@ public class ClientRepositoryImpl implements ClientRepository {
             ps.setDate(10, client.getDateOfBirth() != null ? Date.valueOf(client.getDateOfBirth()) : null);
             ps.setString(11, client.getDriverLicenseNumber());
             ps.setDate(12, client.getDriverLicenseIssueDate() != null ? Date.valueOf(client.getDriverLicenseIssueDate()) : null);
+            ps.setString(13, client.getRnokpp());
             return ps;
         }, keyHolder);
 
@@ -119,7 +121,7 @@ public class ClientRepositoryImpl implements ClientRepository {
     public Client update(Client client) {
         String sql = "UPDATE clients SET first_name=?, last_name=?, passport_series=?, " +
                 "passport_number=?, passport_issued_by=?, passport_issue_date=?, phone=?, " +
-                "address=?, date_of_birth=?, driver_license_number=?, driver_license_issue_date=? " +
+                "address=?, date_of_birth=?, driver_license_number=?, driver_license_issue_date=?, rnokpp=? " +
                 "WHERE client_id=?";
 
         jdbcTemplate.update(sql,
@@ -130,6 +132,7 @@ public class ClientRepositoryImpl implements ClientRepository {
                 client.getDateOfBirth() != null ? Date.valueOf(client.getDateOfBirth()) : null,
                 client.getDriverLicenseNumber(),
                 client.getDriverLicenseIssueDate() != null ? Date.valueOf(client.getDriverLicenseIssueDate()) : null,
+                client.getRnokpp(),
                 client.getClientId());
         return client;
     }

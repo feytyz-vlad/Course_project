@@ -7,19 +7,147 @@
         
         <div class="card mb-4">
             <div class="card-body">
-                <h5 class="card-title">Персональні дані</h5>
+                <h5 class="card-title mb-3">Персональні дані</h5>
                 <p><strong>Email:</strong> <span th:text="${user.email}">user@example.com</span></p>
                 <p><strong>Роль:</strong> <span th:text="${user.role.displayName}">Клієнт</span></p>
                 
-                <a th:href="@{/profile/change-password}" class="btn btn-primary">Змінити пароль</a>
+                <th:block th:if="${client != null}">
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Дані профілю орендаря</h5>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                            <i class="fas fa-edit me-1"></i>Редагувати
+                        </button>
+                    </div>
+                    <p><strong>ФІО:</strong> <span th:text="${client.firstName}">Іван Іванов</span></p>
+                    <p><strong>Телефон:</strong> <span th:text="${client.phone}">+380991234567</span></p>
+                    <p><strong>РНОКПП:</strong> <span th:text="${client.rnokpp}">1234567890</span></p>
+                    <p th:if="${not #strings.isEmpty(client.driverLicenseNumber)}"><strong>Водійське посвідчення:</strong> <span th:text="${client.driverLicenseNumber}">XYZ123456</span></p>
+                </th:block>
+                <th:block th:if="${client == null and user.role != null and user.role.name() != 'ADMIN'}">
+                    <hr>
+                    <div class="alert alert-warning mb-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Профіль орендаря не заповнено. Ви не можете орендувати автомобілі.
+                    </div>
+                    
+                    <h5 class="card-title mb-3 mt-4">Заповніть особисті дані</h5>
+                    <form th:action="@{/profile/update}" method="post" class="bg-light p-4 rounded border">
+                        <div class="mb-3">
+                            <label class="form-label">ФІО</label>
+                            <input type="text" class="form-control" name="fio" required placeholder="Прізвище Ім'я По батькові" maxlength="255">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Телефон</label>
+                            <input type="tel" class="form-control phone-mask" name="phone" required pattern="^\+380-\d{2}-\d{3}-\d{2}-\d{2}$" placeholder="+380-**-***-**-**">
+                            <div class="form-text">Формат: +380-XX-XXX-XX-XX</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">РНОКПП (ІПН)</label>
+                            <input type="text" class="form-control" name="rnokpp" required pattern="^\d{10}$" maxlength="10" placeholder="1234567890">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Водійське посвідчення (необов'язково)</label>
+                            <input type="text" class="form-control" name="driverLicense" placeholder="Серія та номер">
+                        </div>
+                        <button type="submit" class="btn btn-success">Зберегти дані</button>
+                    </form>
+                </th:block>
+                
+                <div class="mt-3">
+                    <a th:href="@{/profile/change-password}" class="btn btn-primary">Змінити пароль</a>
+                </div>
             </div>
         </div>
 
         <div class="d-flex gap-2">
-            <a th:href="@{/orders}" class="btn btn-secondary">Мої замовлення</a>
+            <a th:if="${user.role.name() == 'CLIENT'}" th:href="@{/orders}" class="btn btn-secondary">Мої замовлення</a>
             <a th:href="@{/logout}" class="btn btn-outline-danger">Вийти</a>
         </div>
+        
+        <!-- Edit Profile Modal -->
+        <div class="modal fade" id="editProfileModal" tabindex="-1" th:if="${client != null}">
+            <!-- Modal Content (omitted for brevity, no changes needed inside) -->
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Редагувати профіль</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form th:action="@{/profile/update}" method="post">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">ФІО</label>
+                                <input type="text" class="form-control" name="fio" required maxlength="255" th:value="${client.firstName}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Телефон</label>
+                                <input type="tel" class="form-control phone-mask" name="phone" required pattern="^\+380-\d{2}-\d{3}-\d{2}-\d{2}$" placeholder="+380-**-***-**-**" th:value="${client.phone}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">РНОКПП (ІПН)</label>
+                                <input type="text" class="form-control" name="rnokpp" required pattern="^\d{10}$" maxlength="10" th:value="${client.rnokpp}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Водійське посвідчення</label>
+                                <input type="text" class="form-control" name="driverLicense" th:value="${client.driverLicenseNumber}">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                            <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Phone mask
+            const phoneInputs = document.querySelectorAll('.phone-mask');
+            phoneInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    let val = this.value.replace(/\D/g, '');
+                    
+                    // Keep 380 prefix
+                    if (val.length > 0 && !val.startsWith('380')) {
+                        if (val.startsWith('0')) {
+                            val = '38' + val;
+                        } else if (val.startsWith('80')) {
+                            val = '3' + val;
+                        } else {
+                            val = '380' + val;
+                        }
+                    }
+                    if (val.length > 12) val = val.substring(0, 12);
+                    
+                    let formatted = '+';
+                    if (val.length > 0) formatted += val.substring(0, 3);
+                    if (val.length > 3) formatted += '-' + val.substring(3, 5);
+                    if (val.length > 5) formatted += '-' + val.substring(5, 8);
+                    if (val.length > 8) formatted += '-' + val.substring(8, 10);
+                    if (val.length > 10) formatted += '-' + val.substring(10, 12);
+                    
+                    this.value = val.length === 0 ? '' : formatted;
+                });
+                // Initial format if value exists
+                if (input.value) {
+                    input.dispatchEvent(new Event('input'));
+                }
+            });
+
+            // RNOKPP mask
+            const rnokppInputs = document.querySelectorAll('input[name="rnokpp"]');
+            rnokppInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    let val = this.value.replace(/\D/g, '');
+                    if (val.length > 10) val = val.substring(0, 10);
+                    this.value = val;
+                });
+            });
+        });
+    </script>
 </main>
 </body>
 </html>
