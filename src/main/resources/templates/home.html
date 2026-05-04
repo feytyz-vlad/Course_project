@@ -13,7 +13,26 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="container mt-4">
+        <!-- Damage Notifications for Client -->
+        <div th:if="${unpaidDamages != null and !unpaidDamages.isEmpty()}" class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-danger border-0 shadow-sm rounded-4 p-4 d-flex align-items-center animate__animated animate__shakeX">
+                    <div class="flex-shrink-0 me-4">
+                        <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h4 class="alert-heading fw-bold mb-1">Увага! У вас є неоплачені пошкодження</h4>
+                        <p class="mb-0 fs-5">По замовленнях виявлено пошкодження та виставлено рахунки за ремонт та штрафи. Будь ласка, перейдіть до замовлень для оплати, щоб уникнути блокування послуг.</p>
+                        <div class="mt-3">
+                            <a th:each="damage : ${unpaidDamages}" th:href="@{'/orders/' + ${damage.orderId}}" class="btn btn-danger btn-sm rounded-pill px-3 me-2 mb-2">
+                                Оплатити замовлення #<span th:text="${damage.orderId}">123</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
         <!-- AutoRent Advantages -->

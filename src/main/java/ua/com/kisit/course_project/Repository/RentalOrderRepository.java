@@ -17,7 +17,6 @@ public interface RentalOrderRepository {
 
     List<RentalOrder> findByClientId(Long clientId);
 
-    // FIXED: Доданий метод — потрібен для getClientActiveOrders в RentalOrderService
     List<RentalOrder> findByClientIdAndStatus(Long clientId, OrderStatus status);
 
     List<RentalOrder> findPendingOrders();
@@ -31,4 +30,6 @@ public interface RentalOrderRepository {
     boolean updateActualReturnDate(Long orderId, LocalDate actualReturnDate);
 
     boolean deleteById(Long orderId);
+
+    List<RentalOrder> findLatestOrders(int limit);
 }

@@ -220,7 +220,8 @@ public class CarRepositoryImpl implements CarRepository {
 
     @Override
     public List<Car> searchCars(String query, CarClass carClass, FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice) {
-        StringBuilder sql = new StringBuilder("SELECT * FROM cars WHERE 1=1");
+        // Додаємо фільтр status = 'AVAILABLE', щоб клієнти не бачили орендовані авто в пошуку
+        StringBuilder sql = new StringBuilder("SELECT * FROM cars WHERE status = 'AVAILABLE'");
         List<Object> params = new ArrayList<>();
 
         if (query != null && !query.isBlank()) {

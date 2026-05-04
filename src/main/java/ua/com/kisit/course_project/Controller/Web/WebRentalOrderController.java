@@ -37,15 +37,18 @@ public class WebRentalOrderController {
     private final CarService carService;
     private final ClientService clientService;
     private final UserRepository userRepository;
+    private final ua.com.kisit.course_project.Service.DamageReportService damageService;
 
     public WebRentalOrderController(RentalOrderService orderService,
                                     CarService carService,
                                     ClientService clientService,
-                                    UserRepository userRepository) {
+                                    UserRepository userRepository,
+                                    ua.com.kisit.course_project.Service.DamageReportService damageService) {
         this.orderService = orderService;
         this.carService = carService;
         this.clientService = clientService;
         this.userRepository = userRepository;
+        this.damageService = damageService;
     }
 
     /**
@@ -244,8 +247,62 @@ public class WebRentalOrderController {
         }
         
         model.addAttribute("order", order);
+        model.addAttribute("damageReports", damageService.getReportsByOrderId(id));
         model.addAttribute("ukLocale", new java.util.Locale("uk", "UA"));
         return "orders/details";
+    }
+
+    /**
+     * Report damage (Admin/Manager only)
+     */
+    @PostMapping("/{id}/report-damage")
+    public String reportDamage(@PathVariable Long id,
+                               @RequestParam String description,
+                               @RequestParam java.math.BigDecimal repairCost,
+                               @RequestParam java.math.BigDecimal fineAmount,
+                               RedirectAttributes redirectAttributes) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) return "redirect:/auth/login";
+        
+        Optional<User> adminOpt = userRepository.findByEmail(auth.getName());
+        if (adminOpt.isEmpty() || (adminOpt.get().getRole() != UserRole.ADMIN && adminOpt.get().getRole() != UserRole.MANAGER)) {
+            return "redirect:/";
+        }
+
+        try {
+            Optional<RentalOrder> order = orderService.getOrderById(id);
+            if (order.isPresent()) {
+                damageService.createReport(
+                        id, 
+                        order.get().getCarId(), 
+                        description, 
+                        LocalDate.now(), 
+                        repairCost, 
+                        fineAmount, 
+                        adminOpt.get().getUserId()
+                );
+                redirectAttributes.addFlashAttribute("success", "Звіт про пошкодження додано! Статус авто змінено.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Помилка: " + e.getMessage());
+        }
+        return "redirect:/orders/" + id;
+    }
+
+    /**
+     * Pay for damage (Client only)
+     */
+    @PostMapping("/{id}/pay-damage/{reportId}")
+    public String payDamage(@PathVariable Long id,
+                            @PathVariable Long reportId,
+                            RedirectAttributes redirectAttributes) {
+        try {
+            damageService.payDamage(reportId);
+            redirectAttributes.addFlashAttribute("success", "Оплату за пошкодження успішно проведено! Дякуємо.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Помилка оплати: " + e.getMessage());
+        }
+        return "redirect:/orders/" + id;
     }
 
     /**

@@ -14,6 +14,7 @@ public class DamageReport {
     private String damageDescription;
     private LocalDate damageDate;
     private BigDecimal repairCost;
+    private BigDecimal fineAmount;
     private RepairStatus repairStatus;
     private String photosUrl;
     private Long createdByUserId;
@@ -101,6 +102,14 @@ public class DamageReport {
         this.repairCost = repairCost;
     }
 
+    public BigDecimal getFineAmount() {
+        return fineAmount;
+    }
+
+    public void setFineAmount(BigDecimal fineAmount) {
+        this.fineAmount = fineAmount;
+    }
+
     public RepairStatus getRepairStatus() {
         return repairStatus;
     }
@@ -160,6 +169,13 @@ public class DamageReport {
 
     public boolean hasRepairCost() {
         return repairCost != null && repairCost.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    public BigDecimal getTotalAmount() {
+        BigDecimal total = BigDecimal.ZERO;
+        if (repairCost != null) total = total.add(repairCost);
+        if (fineAmount != null) total = total.add(fineAmount);
+        return total;
     }
 
     @Override

@@ -62,7 +62,16 @@ public class RentalOrderService {
             throw new IllegalStateException("Замовлення не може бути затверджено");
         }
 
+        // Перевіряємо, чи авто все ще доступне
+        Optional<Car> carOpt = carRepository.findById(order.getCarId());
+        if (carOpt.isEmpty() || !carOpt.get().isAvailable()) {
+            throw new IllegalStateException("Автомобіль вже орендований або недоступний для оренди");
+        }
+
+        // 1. Оновлюємо статус замовлення на ACTIVE
         boolean updated = orderRepository.updateStatus(orderId, OrderStatus.ACTIVE);
+        
+        // 2. Якщо статус замовлення оновлено, автоматично змінюємо статус авто на RENTED
         if (updated) {
             carRepository.updateStatus(order.getCarId(), Car.CarStatus.RENTED);
         }
@@ -95,8 +104,11 @@ public class RentalOrderService {
         }
 
         orderRepository.updateActualReturnDate(orderId, actualReturnDate);
+        
+        // 1. Оновлюємо статус замовлення на COMPLETED
         boolean updated = orderRepository.updateStatus(orderId, OrderStatus.COMPLETED);
 
+        // 2. Якщо замовлення завершено, повертаємо авто у статус AVAILABLE
         if (updated) {
             carRepository.updateStatus(order.getCarId(), Car.CarStatus.AVAILABLE);
         }
@@ -137,6 +149,12 @@ public class RentalOrderService {
         Optional<RentalOrder> orderOpt = orderRepository.findById(id);
         orderOpt.ifPresent(order -> carRepository.findById(order.getCarId()).ifPresent(order::setCar));
         return orderOpt;
+    }
+
+    public List<RentalOrder> getLatestOrders(int limit) {
+        List<RentalOrder> orders = orderRepository.findLatestOrders(limit);
+        populateCarDetails(orders);
+        return orders;
     }
 
     private void populateCarDetails(List<RentalOrder> orders) {

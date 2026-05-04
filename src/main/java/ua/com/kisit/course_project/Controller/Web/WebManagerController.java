@@ -65,6 +65,8 @@ public class WebManagerController {
                                @RequestParam Long orderId,
                                @RequestParam String description,
                                @RequestParam String damageDate,
+                               @RequestParam(defaultValue = "0") BigDecimal repairCost,
+                               @RequestParam(defaultValue = "0") BigDecimal fineAmount,
                                RedirectAttributes redirectAttributes) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -76,6 +78,8 @@ public class WebManagerController {
                     id,
                     description,
                     LocalDate.parse(damageDate),
+                    repairCost,
+                    fineAmount,
                     userId
             );
             redirectAttributes.addFlashAttribute("success", "Пошкодження успішно зафіксовано!");
@@ -88,10 +92,11 @@ public class WebManagerController {
     @PostMapping("/damages/{id}/invoice")
     public String issueInvoice(@PathVariable Long id, 
                                @RequestParam BigDecimal cost, 
+                               @RequestParam(defaultValue = "0") BigDecimal fine,
                                RedirectAttributes redirectAttributes) {
         try {
-            damageReportService.setRepairCost(id, cost);
-            redirectAttributes.addFlashAttribute("success", "Рахунок за ремонт виставлено успішно!");
+            damageReportService.setRepairCosts(id, cost, fine);
+            redirectAttributes.addFlashAttribute("success", "Рахунок за ремонт та штраф виставлено успішно!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Помилка: " + e.getMessage());
         }
