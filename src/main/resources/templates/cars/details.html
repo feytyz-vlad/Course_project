@@ -39,6 +39,7 @@
                         <li><strong>Паливо:</strong> <span th:text="${car.fuelType != null ? car.fuelType.displayName : ''}"></span></li>
                         <li><strong>Місць:</strong> <span th:text="${car.seatsCount}"></span></li>
                         <li><strong>Пробіг:</strong> <span th:text="${car.mileage}"></span> км</li>
+                        <li><strong>Клас:</strong> <span th:text="${car.carClass != null ? car.carClass.displayName : ''}"></span></li>
                         <li><strong>Реєстр. номер:</strong> <span th:text="${car.registrationNumber}"></span></li>
                     </ul>
 
@@ -67,12 +68,60 @@
                 </div>
             </div>
 
-            <div class="row mt-4" th:if="${car.description != null and !car.description.isEmpty()}">
-                <div class="col-12">
+            <div class="row mt-4">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm mb-4" th:if="${car.description != null and !car.description.isEmpty()}">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3"><i class="fas fa-align-left me-2 text-primary"></i>Опис автомобіля</h5>
+                            <p class="card-text text-muted" style="line-height: 1.6;" th:text="${car.description}">Опис автомобіля</p>
+                        </div>
+                    </div>
+                    
                     <div class="card shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">Опис</h5>
-                            <p class="card-text" th:text="${car.description}">Опис автомобіля</p>
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4"><i class="fas fa-info-circle me-2 text-primary"></i>Умови оренди</h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold"><i class="fas fa-id-card me-2 text-primary"></i>Документи</h6>
+                                    <ul class="text-muted small ps-3">
+                                        <li>Паспорт (вік від 21 року)</li>
+                                        <li>Водійське посвідчення (стаж від 2 років)</li>
+                                        <li>Індивідуальний податковий номер</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold"><i class="fas fa-file-contract me-2 text-primary"></i>Оплата та застава</h6>
+                                    <ul class="text-muted small ps-3">
+                                        <li>Оплата банківською картою на сайті</li>
+                                        <li>Повернення застави протягом 3 днів</li>
+                                        <li>Паливо включено у вартість оренди</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 bg-primary text-white h-100">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4"><i class="fas fa-star me-2"></i>Переваги AutoRent</h5>
+                            <div class="d-flex mb-3">
+                                <div class="me-3"><i class="fas fa-check-circle"></i></div>
+                                <div><strong>Без прихованих платежів</strong><p class="small mb-0 opacity-75">Ви платите тільки за час використання авто.</p></div>
+                            </div>
+                            <div class="d-flex mb-3">
+                                <div class="me-3"><i class="fas fa-shield-alt"></i></div>
+                                <div><strong>Повне страхування</strong><p class="small mb-0 opacity-75">Всі наші автомобілі застраховані по КАСКО та ЦИВІЛКА.</p></div>
+                            </div>
+                            <div class="d-flex mb-3">
+                                <div class="me-3"><i class="fas fa-headset"></i></div>
+                                <div><strong>Підтримка 24/7</strong><p class="small mb-0 opacity-75">Ми завжди на зв'язку, щоб допомогти вам у будь-якій ситуації.</p></div>
+                            </div>
+                            <div class="d-flex">
+                                <div class="me-3"><i class="fas fa-gas-pump"></i></div>
+                                <div><strong>Повний бак</strong><p class="small mb-0 opacity-75">Забирайте авто з повним баком палива без зайвих турбот.</p></div>
+                            </div>
                         </div>
                     </div>
                 </div>

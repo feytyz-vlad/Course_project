@@ -71,17 +71,8 @@ public class CarService {
         return carRepository.findAvailablePaginated(size, offset);
     }
 
-    public List<Car> searchCars(String brand, CarStatus status, TransmissionType transmission,
-                                FuelType fuel, BigDecimal maxPrice) {
-        return carRepository.findAll()
-                .stream()
-                .filter(c -> brand == null || brand.isBlank() ||
-                        (c.getBrand() != null && c.getBrand().toLowerCase().contains(brand.toLowerCase())))
-                .filter(c -> status == null || c.getStatus() == status)
-                .filter(c -> transmission == null || c.getTransmissionType() == transmission)
-                .filter(c -> fuel == null || c.getFuelType() == fuel)
-                .filter(c -> maxPrice == null || c.getDailyRate() == null || c.getDailyRate().compareTo(maxPrice) <= 0)
-                .collect(Collectors.toList());
+    public List<Car> searchCars(String query, Car.CarClass carClass, FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice) {
+        return carRepository.searchCars(query, carClass, fuel, seats, year, minPrice, maxPrice);
     }
 
     public boolean updateCarStatus(Long carId, CarStatus newStatus) {

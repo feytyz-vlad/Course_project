@@ -104,22 +104,44 @@ public class RentalOrderService {
     }
 
     public List<RentalOrder> getClientOrders(Long clientId) {
-        return orderRepository.findByClientId(clientId);
+        List<RentalOrder> orders = orderRepository.findByClientId(clientId);
+        populateCarDetails(orders);
+        return orders;
     }
 
     public List<RentalOrder> getPendingOrders() {
-        return orderRepository.findPendingOrders();
+        List<RentalOrder> orders = orderRepository.findPendingOrders();
+        populateCarDetails(orders);
+        return orders;
     }
 
     public List<RentalOrder> getActiveOrders() {
-        return orderRepository.findActiveOrders();
+        List<RentalOrder> orders = orderRepository.findActiveOrders();
+        populateCarDetails(orders);
+        return orders;
     }
 
     public List<RentalOrder> getAllOrders() {
-        return orderRepository.findAll();
+        List<RentalOrder> orders = orderRepository.findAll();
+        populateCarDetails(orders);
+        return orders;
     }
 
     public List<RentalOrder> getClientActiveOrders(Long clientId) {
-        return orderRepository.findByClientIdAndStatus(clientId, OrderStatus.ACTIVE);
+        List<RentalOrder> orders = orderRepository.findByClientIdAndStatus(clientId, OrderStatus.ACTIVE);
+        populateCarDetails(orders);
+        return orders;
+    }
+
+    public Optional<RentalOrder> getOrderById(Long id) {
+        Optional<RentalOrder> orderOpt = orderRepository.findById(id);
+        orderOpt.ifPresent(order -> carRepository.findById(order.getCarId()).ifPresent(order::setCar));
+        return orderOpt;
+    }
+
+    private void populateCarDetails(List<RentalOrder> orders) {
+        for (RentalOrder order : orders) {
+            carRepository.findById(order.getCarId()).ifPresent(order::setCar);
+        }
     }
 }

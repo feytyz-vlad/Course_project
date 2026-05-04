@@ -17,6 +17,7 @@ public class GlobalControllerAdvice {
 				&& !(authentication instanceof AnonymousAuthenticationToken);
 
 		model.addAttribute("isAuthenticated", isAuthenticated);
+		model.addAttribute("ukLocale", new java.util.Locale("uk", "UA"));
 
 		if (isAuthenticated) {
 			model.addAttribute("userEmail", authentication.getName());

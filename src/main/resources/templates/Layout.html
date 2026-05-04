@@ -103,6 +103,147 @@
             padding: 0.5rem !important;
             box-sizing: content-box;
         }
+        /* New Home Sections Styling */
+        .advantage-card {
+            transition: all 0.3s ease;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(0,0,0,0.05) !important;
+        }
+        .advantage-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+            border-color: #003366 !important;
+        }
+        .advantage-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 51, 102, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        .advantage-icon i {
+            color: #003366 !important;
+        }
+        .comparison-table {
+            border-radius: 1.5rem !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            overflow: hidden !important;
+            border: none !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06) !important;
+            width: 100% !important;
+            max-width: 900px !important;
+            margin: 0 auto 3rem auto !important;
+            background-color: white !important;
+        }
+        .comparison-table thead th {
+            background-color: #003366 !important;
+            color: #ffffff !important;
+            border: none !important;
+            padding: 1.5rem !important;
+            font-weight: 700 !important;
+            font-size: 1.1rem !important;
+            text-align: inherit !important;
+        }
+        .comparison-table thead tr:first-child th:first-child {
+            border-top-left-radius: 1.5rem !important;
+        }
+        .comparison-table thead tr:first-child th:last-child {
+            border-top-right-radius: 1.5rem !important;
+        }
+        .comparison-table td {
+            padding: 1.2rem 1.5rem !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+            font-size: 1.1rem !important;
+            background-color: transparent !important;
+            color: #333 !important;
+        }
+        .comparison-table tr:last-child td:first-child {
+            border-bottom-left-radius: 1.5rem !important;
+        }
+        .comparison-table tr:last-child td:last-child {
+            border-bottom-right-radius: 1.5rem !important;
+        }
+        .comparison-table tr:last-child td {
+            border-bottom: none !important;
+        }
+        .comparison-table tr:nth-child(even) td {
+            background-color: #fafafa !important;
+        }
+        .comparison-icon-cross {
+            color: #6c757d !important;
+            font-size: 2rem !important;
+            display: inline-block !important;
+        }
+        .comparison-icon-check {
+            color: #003366 !important;
+            font-size: 2rem !important;
+            display: inline-block !important;
+            filter: drop-shadow(0 2px 4px rgba(0,51,102,0.1)) !important;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-table, .comparison-table thead, .comparison-table tbody, .comparison-table th, .comparison-table td, .comparison-table tr { 
+                display: block !important; 
+            }
+            .comparison-table { 
+                box-shadow: none !important; 
+                background: transparent !important;
+            }
+            .comparison-table thead { 
+                display: none !important; 
+            }
+            .comparison-table tr { 
+                margin-bottom: 1.5rem !important;
+                background: white !important;
+                border-radius: 1.2rem !important;
+                padding: 1rem !important;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.05) !important;
+            }
+            .comparison-table td { 
+                display: flex !important; 
+                justify-content: space-between !important; 
+                align-items: center !important;
+                border: none !important;
+                padding: 0.8rem 0 !important;
+                background: transparent !important;
+            }
+            .comparison-table td:first-child {
+                font-weight: 800 !important;
+                font-size: 1.1rem !important;
+                color: #003366 !important;
+                border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+                margin-bottom: 0.5rem !important;
+                padding-bottom: 1rem !important;
+                display: block !important;
+                text-align: center !important;
+            }
+            .comparison-table td:not(:first-child)::before {
+                content: attr(data-label);
+                font-weight: 600 !important;
+                color: #6c757d !important;
+                font-size: 0.9rem !important;
+            }
+            .comparison-icon-cross, .comparison-icon-check {
+                font-size: 1.6rem !important;
+            }
+        }
+        .step-number {
+            color: #003366 !important;
+            min-width: 40px;
+        }
+        .step-item {
+            padding: 1rem;
+            border-radius: 1rem;
+            transition: background 0.3s ease;
+        }
+        .step-item:hover {
+            background: rgba(0, 51, 102, 0.05);
+        }
     </style>
 </head>
 <body>
@@ -120,26 +261,34 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">Головна</a>
+                    <a class="nav-link" th:href="@{/cars/available}">Каталог</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/cars/available}">Автомобілі</a>
+                <!-- Admin specific links moved to navbar -->
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/dashboard}">Панель управління</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/cars}">Всі автомобілі</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/cars/add}">Додати автомобіль</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/orders/pending}">Очікуючі замовлення</a>
+                    </li>
+                </th:block>
             </ul>
             <ul class="navbar-nav ms-auto align-items-center">
                 <!-- Logged in user -->
                 <th:block sec:authorize="isAuthenticated()">
-                    <!-- Admin/Manager context links (Moved to the right) -->
-                    <li class="nav-item dropdown me-2" sec:authorize="hasRole('ADMIN')">
-                        <a class="nav-link dropdown-toggle btn btn-outline-warning text-white px-3" href="#" data-bs-toggle="dropdown">
+                    <!-- Admin Label -->
+                    <li class="nav-item me-2" sec:authorize="hasRole('ADMIN')">
+                        <span class="badge bg-warning text-dark px-3 py-2">
                             <i class="fas fa-user-shield me-1"></i>Адмін
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" th:href="@{/admin/dashboard}">Панель управління</a></li>
-                            <li><a class="dropdown-item" th:href="@{/cars}">Всі автомобілі</a></li>
-                            <li><a class="dropdown-item" th:href="@{/cars/add}">Додати автомобіль</a></li>
-                            <li><a class="dropdown-item" th:href="@{/orders/pending}">Очікуючі замовлення</a></li>
-                        </ul>
+                        </span>
                     </li>
+                    <!-- Manager dropdown remains for other specific tasks -->
                     <li class="nav-item dropdown me-2" sec:authorize="hasRole('MANAGER')">
                         <a class="nav-link dropdown-toggle btn btn-outline-info text-white px-3" href="#" data-bs-toggle="dropdown">
                             <i class="fas fa-user-tie me-1"></i>Менеджер

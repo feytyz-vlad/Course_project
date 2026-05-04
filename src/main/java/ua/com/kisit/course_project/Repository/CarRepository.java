@@ -92,8 +92,7 @@ public interface CarRepository {
     /**
      * Search cars by multiple criteria
      */
-    List<Car> searchCars(String brand, CarStatus status, TransmissionType transmission,
-                         FuelType fuel, BigDecimal maxPrice);
+    List<Car> searchCars(String query, Car.CarClass carClass, Car.FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice);
 
     /**
      * Update car status

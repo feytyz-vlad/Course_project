@@ -2,18 +2,255 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="uk" th:replace="~{Layout :: layout}">
 <body>
 <main th:fragment="content">
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold" th:text="${title ?: 'Автомобілі'}">Наші автомобілі</h2>
-            <div sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
-                <a th:href="@{/cars/add}" class="btn btn-success shadow-sm">
-                    <i class="fas fa-plus me-2"></i>Додати авто
-                </a>
+    <div class="container mt-4 mt-lg-5">
+        <!-- Header with Search Bar -->
+        <div class="row align-items-center mb-4 mb-lg-5 g-3">
+            <div class="col-12 col-xl-3 col-lg-4 text-center text-lg-start">
+                <h2 class="fw-bold mb-0 text-primary text-uppercase" th:text="${title ?: 'Доступні автомобілі'}" style="color: #003366 !important;">ДОСТУПНІ АВТОМОБІЛІ</h2>
+            </div>
+            <div class="col-12 col-xl-7 col-lg-6">
+                <form th:action="@{/cars/search}" method="get">
+                    <div class="search-container shadow-sm border rounded-3 overflow-hidden d-flex flex-column flex-md-row">
+                        <div class="input-group input-group-lg flex-grow-1 border-0">
+                            <span class="input-group-text bg-white border-0 ps-3 ps-md-4"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" name="query" class="form-control border-0 py-3 fs-6" 
+                                   placeholder="Знайдіть своє ідеальне авто..." th:value="${searchQuery}">
+                        </div>
+                        <button class="btn btn-primary px-5 fw-bold rounded-0 py-3 py-md-2" type="submit" style="background-color: #003366; border: none;">Пошук</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-12 col-xl-2 col-lg-2">
+                <div class="d-flex gap-2 justify-content-center justify-content-lg-end">
+                    <button type="button" class="btn btn-outline-primary shadow-sm px-4 py-2 fw-bold flex-grow-1 flex-lg-grow-0" data-bs-toggle="modal" data-bs-target="#filterModal">
+                        <i class="fas fa-filter me-2"></i>Фільтри
+                    </button>
+                    <div sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
+                        <a th:href="@{/cars/add}" class="btn btn-success shadow-sm p-2 px-3">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div th:if="${cars == null or cars.isEmpty()}" class="alert alert-info shadow-sm">
-            <i class="fas fa-info-circle me-2"></i> Наразі немає автомобілів за вашим запитом.
+
+        <!-- Filter Modal -->
+        <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="modal-header text-white py-3 px-4" style="background-color: #003366;">
+                        <h5 class="modal-title fw-bold text-white pe-5" id="filterModalLabel">
+                            <i class="fas fa-car me-2 text-white"></i>AutoRent - Фільтрація каталогу
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-5">
+                        <form th:action="@{/cars/search}" method="get" class="row g-4">
+                            <!-- Left Column: Primary Filters -->
+                            <div class="col-lg-8">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label for="modalQuery" class="form-label small fw-bold text-uppercase text-muted">Назва або бренд</label>
+                                        <input type="text" name="query" id="modalQuery" class="form-control form-control-lg bg-light border-0" 
+                                               placeholder="Наприклад: Toyota" th:value="${searchQuery}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="modalClass" class="form-label small fw-bold text-uppercase text-muted">Клас автомобіля</label>
+                                        <select name="class" id="modalClass" class="form-select form-select-lg bg-light border-0">
+                                            <option value="">Всі класи</option>
+                                            <option th:each="c : ${carClasses}" th:value="${c.name()}" 
+                                                    th:text="${c.displayName}" th:selected="${searchClass != null and searchClass.name() == c.name()}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="modalFuel" class="form-label small fw-bold text-uppercase text-muted">Тип палива</label>
+                                        <select name="fuel" id="modalFuel" class="form-select form-select-lg bg-light border-0">
+                                            <option value="">Всі види</option>
+                                            <option th:each="f : ${fuelTypes}" th:value="${f.name()}" 
+                                                    th:text="${f.displayName}" th:selected="${searchFuel != null and searchFuel.name() == f.name()}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="modalSeats" class="form-label small fw-bold text-uppercase text-muted">Кількість місць</label>
+                                        <select name="seats" id="modalSeats" class="form-select form-select-lg bg-light border-0">
+                                            <option value="">Будь-що</option>
+                                            <option th:each="s : ${#numbers.sequence(2, 9)}" th:value="${s}" th:text="${s}" th:selected="${searchSeats == s}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="modalYear" class="form-label small fw-bold text-uppercase text-muted">Рік випуску</label>
+                                        <select name="year" id="modalYear" class="form-select form-select-lg bg-light border-0">
+                                            <option value="">Всі роки</option>
+                                            <option th:each="y : ${#numbers.sequence(2018, 2026)}" th:value="${y}" th:text="${y}" th:selected="${searchYear == y}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Price Slider -->
+                            <div class="col-lg-4 border-start">
+                                <div class="px-3">
+                                    <label class="form-label small fw-bold text-uppercase text-muted d-block mb-4">Вартість оренди (за добу)</label>
+                                    
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="badge bg-light text-dark border p-2" id="minPriceVal" th:text="${searchMinPrice ?: 0} + ' грн'">0 грн</span>
+                                        <span class="badge bg-light text-dark border p-2" id="maxPriceVal" th:text="${searchMaxPrice ?: 10000} + ' грн'">10000 грн</span>
+                                    </div>
+
+                                    <div class="price-slider-container my-4">
+                                        <div class="slider-track"></div>
+                                        <input type="range" class="range-input" min="0" max="10000" step="100" 
+                                               th:value="${searchMinPrice ?: 0}" id="rangeMin" oninput="updateRange()">
+                                        <input type="range" class="range-input" min="0" max="10000" step="100" 
+                                               th:value="${searchMaxPrice ?: 10000}" id="rangeMax" oninput="updateRange()">
+                                    </div>
+
+                                    <div class="row g-2 mt-2">
+                                        <div class="col-6">
+                                            <input type="number" name="minPrice" th:value="${searchMinPrice}" class="form-control form-control-sm" placeholder="Від">
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="number" name="maxPrice" th:value="${searchMaxPrice}" class="form-control form-control-sm" placeholder="До">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-5">
+                                <div class="d-flex flex-column flex-md-row gap-3 justify-content-end">
+                                    <a th:href="@{/cars/available}" class="btn btn-light px-5 py-3 fw-bold text-muted border order-2 order-md-1">Очистити все</a>
+                                    <button type="submit" class="btn btn-primary px-5 py-3 fw-bold shadow order-1 order-md-2" style="background-color: #003366; border: none;">
+                                        Показати результати
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function updateRange() {
+                const min = document.getElementById('rangeMin');
+                const max = document.getElementById('rangeMax');
+                const minInput = document.getElementsByName('minPrice')[0];
+                const maxInput = document.getElementsByName('maxPrice')[0];
+                const minVal = document.getElementById('minPriceVal');
+                const maxVal = document.getElementById('maxPriceVal');
+                
+                if (parseInt(min.value) > parseInt(max.value)) {
+                    let tmp = min.value;
+                    min.value = max.value;
+                    max.value = tmp;
+                }
+                
+                minInput.value = min.value;
+                maxInput.value = max.value;
+                minVal.innerText = min.value + ' грн';
+                maxVal.innerText = max.value + ' грн';
+                
+                updateTrack();
+            }
+
+            function updateTrack() {
+                const min = document.getElementById('rangeMin');
+                const max = document.getElementById('rangeMax');
+                const track = document.querySelector('.slider-track');
+                const percent1 = (min.value / min.max) * 100;
+                const percent2 = (max.value / max.max) * 100;
+                track.style.background = `linear-gradient(to right, #495057 ${percent1}%, #003366 ${percent1}%, #003366 ${percent2}%, #495057 ${percent2}%)`;
+            }
+            
+            window.onload = updateTrack;
+        </script>
+
+        <style>
+            .price-slider-container {
+                position: relative;
+                width: 100%;
+                height: 30px;
+                display: flex;
+                align-items: center;
+            }
+            .slider-track {
+                position: absolute;
+                width: 100%;
+                height: 6px;
+                background: #495057; /* Dark gray track */
+                border-radius: 5px;
+                z-index: 1;
+            }
+            .range-input {
+                position: absolute;
+                width: 100%;
+                height: 6px;
+                background: none;
+                pointer-events: none;
+                -webkit-appearance: none;
+                appearance: none;
+                z-index: 2;
+                margin: 0;
+            }
+            .range-input::-webkit-slider-thumb {
+                height: 24px;
+                width: 24px;
+                border-radius: 50%;
+                background: #003366;
+                pointer-events: auto;
+                -webkit-appearance: none;
+                cursor: pointer;
+                border: 3px solid #fff;
+                box-shadow: 0 0 8px rgba(0,0,0,0.3);
+                margin-top: -2px; /* Centering fix */
+            }
+            .range-input::-moz-range-thumb {
+                height: 20px;
+                width: 20px;
+                border-radius: 50%;
+                background: #003366;
+                pointer-events: auto;
+                cursor: pointer;
+                border: 3px solid #fff;
+                box-shadow: 0 0 8px rgba(0,0,0,0.3);
+            }
+            
+            .form-control:focus {
+                box-shadow: none !important;
+                border-color: transparent !important;
+                outline: none !important;
+            }
+            .search-container .input-group-text, 
+            .search-container .form-control {
+                border: none !important;
+                background-color: white !important;
+            }
+            
+            @media (max-width: 768px) {
+                .container { padding-left: 15px; padding-right: 15px; }
+                .modal-body { padding: 1.5rem !important; }
+                .price-slider-container { margin-top: 10px; }
+                .badge { font-size: 0.8rem; }
+                .search-container .btn { width: 100%; }
+            }
+        </style>
+
+        <!-- No Results Message -->
+        <div th:if="${cars.isEmpty() and (
+                (searchQuery != null and !searchQuery.isEmpty()) or 
+                searchClass != null or 
+                searchFuel != null or 
+                searchSeats != null or 
+                searchYear != null or 
+                searchMinPrice != null or 
+                searchMaxPrice != null
+             )}" 
+             class="alert alert-light shadow-sm py-5 text-center border-0 mb-5 rounded-4 bg-white">
+            <div class="py-3">
+                <i class="fas fa-search-minus fa-3x mb-3 text-muted opacity-50"></i>
+                <h4 class="fw-bold text-dark">Автомобілів не знайдено</h4>
+                <p class="text-muted">Наразі немає автомобілів, що відповідають вашому запиту.<br>Спробуйте змінити фільтри або <a th:href="@{/cars/available}" class="text-primary text-decoration-none fw-bold">скинути все</a>.</p>
+            </div>
         </div>
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -25,6 +262,8 @@
                         <span class="badge position-absolute top-0 end-0 m-3" 
                               th:classappend="${car.status.name() == 'AVAILABLE' ? 'bg-success' : 'bg-warning text-dark'}"
                               th:text="${car.status.displayName}">Статус</span>
+                        <span class="badge bg-dark position-absolute top-0 start-0 m-3" 
+                              th:text="${car.carClass.displayName}">Клас</span>
                     </div>
                     <div class="card-body">
                         <h5 class="card-title fw-bold" th:text="${car.brand + ' ' + car.model}">Brand Model</h5>
@@ -67,6 +306,7 @@
                                             <div class="col-6"><small class="text-muted d-block">Колір</small><strong th:text="${car.color}">Білий</strong></div>
                                             <div class="col-6"><small class="text-muted d-block">КПП</small><strong th:text="${car.transmissionType.displayName}">Авто</strong></div>
                                             <div class="col-6"><small class="text-muted d-block">Паливо</small><strong th:text="${car.fuelType.displayName}">Бензин</strong></div>
+                                            <div class="col-12 mt-2"><span class="badge bg-primary px-3" th:text="${car.carClass.displayName}">Клас</span></div>
                                         </div>
                                         
                                         <div class="d-grid">

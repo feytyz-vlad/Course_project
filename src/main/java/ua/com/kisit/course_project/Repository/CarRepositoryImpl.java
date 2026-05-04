@@ -69,7 +69,18 @@ public class CarRepositoryImpl implements CarRepository {
         }
         car.setMileage(rs.getInt("mileage"));
         car.setImageUrl(rs.getString("image_url"));
-        car.setDescription(rs.getString("description"));
+        
+        String classStr = rs.getString("car_class");
+        if (classStr != null) {
+            try {
+                car.setCarClass(CarClass.valueOf(classStr.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                car.setCarClass(CarClass.STANDARD);
+            }
+        } else {
+            car.setCarClass(CarClass.STANDARD);
+        }
+
         Timestamp createdAt = rs.getTimestamp("created_at");
         if (createdAt != null) car.setCreatedAt(createdAt.toLocalDateTime());
         Timestamp updatedAt = rs.getTimestamp("updated_at");
@@ -101,8 +112,8 @@ public class CarRepositoryImpl implements CarRepository {
     @Override
     public Car save(Car car) {
         String sql = "INSERT INTO cars (brand, model, year, color, registration_number, vin_code, " +
-                "transmission_type, fuel_type, seats_count, daily_rate, status, mileage, image_url, description) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "transmission_type, fuel_type, seats_count, daily_rate, status, mileage, image_url, description, car_class) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(conn -> {
@@ -121,6 +132,7 @@ public class CarRepositoryImpl implements CarRepository {
             ps.setInt(12, car.getMileage() != null ? car.getMileage() : 0);
             ps.setString(13, car.getImageUrl());
             ps.setString(14, car.getDescription());
+            ps.setString(15, car.getCarClass() != null ? car.getCarClass().name() : CarClass.STANDARD.name());
             return ps;
         }, keyHolder);
 
@@ -134,7 +146,7 @@ public class CarRepositoryImpl implements CarRepository {
     public Car update(Car car) {
         String sql = "UPDATE cars SET brand=?, model=?, year=?, color=?, registration_number=?, " +
                 "vin_code=?, transmission_type=?, fuel_type=?, seats_count=?, daily_rate=?, " +
-                "status=?, mileage=?, image_url=?, description=? WHERE car_id=?";
+                "status=?, mileage=?, image_url=?, description=?, car_class=? WHERE car_id=?";
 
         jdbcTemplate.update(sql,
                 car.getBrand(), car.getModel(), car.getYear(), car.getColor(),
@@ -144,6 +156,7 @@ public class CarRepositoryImpl implements CarRepository {
                 car.getFuelType() != null ? car.getFuelType().name() : FuelType.PETROL.name(),
                 car.getSeatsCount(), car.getDailyRate(), car.getStatus().name(),
                 car.getMileage(), car.getImageUrl(), car.getDescription(),
+                car.getCarClass() != null ? car.getCarClass().name() : CarClass.STANDARD.name(),
                 car.getCarId());
         return car;
     }
@@ -206,16 +219,42 @@ public class CarRepositoryImpl implements CarRepository {
     }
 
     @Override
-    public List<Car> searchCars(String brand, CarStatus status, TransmissionType transmission,
-                                FuelType fuel, BigDecimal maxPrice) {
+    public List<Car> searchCars(String query, CarClass carClass, FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice) {
         StringBuilder sql = new StringBuilder("SELECT * FROM cars WHERE 1=1");
         List<Object> params = new ArrayList<>();
 
-        if (brand != null && !brand.isEmpty()) { sql.append(" AND brand=?"); params.add(brand); }
-        if (status != null)       { sql.append(" AND status=?");            params.add(status.name()); }
-        if (transmission != null) { sql.append(" AND transmission_type=?"); params.add(transmission.name()); }
-        if (fuel != null)         { sql.append(" AND fuel_type=?");         params.add(fuel.name()); }
-        if (maxPrice != null)     { sql.append(" AND daily_rate<=?");       params.add(maxPrice); }
+        if (query != null && !query.isBlank()) {
+            sql.append(" AND (LOWER(brand) LIKE ? OR LOWER(model) LIKE ? OR LOWER(CONCAT(brand, ' ', model)) LIKE ?)");
+            String searchPattern = "%" + query.toLowerCase().trim() + "%";
+            params.add(searchPattern);
+            params.add(searchPattern);
+            params.add(searchPattern);
+        }
+        if (carClass != null) {
+            sql.append(" AND car_class = ?");
+            params.add(carClass.name());
+        }
+        if (fuel != null) {
+            sql.append(" AND fuel_type = ?");
+            params.add(fuel.name());
+        }
+        if (seats != null) {
+            sql.append(" AND seats_count = ?");
+            params.add(seats);
+        }
+        if (year != null) {
+            sql.append(" AND year = ?");
+            params.add(year);
+        }
+        if (minPrice != null) {
+            sql.append(" AND daily_rate >= ?");
+            params.add(minPrice);
+        }
+        if (maxPrice != null) {
+            sql.append(" AND daily_rate <= ?");
+            params.add(maxPrice);
+        }
+        
         sql.append(" ORDER BY brand, model");
 
         return jdbcTemplate.query(sql.toString(), carRowMapper, params.toArray());

@@ -22,6 +22,15 @@ public class RentalOrder {
     private String additionalNotes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Car car; // Added for display purposes
+
+    public Car getCar() {
+        return car;
+    }
+
+    public void setCar(Car car) {
+        this.car = car;
+    }
 
     // Enum for order status
     public enum OrderStatus {

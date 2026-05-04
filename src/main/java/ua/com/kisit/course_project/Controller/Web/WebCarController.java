@@ -38,6 +38,7 @@ public class WebCarController {
         model.addAttribute("transmissionTypes", TransmissionType.values());
         model.addAttribute("fuelTypes", FuelType.values());
         model.addAttribute("carStatuses", CarStatus.values());
+        model.addAttribute("carClasses", Car.CarClass.values());
     }
 
     @GetMapping
@@ -66,22 +67,28 @@ public class WebCarController {
 
     @GetMapping("/search")
     public String searchCars(
-            @RequestParam(required = false) String brand,
-            @RequestParam(required = false) String transmission,
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false, name = "class") String carClass,
             @RequestParam(required = false) String fuel,
+            @RequestParam(required = false) Integer seats,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             Model model) {
 
-        TransmissionType transmissionEnum = parseEnum(TransmissionType.class, transmission);
+        Car.CarClass classEnum = parseEnum(Car.CarClass.class, carClass);
         FuelType fuelEnum = parseEnum(FuelType.class, fuel);
 
-        List<Car> cars = carService.searchCars(brand, null, transmissionEnum, fuelEnum, maxPrice);
+        List<Car> cars = carService.searchCars(query, classEnum, fuelEnum, seats, year, minPrice, maxPrice);
 
         model.addAttribute("cars", cars);
         model.addAttribute("title", "Результати пошуку");
-        model.addAttribute("searchBrand", brand);
-        model.addAttribute("searchTransmission", transmissionEnum);
+        model.addAttribute("searchQuery", query);
+        model.addAttribute("searchClass", classEnum);
         model.addAttribute("searchFuel", fuelEnum);
+        model.addAttribute("searchSeats", seats);
+        model.addAttribute("searchYear", year);
+        model.addAttribute("searchMinPrice", minPrice);
         model.addAttribute("searchMaxPrice", maxPrice);
         addEnumsToModel(model);
 

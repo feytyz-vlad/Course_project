@@ -30,11 +30,12 @@
                         <tr th:each="order : ${orders}">
                             <td th:text="${order.orderId}">1</td>
                             <td>
-                                <a th:if="${order.carId != null}" th:href="@{/cars/{id}(id=${order.carId})}" th:text="${'Авто #' + order.carId}">Авто</a>
-                                <span th:if="${order.carId == null}">Невідомо</span>
+                                <a th:if="${order.car != null}" th:href="@{/cars/{id}(id=${order.carId})}" 
+                                   th:text="${order.car.brand + ' ' + order.car.model}">Brand Model</a>
+                                <span th:if="${order.car == null}" th:text="${'Авто #' + order.carId}">Авто #</span>
                             </td>
-                            <td th:text="${order.startDate}">2025-01-01</td>
-                            <td th:text="${order.endDate}">2025-01-07</td>
+                            <td th:text="${#temporals.format(order.startDate, 'd MMMM yyyy року', new java.util.Locale('uk'))}">5 травня 2026 року</td>
+                            <td th:text="${#temporals.format(order.endDate, 'd MMMM yyyy року', new java.util.Locale('uk'))}">6 травня 2026 року</td>
                             <td th:text="${order.totalDays}">7</td>
                             <td><strong th:text="${(order.totalCost != null ? order.totalCost : 0) + ' грн'}">7000 грн</strong></td>
                             <td>

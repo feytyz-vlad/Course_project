@@ -220,6 +220,71 @@ public class WebRentalOrderController {
     }
 
     /**
+     * Show order details
+     */
+    @GetMapping("/{id}")
+    public String orderDetails(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) return "redirect:/auth/login";
+        
+        Optional<RentalOrder> orderOpt = orderService.getOrderById(id);
+        if (orderOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Замовлення не знайдено");
+            return "redirect:/orders";
+        }
+        
+        RentalOrder order = orderOpt.get();
+        Optional<User> userOpt = userRepository.findByEmail(auth.getName());
+        if (userOpt.isPresent() && userOpt.get().getRole() != UserRole.ADMIN) {
+            Optional<Client> client = clientService.getClientByUserId(userOpt.get().getUserId());
+            if (client.isEmpty() || !client.get().getClientId().equals(order.getClientId())) {
+                redirectAttributes.addFlashAttribute("error", "Доступ заборонено");
+                return "redirect:/orders";
+            }
+        }
+        
+        model.addAttribute("order", order);
+        model.addAttribute("ukLocale", new java.util.Locale("uk", "UA"));
+        return "orders/details";
+    }
+
+    /**
+     * Show rental contract
+     */
+    @GetMapping("/{id}/contract")
+    public String orderContract(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) return "redirect:/auth/login";
+
+        Optional<RentalOrder> orderOpt = orderService.getOrderById(id);
+        if (orderOpt.isEmpty() || orderOpt.get().getStatus() == RentalOrder.OrderStatus.PENDING) {
+            redirectAttributes.addFlashAttribute("error", "Договір доступний лише після підтвердження замовлення.");
+            return "redirect:/orders";
+        }
+
+        RentalOrder order = orderOpt.get();
+        Optional<User> userOpt = userRepository.findByEmail(auth.getName());
+        
+        // Authorization check
+        if (userOpt.isPresent() && userOpt.get().getRole() != UserRole.ADMIN) {
+            Optional<Client> client = clientService.getClientByUserId(userOpt.get().getUserId());
+            if (client.isEmpty() || !client.get().getClientId().equals(order.getClientId())) {
+                redirectAttributes.addFlashAttribute("error", "Доступ заборонено");
+                return "redirect:/orders";
+            }
+        }
+
+        Optional<Client> clientOpt = clientService.getClientById(order.getClientId());
+        
+        model.addAttribute("order", order);
+        model.addAttribute("client", clientOpt.orElse(new Client()));
+        model.addAttribute("ukLocale", new java.util.Locale("uk", "UA"));
+        model.addAttribute("title", "Договір оренди #" + order.getOrderId());
+        
+        return "orders/contract";
+    }
+
+    /**
      * Show pending orders (admin only)
      */
     @GetMapping("/pending")

@@ -22,8 +22,26 @@ public class Car {
     private Integer mileage;
     private String imageUrl;
     private String description;
+    private CarClass carClass;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public enum CarClass {
+        ECONOMY("Економ"),
+        STANDARD("Стандарт"),
+        COMFORT("Комфорт"),
+        BUSINESS("Бізнес");
+
+        private final String displayName;
+
+        CarClass(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
 
     // Enums
     public enum TransmissionType {
@@ -214,6 +232,14 @@ public class Car {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public CarClass getCarClass() {
+        return carClass;
+    }
+
+    public void setCarClass(CarClass carClass) {
+        this.carClass = carClass;
     }
 
     public LocalDateTime getCreatedAt() {

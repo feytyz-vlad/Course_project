@@ -46,6 +46,17 @@
                                     <input type="number" class="form-control" name="seatsCount"
                                            th:value="${car.seatsCount}" required min="1" max="9">
                                 </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Клас *</label>
+                                    <select class="form-select" name="carClass" required>
+                                        <option value="">Оберіть...</option>
+                                        <option th:each="c : ${carClasses}"
+                                                th:value="${c.name()}"
+                                                th:text="${c.displayName}"
+                                                th:selected="${car.carClass != null and car.carClass == c}">
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div class="row">
