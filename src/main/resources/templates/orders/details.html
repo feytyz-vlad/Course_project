@@ -126,6 +126,120 @@
                             </button>
                         </form>
 
+                        <!-- Клієнт: Кнопки оплати пошкодження -->
+                        <div th:each="report : ${damageReports}" th:if="${report.repairStatus.name() != 'PAID'}">
+                            <button type="button" class="btn btn-warning w-100 mt-2" data-bs-toggle="modal" th:data-bs-target="'#payDamageModal' + ${report.reportId}">
+                                <i class="fas fa-coins me-2"></i>Оплатити пошкодження
+                            </button>
+                        </div>
+
+                        <!-- Адмін: Повідомити про пошкодження -->
+                        <div sec:authorize="hasRole('ADMIN') or hasRole('MANAGER')">
+                            <hr class="my-3">
+                            <button class="btn btn-outline-danger w-100" type="button" data-bs-toggle="collapse" data-bs-target="#damageForm">
+                                <i class="fas fa-car-crash me-2"></i>Зафіксувати пошкодження
+                            </button>
+                            <div class="collapse mt-2" id="damageForm">
+                                <div class="card card-body border-danger bg-light">
+                                    <form th:action="@{/orders/{id}/report-damage(id=${order.orderId})}" method="post">
+                                        <div class="mb-2">
+                                            <label class="form-label small">Опис пошкоджень</label>
+                                            <textarea name="description" class="form-control form-control-sm" rows="3" required></textarea>
+                                        </div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-6">
+                                                <label class="form-label small">Вартість ремонту</label>
+                                                <input type="number" name="repairCost" class="form-control form-control-sm" step="0.01" required>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label small">Штраф</label>
+                                                <input type="number" name="fineAmount" class="form-control form-control-sm" step="0.01" required>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-danger btn-sm w-100">Зберегти та виставити рахунок</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Історія пошкоджень під замовленням -->
+        <div class="row mt-4" th:if="${not #lists.isEmpty(damageReports)}">
+            <div class="col-12">
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Зафіксовані пошкодження</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Опис</th>
+                                    <th>Ремонт</th>
+                                    <th>Штраф</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="report : ${damageReports}">
+                                    <td th:text="${#temporals.format(report.createdAt, 'd MMMM yyyy, HH:mm', ukLocale)}"></td>
+                                    <td th:text="${report.damageDescription}"></td>
+                                    <td th:text="${report.repairCost + ' грн'}"></td>
+                                    <td th:text="${report.fineAmount + ' грн'}"></td>
+                                    <td>
+                                        <span class="badge rounded-pill" 
+                                              th:classappend="${report.repairStatus.name() == 'PAID' ? 'bg-success' : 'bg-warning text-dark'}"
+                                              th:text="${report.repairStatus.displayName}"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальні вікна (Винесені в кінець для уникнення мерехтіння) -->
+        <div th:each="report : ${damageReports}" th:if="${report.repairStatus.name() != 'PAID'}">
+            <div class="modal fade" th:id="'payDamageModal' + ${report.reportId}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow rounded-4">
+                        <div class="modal-header border-0 pb-0 px-4 pt-4">
+                            <h5 class="modal-title fw-bold">Оплата за пошкодження</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center p-4">
+                            <i class="fas fa-file-invoice-dollar fa-3x text-warning mb-3"></i>
+                            <p class="mb-4 text-muted">По замовленню <strong th:text="'#' + ${order.orderId}">#1</strong> виявлено пошкодження та виставлено рахунок:</p>
+                            
+                            <div class="bg-light p-3 rounded-4 mb-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Ремонт:</span>
+                                    <span class="fw-bold" th:text="${report.repairCost != null ? report.repairCost + ' грн' : '0 грн'}">0 грн</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Штраф:</span>
+                                    <span class="fw-bold" th:text="${report.fineAmount != null ? report.fineAmount + ' грн' : '0 грн'}">0 грн</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <span class="fw-bold">Разом до оплати:</span>
+                                    <span class="fw-bold text-primary fs-5" th:text="${report.getTotalAmount() + ' грн'}">0 грн</span>
+                                </div>
+                            </div>
+
+                            <form th:action="@{/orders/{id}/pay-damage/{reportId}(id=${order.orderId}, reportId=${report.reportId})}" method="post">
+                                <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold">
+                                    Провести оплату
+                                </button>
+                            </form>
+                            <p class="small text-muted mt-3 mb-0">Оплата проводиться через внутрішню платіжну систему</p>
+                        </div>
                     </div>
                 </div>
             </div>

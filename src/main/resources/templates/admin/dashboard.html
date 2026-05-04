@@ -128,10 +128,28 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Тут можна було б вивести останні 5 замовлень -->
-                                    <tr>
+                                    <tr th:each="order : ${latestOrders}">
+                                        <td class="fw-bold" th:text="${'#' + order.orderId}">#1</td>
+                                        <td>
+                                            <div class="small fw-bold text-muted" th:text="${'ID: ' + order.clientId}">ID: 1</div>
+                                        </td>
+                                        <td>
+                                            <div th:if="${order.car != null}" th:text="${order.car.brand + ' ' + order.car.model}">Toyota Camry</div>
+                                            <div th:if="${order.car == null}" th:text="${'Car #' + order.carId}">Car #1</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill"
+                                                  th:classappend="${order.status.name() == 'ACTIVE' ? 'bg-success' : 
+                                                                 (order.status.name() == 'PENDING' ? 'bg-warning text-dark' : 
+                                                                 (order.status.name() == 'COMPLETED' ? 'bg-secondary' : 'bg-danger'))}"
+                                                  th:text="${order.status.displayName}">
+                                                Статус
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(latestOrders)}">
                                         <td colspan="4" class="text-center py-4 text-muted small">
-                                            Перейдіть до списку замовлень для повного перегляду
+                                            Замовлень поки що немає
                                         </td>
                                     </tr>
                                 </tbody>

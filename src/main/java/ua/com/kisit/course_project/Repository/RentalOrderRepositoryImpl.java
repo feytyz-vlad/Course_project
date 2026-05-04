@@ -157,4 +157,11 @@ public class RentalOrderRepositoryImpl implements RentalOrderRepository {
     public boolean deleteById(Long orderId) {
         return jdbcTemplate.update("DELETE FROM rental_orders WHERE order_id=?", orderId) > 0;
     }
+
+    @Override
+    public List<RentalOrder> findLatestOrders(int limit) {
+        return jdbcTemplate.query(
+                "SELECT * FROM rental_orders ORDER BY order_id DESC LIMIT ?",
+                orderRowMapper, limit);
+    }
 }

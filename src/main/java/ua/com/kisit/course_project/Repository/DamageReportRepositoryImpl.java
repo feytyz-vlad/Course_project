@@ -33,6 +33,7 @@ public class DamageReportRepositoryImpl implements DamageReportRepository {
         Date damageDate = rs.getDate("damage_date");
         if (damageDate != null) report.setDamageDate(damageDate.toLocalDate());
         report.setRepairCost(rs.getBigDecimal("repair_cost"));
+        report.setFineAmount(rs.getBigDecimal("fine_amount"));
         String status = rs.getString("repair_status");
         if (status != null) {
             try {
@@ -62,8 +63,8 @@ public class DamageReportRepositoryImpl implements DamageReportRepository {
     @Override
     public DamageReport save(DamageReport report) {
         String sql = "INSERT INTO damage_reports (order_id, car_id, damage_description, " +
-                "damage_date, repair_cost, repair_status, photos_url, created_by_user_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                "damage_date, repair_cost, fine_amount, repair_status, photos_url, created_by_user_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(conn -> {
@@ -73,9 +74,10 @@ public class DamageReportRepositoryImpl implements DamageReportRepository {
             ps.setString(3, report.getDamageDescription());
             ps.setDate(4, report.getDamageDate() != null ? Date.valueOf(report.getDamageDate()) : null);
             ps.setBigDecimal(5, report.getRepairCost());
-            ps.setString(6, report.getRepairStatus() != null ? report.getRepairStatus().name() : RepairStatus.ASSESSED.name());
-            ps.setString(7, report.getPhotosUrl());
-            ps.setLong(8, report.getCreatedByUserId() != null ? report.getCreatedByUserId() : 0);
+            ps.setBigDecimal(6, report.getFineAmount());
+            ps.setString(7, report.getRepairStatus() != null ? report.getRepairStatus().name() : RepairStatus.ASSESSED.name());
+            ps.setString(8, report.getPhotosUrl());
+            ps.setLong(9, report.getCreatedByUserId() != null ? report.getCreatedByUserId() : 0);
             return ps;
         }, keyHolder);
 
@@ -89,10 +91,11 @@ public class DamageReportRepositoryImpl implements DamageReportRepository {
     public DamageReport update(DamageReport report) {
         jdbcTemplate.update(
                 "UPDATE damage_reports SET damage_description=?, damage_date=?, " +
-                        "repair_cost=?, repair_status=?, photos_url=? WHERE report_id=?",
+                        "repair_cost=?, fine_amount=?, repair_status=?, photos_url=? WHERE report_id=?",
                 report.getDamageDescription(),
                 report.getDamageDate() != null ? Date.valueOf(report.getDamageDate()) : null,
                 report.getRepairCost(),
+                report.getFineAmount(),
                 report.getRepairStatus() != null ? report.getRepairStatus().name() : null,
                 report.getPhotosUrl(),
                 report.getReportId());

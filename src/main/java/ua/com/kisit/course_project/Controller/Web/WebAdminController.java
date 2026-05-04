@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
 public class WebAdminController {
 
     private final UserRepository userRepository;
@@ -44,6 +44,7 @@ public class WebAdminController {
         model.addAttribute("totalOrders", orderService.getAllOrders().size());
         model.addAttribute("pendingOrders", orderService.getPendingOrders().size());
         model.addAttribute("totalDamages", damageService.getAllReports().size());
+        model.addAttribute("latestOrders", orderService.getLatestOrders(5));
         return "admin/dashboard";
     }
 
@@ -53,6 +54,13 @@ public class WebAdminController {
         model.addAttribute("roles", UserRole.values());
         model.addAttribute("title", "Керування користувачами");
         return "admin/users";
+    }
+
+    @GetMapping("/damages")
+    public String getDamages(Model model) {
+        model.addAttribute("reports", damageService.getAllReports());
+        model.addAttribute("title", "Звіти про пошкодження");
+        return "admin/damages";
     }
 
     @PostMapping("/users/{id}/role")

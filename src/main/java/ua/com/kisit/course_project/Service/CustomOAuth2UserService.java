@@ -17,57 +17,69 @@ import ua.com.kisit.course_project.Repository.UserRepository;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final ua.com.kisit.course_project.Repository.ClientRepository clientRepository;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
-    public CustomOAuth2UserService(UserRepository userRepository) {
+    public CustomOAuth2UserService(UserRepository userRepository, 
+                                   ua.com.kisit.course_project.Repository.ClientRepository clientRepository,
+                                   org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.clientRepository = clientRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        // Получаем email из данных Google аккаунта
         String email = oAuth2User.getAttribute("email");
+        String firstName = oAuth2User.getAttribute("given_name");
+        String lastName = oAuth2User.getAttribute("family_name");
 
-        // Проверяем, существует ли пользователь с таким email
         Optional<User> existingUser = userRepository.findByEmail(email);
+        User user;
 
         if (existingUser.isEmpty()) {
-            // Если пользователя нет, создаем нового с ролью CLIENT
-            registerOAuth2User(email);
+            user = registerOAuth2User(email, firstName, lastName);
+        } else {
+            user = existingUser.get();
         }
 
-        return oAuth2User;
+        // Створюємо список прав (ролей) на основі ролі з бази даних
+        java.util.List<org.springframework.security.core.GrantedAuthority> authorities = 
+            java.util.Collections.singletonList(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+
+        // Повертаємо користувача з правильними ролями
+        return new org.springframework.security.oauth2.core.user.DefaultOAuth2User(
+            authorities, 
+            oAuth2User.getAttributes(), 
+            "email" // Використовуємо email як основний ідентифікатор (Name)
+        );
     }
 
-    private void registerOAuth2User(String email) {
-        if (userRepository.existsByEmail(email)) {
-            return; // Пользователь уже существует
-        }
-
+    private User registerOAuth2User(String email, String firstName, String lastName) {
         // Генерируем случайный пароль для OAuth2 пользователей
-        String passwordHash = hashPassword(generateRandomPassword());
+        String passwordHash = passwordEncoder.encode(generateRandomPassword());
         User user = new User(email, passwordHash, UserRole.CLIENT);
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        // Создаем запись клиента
+        ua.com.kisit.course_project.Entity.Client client = new ua.com.kisit.course_project.Entity.Client();
+        client.setUserId(savedUser.getUserId());
+        client.setFirstName(firstName != null ? firstName : "Клієнт");
+        client.setLastName(lastName != null ? lastName : "Google");
+        client.setCreatedAt(java.time.LocalDateTime.now());
+        client.setUpdatedAt(java.time.LocalDateTime.now());
+        clientRepository.save(client);
+        
+        return savedUser;
     }
 
     private String generateRandomPassword() {
-        // Генерируем случайный пароль для OAuth2 пользователей
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[16];
         random.nextBytes(bytes);
         return "oauth2-" + bytesToHex(bytes);
-    }
-
-    private String hashPassword(String password) {
-        // Простое хэширование SHA-256 (в реальном приложении используйте BCrypt)
-        try {
-            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(password.getBytes());
-            return java.util.Base64.getEncoder().encodeToString(hash);
-        } catch (Exception e) {
-            throw new RuntimeException("Error hashing password", e);
-        }
     }
 
     private String bytesToHex(byte[] bytes) {
@@ -77,4 +89,4 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         return result.toString();
     }
-}
+}

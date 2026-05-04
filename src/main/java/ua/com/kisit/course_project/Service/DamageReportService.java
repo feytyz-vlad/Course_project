@@ -23,8 +23,10 @@ public class DamageReportService {
     }
 
     public DamageReport createReport(Long orderId, Long carId, String description,
-                                     LocalDate damageDate, Long createdByUserId) {
+                                     LocalDate damageDate, BigDecimal repairCost, BigDecimal fineAmount, Long createdByUserId) {
         DamageReport report = new DamageReport(orderId, carId, description, damageDate, createdByUserId);
+        report.setRepairCost(repairCost);
+        report.setFineAmount(fineAmount);
         DamageReport saved = damageReportRepository.save(report);
 
         if (saved != null) {
@@ -33,7 +35,7 @@ public class DamageReportService {
         return saved;
     }
 
-    public boolean setRepairCost(Long reportId, BigDecimal cost) {
+    public boolean setRepairCosts(Long reportId, BigDecimal cost, BigDecimal fine) {
         Optional<DamageReport> reportOpt = damageReportRepository.findById(reportId);
         if (reportOpt.isEmpty()) {
             throw new IllegalArgumentException("Звіт не знайдено");
@@ -41,11 +43,31 @@ public class DamageReportService {
 
         DamageReport report = reportOpt.get();
         report.setRepairCost(cost);
+        report.setFineAmount(fine);
         return damageReportRepository.update(report) != null;
     }
 
     public boolean markAsInRepair(Long reportId) {
         return damageReportRepository.updateStatus(reportId, RepairStatus.IN_REPAIR);
+    }
+
+    public boolean payDamage(Long reportId) {
+        Optional<DamageReport> reportOpt = damageReportRepository.findById(reportId);
+        if (reportOpt.isEmpty()) {
+            throw new IllegalArgumentException("Звіт не знайдено");
+        }
+
+        DamageReport report = reportOpt.get();
+        boolean updated = damageReportRepository.updateStatus(reportId, RepairStatus.PAID);
+        
+        if (updated) {
+            // Якщо оплачено, зазвичай машина ще має пройти ремонт або вже готова
+            // Для спрощення, якщо статус PAID, ми можемо перевести авто в AVAILABLE або MAINTENANCE
+            // Користувач просив: "по завершению аренды... уведомление... пользователь проводит оплату"
+            // Якщо оплата пройшла, ставимо статус авто назад в AVAILABLE (або адмін потім сам змінить якщо треба ремонт)
+            carRepository.updateStatus(report.getCarId(), ua.com.kisit.course_project.Entity.Car.CarStatus.AVAILABLE);
+        }
+        return updated;
     }
 
     public boolean markAsCompleted(Long reportId) {
@@ -62,6 +84,10 @@ public class DamageReportService {
                     ua.com.kisit.course_project.Entity.Car.CarStatus.AVAILABLE);
         }
         return updated;
+    }
+
+    public List<DamageReport> getReportsByOrderId(Long orderId) {
+        return damageReportRepository.findByOrderId(orderId);
     }
 
     public List<DamageReport> getReportsByCarId(Long carId) {
