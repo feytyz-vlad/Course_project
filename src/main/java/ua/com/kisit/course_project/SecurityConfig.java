@@ -6,6 +6,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
+import ua.com.kisit.course_project.Security.CustomLogoutSuccessHandler;
+import ua.com.kisit.course_project.Service.AuditService;
 import ua.com.kisit.course_project.Service.CustomUserDetailsService;
 
 @Configuration
@@ -15,11 +17,19 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final ua.com.kisit.course_project.Service.CustomOAuth2UserService customOAuth2UserService;
+    private final AuditService auditService;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService, 
-                          ua.com.kisit.course_project.Service.CustomOAuth2UserService customOAuth2UserService) {
+                          ua.com.kisit.course_project.Service.CustomOAuth2UserService customOAuth2UserService,
+                          AuditService auditService) {
         this.userDetailsService = userDetailsService;
         this.customOAuth2UserService = customOAuth2UserService;
+        this.auditService = auditService;
+    }
+
+    @Bean
+    public CustomLogoutSuccessHandler customLogoutSuccessHandler() {
+        return new CustomLogoutSuccessHandler(auditService);
     }
 
     @Bean
@@ -55,7 +65,7 @@ public class SecurityConfig {
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
+                .logoutSuccessHandler(customLogoutSuccessHandler())
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll()

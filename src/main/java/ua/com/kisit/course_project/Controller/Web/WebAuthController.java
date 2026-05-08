@@ -1,5 +1,7 @@
 package ua.com.kisit.course_project.Controller.Web;
 
+import java.util.Optional;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -9,8 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Optional;
-
+import ua.com.kisit.course_project.Annotation.Auditable;
 import ua.com.kisit.course_project.Entity.User;
 import ua.com.kisit.course_project.Entity.UserRole;
 import ua.com.kisit.course_project.Repository.UserRepository;
@@ -44,6 +45,7 @@ public class WebAuthController {
         return "auth/register";
     }
 
+    @Auditable(action = "USER_REGISTER")
     @PostMapping({"/register", "/auth/register"})
     public String register(@RequestParam String email,
                            @RequestParam String password,
@@ -88,6 +90,7 @@ public class WebAuthController {
         return "auth/change-password";
     }
 
+    @Auditable(action = "CHANGE_PASSWORD")
     @PostMapping("/profile/change-password")
     public String changePassword(@RequestParam String oldPassword,
                                  @RequestParam String newPassword,
@@ -121,6 +124,7 @@ public class WebAuthController {
         return "auth/complete-profile";
     }
 
+    @Auditable(action = "COMPLETE_PROFILE")
     @PostMapping("/register/complete")
     public String completeProfile(@RequestParam String fio,
                                   @RequestParam String phone,
@@ -158,6 +162,7 @@ public class WebAuthController {
         }
     }
 
+    @Auditable(action = "UPDATE_PROFILE")
     @PostMapping("/profile/update")
     public String updateProfile(@RequestParam String fio,
                                 @RequestParam String phone,

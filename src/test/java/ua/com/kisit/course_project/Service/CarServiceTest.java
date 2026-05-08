@@ -60,7 +60,7 @@ class CarServiceTest {
         car.setStatus(Car.CarStatus.AVAILABLE);
 
         when(carRepository.findById(10L)).thenReturn(Optional.of(car));
-        when(carRepository.save(any(Car.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(carRepository.update(any(Car.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         boolean result = carService.updateCarStatus(10L, Car.CarStatus.RENTED);
 
@@ -68,7 +68,7 @@ class CarServiceTest {
         assertEquals(Car.CarStatus.RENTED, car.getStatus());
 
         ArgumentCaptor<Car> carCaptor = ArgumentCaptor.forClass(Car.class);
-        verify(carRepository).save(carCaptor.capture());
+        verify(carRepository).update(carCaptor.capture());
         assertEquals(Car.CarStatus.RENTED, carCaptor.getValue().getStatus());
     }
 }

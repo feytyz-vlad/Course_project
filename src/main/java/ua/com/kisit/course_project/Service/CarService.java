@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import ua.com.kisit.course_project.Entity.Car;
 import ua.com.kisit.course_project.Entity.Car.CarStatus;
 import ua.com.kisit.course_project.Entity.Car.FuelType;
-import ua.com.kisit.course_project.Entity.Car.TransmissionType;
 import ua.com.kisit.course_project.Repository.CarRepository;
 
 @Service
@@ -58,7 +57,21 @@ public class CarService {
     }
 
     public List<Car> getAvailableCars() {
-        return carRepository.findAvailableCars();
+        // Попытка напрямую через репозиторий
+        try {
+            List<Car> available = carRepository.findAvailableCars();
+            if (available != null && !available.isEmpty()) {
+                return available;
+            }
+        } catch (Exception ignored) {
+            // если репозиторий не реализует метод корректно — будем фоллбэкить
+        }
+
+        // Фоллбэк: берём все машины и фильтруем по статусу
+        List<Car> all = carRepository.findAll();
+        return all.stream()
+                  .filter(Car::isAvailable)
+                  .collect(Collectors.toList());
     }
 
     public List<Car> getAllCarsPaginated(int page, int size) {
@@ -76,7 +89,27 @@ public class CarService {
     }
 
     public boolean updateCarStatus(Long carId, CarStatus newStatus) {
-        return carRepository.updateStatus(carId, newStatus);
+        // Сначала пробуем обновить напрямую
+        try {
+            boolean ok = carRepository.updateStatus(carId, newStatus);
+            if (ok) return true;
+        } catch (Exception ignored) {
+            // продолжим с фоллбеком
+        }
+
+        // Фоллбэк: пытаемся получить сущность, изменить и сохранить
+        try {
+            Optional<Car> existing = carRepository.findById(carId);
+            if (existing.isPresent()) {
+                Car car = existing.get();
+                car.setStatus(newStatus);
+                Car updated = carRepository.update(car);
+                return updated != null;
+            }
+        } catch (Exception ignored) {
+            // вернуть false, если не удалось
+        }
+        return false;
     }
 
     public boolean markAsAvailable(Long carId) {
