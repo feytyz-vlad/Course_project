@@ -113,13 +113,12 @@
                 </configuration>
             </plugin>
 
-            <!-- Обеспечим корректную работу тестов -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0</version>
                 <configuration>
-                    <!-- По умолчанию запускаем тесты как junit5 -->
+
                     <useModulePath>false</useModulePath>
                     <includes>
                         <include>**/*Test.java</include>

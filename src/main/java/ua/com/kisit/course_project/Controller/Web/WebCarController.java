@@ -74,12 +74,13 @@ public class WebCarController {
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) String sortOrder,
             Model model) {
 
         Car.CarClass classEnum = parseEnum(Car.CarClass.class, carClass);
         FuelType fuelEnum = parseEnum(FuelType.class, fuel);
 
-        List<Car> cars = carService.searchCars(query, classEnum, fuelEnum, seats, year, minPrice, maxPrice);
+        List<Car> cars = carService.searchCars(query, classEnum, fuelEnum, seats, year, minPrice, maxPrice, sortOrder);
 
         model.addAttribute("cars", cars);
         model.addAttribute("title", "Результати пошуку");
@@ -90,6 +91,7 @@ public class WebCarController {
         model.addAttribute("searchYear", year);
         model.addAttribute("searchMinPrice", minPrice);
         model.addAttribute("searchMaxPrice", maxPrice);
+        model.addAttribute("searchSortOrder", sortOrder);
         addEnumsToModel(model);
 
         return "cars/list";

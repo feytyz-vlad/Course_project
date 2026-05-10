@@ -9,6 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ua.com.kisit.course_project.Annotation.Auditable;
+
 import ua.com.kisit.course_project.Entity.User;
 import ua.com.kisit.course_project.Entity.UserRole;
 import ua.com.kisit.course_project.Repository.UserRepository;
@@ -27,6 +29,7 @@ public class AuthenticationService {
     /**
      * Реєстрація нового користувача
      */
+    @Auditable(action = "REGISTER_USER")
     public User register(String email, String password, UserRole role) {
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Користувач з таким email вже існує");
@@ -47,6 +50,7 @@ public class AuthenticationService {
      * Зміна пароля користувача
      */
     @Transactional
+    @Auditable(action = "CHANGE_PASSWORD")
     public boolean changePassword(Long userId, String oldPassword, String newPassword) {
         Optional<User> userOptional = userRepository.findById(userId);
 

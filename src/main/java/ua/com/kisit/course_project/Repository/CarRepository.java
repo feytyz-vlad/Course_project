@@ -92,7 +92,7 @@ public interface CarRepository {
     /**
      * Search cars by multiple criteria
      */
-    List<Car> searchCars(String query, Car.CarClass carClass, Car.FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice);
+    List<Car> searchCars(String query, Car.CarClass carClass, Car.FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice, String sortOrder);
 
     /**
      * Update car status
@@ -118,4 +118,9 @@ public interface CarRepository {
      * Get available cars count
      */
     long countAvailable();
+
+    /**
+     * Get popular cars by order count
+     */
+    List<Car> getPopularCars(int limit);
 }

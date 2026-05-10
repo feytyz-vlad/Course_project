@@ -1,6 +1,8 @@
 package ua.com.kisit.course_project.Service;
 
 import org.springframework.stereotype.Service;
+
+import ua.com.kisit.course_project.Annotation.Auditable;
 import ua.com.kisit.course_project.Entity.DamageReport;
 import ua.com.kisit.course_project.Entity.DamageReport.RepairStatus;
 import ua.com.kisit.course_project.Repository.DamageReportRepository;
@@ -22,6 +24,7 @@ public class DamageReportService {
         this.carRepository = carRepository;
     }
 
+    @Auditable(action = "CREATE_DAMAGE_REPORT")
     public DamageReport createReport(Long orderId, Long carId, String description,
                                      LocalDate damageDate, BigDecimal repairCost, BigDecimal fineAmount, Long createdByUserId) {
         DamageReport report = new DamageReport(orderId, carId, description, damageDate, createdByUserId);
@@ -35,6 +38,7 @@ public class DamageReportService {
         return saved;
     }
 
+    @Auditable(action = "SET_REPAIR_COSTS")
     public boolean setRepairCosts(Long reportId, BigDecimal cost, BigDecimal fine) {
         Optional<DamageReport> reportOpt = damageReportRepository.findById(reportId);
         if (reportOpt.isEmpty()) {
@@ -51,6 +55,7 @@ public class DamageReportService {
         return damageReportRepository.updateStatus(reportId, RepairStatus.IN_REPAIR);
     }
 
+    @Auditable(action = "PAY_DAMAGE")
     public boolean payDamage(Long reportId) {
         Optional<DamageReport> reportOpt = damageReportRepository.findById(reportId);
         if (reportOpt.isEmpty()) {
@@ -70,6 +75,7 @@ public class DamageReportService {
         return updated;
     }
 
+    @Auditable(action = "COMPLETE_REPAIR")
     public boolean markAsCompleted(Long reportId) {
         Optional<DamageReport> reportOpt = damageReportRepository.findById(reportId);
         if (reportOpt.isEmpty()) {

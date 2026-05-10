@@ -10,7 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "audit_log")
+@Table(name = "system_audit_logs")
 public class AuditLog {
 
     @Id

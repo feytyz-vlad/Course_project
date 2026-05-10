@@ -48,10 +48,10 @@ public class WebHomeController {
      */
     @GetMapping("/")
     public String homePage(HttpSession session, Model model) {
-        List<Car> availableCars = carService.getAvailableCars();
-        model.addAttribute("cars", availableCars);
-        model.addAttribute("totalCars", carService.getAllCars().size());
-
+        List<Car> popularCars = carService.getPopularCars(9);
+        model.addAttribute("cars", popularCars);
+        model.addAttribute("totalCars", carService.getTotalCarsCount());
+        model.addAttribute("availableCarsCount", carService.getAvailableCarsCount());
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             Optional<User> userOpt = userRepository.findByEmail(auth.getName());

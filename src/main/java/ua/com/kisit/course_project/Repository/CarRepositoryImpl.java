@@ -219,7 +219,7 @@ public class CarRepositoryImpl implements CarRepository {
     }
 
     @Override
-    public List<Car> searchCars(String query, CarClass carClass, FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice) {
+    public List<Car> searchCars(String query, CarClass carClass, FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice, String sortOrder) {
         // Додаємо фільтр status = 'AVAILABLE', щоб клієнти не бачили орендовані авто в пошуку
         StringBuilder sql = new StringBuilder("SELECT * FROM cars WHERE status = 'AVAILABLE'");
         List<Object> params = new ArrayList<>();
@@ -256,7 +256,14 @@ public class CarRepositoryImpl implements CarRepository {
             params.add(maxPrice);
         }
         
-        sql.append(" ORDER BY brand, model");
+        
+        if ("price_asc".equals(sortOrder)) {
+            sql.append(" ORDER BY daily_rate ASC, brand, model");
+        } else if ("price_desc".equals(sortOrder)) {
+            sql.append(" ORDER BY daily_rate DESC, brand, model");
+        } else {
+            sql.append(" ORDER BY brand, model");
+        }
 
         return jdbcTemplate.query(sql.toString(), carRowMapper, params.toArray());
     }
@@ -291,5 +298,15 @@ public class CarRepositoryImpl implements CarRepository {
         Long count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM cars WHERE status='AVAILABLE'", Long.class);
         return count != null ? count : 0;
+    }
+
+    @Override
+    public List<Car> getPopularCars(int limit) {
+        String sql = "SELECT c.* FROM cars c " +
+                     "LEFT JOIN rental_orders ro ON c.car_id = ro.car_id " +
+                     "GROUP BY c.car_id " +
+                     "ORDER BY COUNT(ro.order_id) DESC, c.brand ASC, c.model ASC " +
+                     "LIMIT ?";
+        return jdbcTemplate.query(sql, carRowMapper, limit);
     }
 }

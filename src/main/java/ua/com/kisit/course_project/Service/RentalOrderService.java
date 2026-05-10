@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import ua.com.kisit.course_project.Annotation.Auditable;
+
 import ua.com.kisit.course_project.Entity.Car;
 import ua.com.kisit.course_project.Entity.RentalOrder;
 import ua.com.kisit.course_project.Entity.RentalOrder.OrderStatus;
@@ -24,6 +26,7 @@ public class RentalOrderService {
         this.carRepository = carRepository;
     }
 
+    @Auditable(action = "CREATE_ORDER")
     public RentalOrder createOrder(Long clientId, Long carId, LocalDate startDate, LocalDate endDate) {
         Optional<Car> carOpt = carRepository.findById(carId);
         if (carOpt.isEmpty()) {
@@ -51,6 +54,7 @@ public class RentalOrderService {
         return orderRepository.save(order);
     }
 
+    @Auditable(action = "APPROVE_ORDER")
     public boolean approveOrder(Long orderId) {
         Optional<RentalOrder> orderOpt = orderRepository.findById(orderId);
         if (orderOpt.isEmpty()) {
@@ -78,6 +82,7 @@ public class RentalOrderService {
         return updated;
     }
 
+    @Auditable(action = "REJECT_ORDER")
     public boolean rejectOrder(Long orderId, String reason) {
         Optional<RentalOrder> orderOpt = orderRepository.findById(orderId);
         if (orderOpt.isEmpty()) {
@@ -92,6 +97,7 @@ public class RentalOrderService {
         return orderRepository.reject(orderId, reason);
     }
 
+    @Auditable(action = "COMPLETE_ORDER")
     public boolean completeOrder(Long orderId, LocalDate actualReturnDate) {
         Optional<RentalOrder> orderOpt = orderRepository.findById(orderId);
         if (orderOpt.isEmpty()) {

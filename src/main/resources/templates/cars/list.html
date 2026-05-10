@@ -62,7 +62,7 @@
                                                     th:text="${c.displayName}" th:selected="${searchClass != null and searchClass.name() == c.name()}"></option>
                                         </select>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <label for="modalFuel" class="form-label small fw-bold text-uppercase text-muted">Тип палива</label>
                                         <select name="fuel" id="modalFuel" class="form-select form-select-lg bg-light border-0">
                                             <option value="">Всі види</option>
@@ -70,27 +70,35 @@
                                                     th:text="${f.displayName}" th:selected="${searchFuel != null and searchFuel.name() == f.name()}"></option>
                                         </select>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <label for="modalSeats" class="form-label small fw-bold text-uppercase text-muted">Кількість місць</label>
                                         <select name="seats" id="modalSeats" class="form-select form-select-lg bg-light border-0">
                                             <option value="">Будь-що</option>
                                             <option th:each="s : ${#numbers.sequence(2, 9)}" th:value="${s}" th:text="${s}" th:selected="${searchSeats == s}"></option>
                                         </select>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <label for="modalYear" class="form-label small fw-bold text-uppercase text-muted">Рік випуску</label>
                                         <select name="year" id="modalYear" class="form-select form-select-lg bg-light border-0">
                                             <option value="">Всі роки</option>
                                             <option th:each="y : ${#numbers.sequence(2018, 2026)}" th:value="${y}" th:text="${y}" th:selected="${searchYear == y}"></option>
                                         </select>
                                     </div>
+                                    <div class="col-md-6">
+                                        <label for="modalSort" class="form-label small fw-bold text-uppercase text-muted">Сортування</label>
+                                        <select name="sortOrder" id="modalSort" class="form-select form-select-lg bg-light border-0">
+                                            <option value="">За замовчуванням</option>
+                                            <option value="price_asc" th:selected="${searchSortOrder == 'price_asc'}">Від найдешевших</option>
+                                            <option value="price_desc" th:selected="${searchSortOrder == 'price_desc'}">Від найдорожчих</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Right Column: Price Slider -->
+                            <!-- Right Column: Price Slider & Sorting -->
                             <div class="col-lg-4 border-start">
                                 <div class="px-3">
-                                    <label class="form-label small fw-bold text-uppercase text-muted d-block mb-4">Вартість оренди (за добу)</label>
+                                    <label class="form-label small fw-bold text-uppercase text-muted d-block mb-4 mt-2">Вартість оренди (за добу)</label>
                                     
                                     <div class="d-flex justify-content-between mb-2">
                                         <span class="badge bg-light text-dark border p-2" id="minPriceVal" th:text="${searchMinPrice ?: 0} + ' грн'">0 грн</span>

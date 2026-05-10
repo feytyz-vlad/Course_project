@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import ua.com.kisit.course_project.Annotation.Auditable;
+
 import ua.com.kisit.course_project.Entity.Car;
 import ua.com.kisit.course_project.Entity.Car.CarStatus;
 import ua.com.kisit.course_project.Entity.Car.FuelType;
@@ -21,6 +23,7 @@ public class CarService {
         this.carRepository = carRepository;
     }
 
+    @Auditable(action = "ADD_CAR")
     public Car addCar(Car car) {
         if (car.getRegistrationNumber() != null) {
             boolean exists = carRepository.findAll()
@@ -33,6 +36,7 @@ public class CarService {
         return carRepository.save(car);
     }
 
+    @Auditable(action = "UPDATE_CAR")
     public Car updateCar(Car car) {
         Optional<Car> existing = carRepository.findById(car.getCarId());
         if (existing.isEmpty()) {
@@ -41,6 +45,7 @@ public class CarService {
         return carRepository.update(car);
     }
 
+    @Auditable(action = "DELETE_CAR")
     public boolean deleteCar(Long carId) {
         Optional<Car> car = carRepository.findById(carId);
         if (car.isEmpty()) return false;
@@ -84,8 +89,8 @@ public class CarService {
         return carRepository.findAvailablePaginated(size, offset);
     }
 
-    public List<Car> searchCars(String query, Car.CarClass carClass, FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice) {
-        return carRepository.searchCars(query, carClass, fuel, seats, year, minPrice, maxPrice);
+    public List<Car> searchCars(String query, Car.CarClass carClass, FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice, String sortOrder) {
+        return carRepository.searchCars(query, carClass, fuel, seats, year, minPrice, maxPrice, sortOrder);
     }
 
     public boolean updateCarStatus(Long carId, CarStatus newStatus) {
@@ -130,5 +135,9 @@ public class CarService {
 
     public long getAvailableCarsCount() {
         return carRepository.countAvailable();
+    }
+
+    public List<Car> getPopularCars(int limit) {
+        return carRepository.getPopularCars(limit);
     }
 }
