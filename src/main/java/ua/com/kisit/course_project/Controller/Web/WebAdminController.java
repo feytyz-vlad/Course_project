@@ -23,7 +23,7 @@ public class WebAdminController {
 
     @GetMapping("/manage-users")
     public String manageUsers() {
-        return "redirect:/admin/manage-users";
+        return "redirect:/admin/users";
     }
 
     @GetMapping("/settings")

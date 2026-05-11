@@ -36,7 +36,7 @@ public class WebManagerController {
 
     @GetMapping("/dashboard")
     public String managerDashboard(Model model) {
-        model.addAttribute("title", "Панель менеджера");
+        model.addAttribute(WebCarController.ATTR_TITLE, "Панель менеджера");
         model.addAttribute("totalCars", carService.getAllCars().size());
         model.addAttribute("availableCars", carService.getAvailableCars().size());
         model.addAttribute("totalDamages", damageReportService.getAllReports().size());
@@ -46,7 +46,7 @@ public class WebManagerController {
     @GetMapping("/damages")
     public String getDamages(Model model) {
         model.addAttribute("damages", damageReportService.getAllReports());
-        model.addAttribute("title", "Пошкодження автомобілів");
+        model.addAttribute(WebCarController.ATTR_TITLE, "Пошкодження автомобілів");
         return "manager/damages";
     }
 
@@ -56,7 +56,7 @@ public class WebManagerController {
         if (carOpt.isEmpty()) return "redirect:/cars";
         
         model.addAttribute("car", carOpt.get());
-        model.addAttribute("title", "Фіксація пошкодження");
+        model.addAttribute(WebCarController.ATTR_TITLE, "Фіксація пошкодження");
         return "manager/damage-form";
     }
 
@@ -82,9 +82,9 @@ public class WebManagerController {
                     fineAmount,
                     userId
             );
-            redirectAttributes.addFlashAttribute("success", "Пошкодження успішно зафіксовано!");
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Пошкодження успішно зафіксовано!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Помилка: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Помилка: " + e.getMessage());
         }
         return "redirect:/cars/" + id;
     }
@@ -96,9 +96,9 @@ public class WebManagerController {
                                RedirectAttributes redirectAttributes) {
         try {
             damageReportService.setRepairCosts(id, cost, fine);
-            redirectAttributes.addFlashAttribute("success", "Рахунок за ремонт та штраф виставлено успішно!");
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Рахунок за ремонт та штраф виставлено успішно!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Помилка: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Помилка: " + e.getMessage());
         }
         return "redirect:/manager/damages";
     }
@@ -107,9 +107,9 @@ public class WebManagerController {
     public String completeRepair(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             damageReportService.markAsCompleted(id);
-            redirectAttributes.addFlashAttribute("success", "Ремонт завершено, авто знову доступне!");
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Ремонт завершено, авто знову доступне!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Помилка: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Помилка: " + e.getMessage());
         }
         return "redirect:/manager/damages";
     }

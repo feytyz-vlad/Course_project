@@ -1,95 +1,109 @@
 package ua.com.kisit.course_project.Controller.Admin;
 
-import org.springframework.security.access.prepost.PreAuthorize;
+import java.util.Optional;
+
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import org.springframework.ui.Model;
-
-import ua.com.kisit.course_project.Annotation.Auditable;
-import ua.com.kisit.course_project.Service.DamageReportService;
-import ua.com.kisit.course_project.Service.PasswordMigrationService;
-import ua.com.kisit.course_project.Service.CarService;
-import ua.com.kisit.course_project.Service.RentalOrderService;
+import ua.com.kisit.course_project.Entity.User;
+import ua.com.kisit.course_project.Entity.UserRole;
+import ua.com.kisit.course_project.Repository.AuditLogRepository;
+import ua.com.kisit.course_project.Repository.CarRepository;
 import ua.com.kisit.course_project.Repository.UserRepository;
+import ua.com.kisit.course_project.Service.RentalOrderService;
+import ua.com.kisit.course_project.Controller.Web.WebAuthController;
+import ua.com.kisit.course_project.Controller.Web.WebCarController;
 
-@Controller("adminActionsController") // явное имя бина, чтобы не конфликтовать
+@Controller
 @RequestMapping("/admin")
-@PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
 public class AdminController {
 
-    private final PasswordMigrationService passwordMigrationService;
-    private final DamageReportService damageReportService;
-    private final CarService carService;
-    private final RentalOrderService rentalOrderService;
+    private static final String VIEW_DASHBOARD = "admin/dashboard";
+    private static final String VIEW_USERS = "admin/users";
+    private static final String REDIRECT_USERS = "redirect:/admin/users";
+
+    private static final String ATTR_PENDING_ORDERS = "pendingOrders";
+    private static final String ATTR_TOTAL_CARS = "totalCars";
+    private static final String ATTR_TOTAL_USERS = "totalUsers";
+    private static final String ATTR_RECENT_LOGS = "recentLogs";
+    private static final String ATTR_USERS = "users";
+    private static final String ATTR_ROLES = "roles";
+
+    private final RentalOrderService orderService;
+    private final CarRepository carRepository;
     private final UserRepository userRepository;
+    private final AuditLogRepository auditLogRepository;
 
-    public AdminController(PasswordMigrationService passwordMigrationService, 
-                           DamageReportService damageReportService,
-                           CarService carService,
-                           RentalOrderService rentalOrderService,
-                           UserRepository userRepository) {
-        this.passwordMigrationService = passwordMigrationService;
-        this.damageReportService = damageReportService;
-        this.carService = carService;
-        this.rentalOrderService = rentalOrderService;
+    public AdminController(RentalOrderService orderService,
+                           CarRepository carRepository,
+                           UserRepository userRepository,
+                           AuditLogRepository auditLogRepository) {
+        this.orderService = orderService;
+        this.carRepository = carRepository;
         this.userRepository = userRepository;
+        this.auditLogRepository = auditLogRepository;
     }
 
-    // UI endpoints (GET) — теперь в этом контроллере
     @GetMapping("/dashboard")
-    public String adminDashboard(Model model) {
-        model.addAttribute("totalUsers", userRepository.count());
-        model.addAttribute("totalCars", carService.getTotalCarsCount());
-        model.addAttribute("availableCars", carService.getAvailableCarsCount());
-        model.addAttribute("totalOrders", rentalOrderService.getAllOrders().size());
-        model.addAttribute("pendingOrders", rentalOrderService.getPendingOrders().size());
-        model.addAttribute("totalDamages", damageReportService.getAllReports().size());
-        model.addAttribute("latestOrders", rentalOrderService.getLatestOrders(5));
-        return "admin/dashboard";
+    public String dashboard(Model model) {
+        model.addAttribute(WebCarController.ATTR_TITLE, "Панель адміністратора");
+        model.addAttribute(ATTR_PENDING_ORDERS, orderService.getPendingOrders().size());
+        model.addAttribute(ATTR_TOTAL_CARS, carRepository.countAll());
+        model.addAttribute(ATTR_TOTAL_USERS, userRepository.count());
+        model.addAttribute(ATTR_RECENT_LOGS, auditLogRepository.findTop10ByOrderByTimestampDesc());
+        return VIEW_DASHBOARD;
     }
 
-    @GetMapping("/manage-users")
-    public String manageUsers() {
-        return "admin/users";
+    @GetMapping("/users")
+    public String manageUsers(Model model) {
+        model.addAttribute(WebCarController.ATTR_TITLE, "Керування користувачами");
+        model.addAttribute(ATTR_USERS, userRepository.findAll());
+        model.addAttribute(ATTR_ROLES, UserRole.values());
+        return VIEW_USERS;
     }
 
-    @GetMapping("/settings")
-    public String settings() {
-        return "admin/settings";
-    }
-
-    @GetMapping("/damages")
-    public String damages(Model model) {
-        model.addAttribute("reports", damageReportService.getAllReports());
-        return "admin/damages";
-    }
-
-    // Action endpoints (POST)
-    @PostMapping("/migrate-passwords")
-    @Auditable(action = "MIGRATE_PASSWORDS")
-    public String migratePasswords(RedirectAttributes redirectAttributes) {
-        try {
-            passwordMigrationService.migrateAllPasswords();
-            redirectAttributes.addFlashAttribute("success", "Міграція паролів завершена успішно!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Сталася помилка під час міграції паролів: " + e.getMessage());
+    @PostMapping("/users/{id}/role")
+    public String updateUserRole(@PathVariable Long id, @RequestParam UserRole role, RedirectAttributes redirectAttributes) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setRole(role);
+            userRepository.save(user);
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Роль користувача оновлена");
+        } else {
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Користувача не знайдено");
         }
-        return "redirect:/admin/settings";
+        return REDIRECT_USERS;
     }
 
-    @PostMapping("/reset-passwords")
-    @Auditable(action = "RESET_PASSWORDS")
-    public String resetPasswords(RedirectAttributes redirectAttributes) {
-        try {
-            passwordMigrationService.resetAllPasswordsAndNotifyUsers();
-            redirectAttributes.addFlashAttribute("success", "Паролі скинуті, користувачі отримали нові тимчасові паролі на пошту.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Сталася помилка під час скидання паролів: " + e.getMessage());
+    @PostMapping("/users/{id}/toggle-active")
+    public String toggleUserActive(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setActive(!user.isActive());
+            userRepository.save(user);
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Статус користувача змінено");
+        } else {
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Користувача не знайдено");
         }
-        return "redirect:/admin/settings";
+        return REDIRECT_USERS;
+    }
+
+    @PostMapping("/users/{id}/delete")
+    public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            userRepository.deleteById(id);
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Користувача видалено");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Помилка при видаленні: " + e.getMessage());
+        }
+        return REDIRECT_USERS;
     }
 }

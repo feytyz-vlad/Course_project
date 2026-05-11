@@ -33,6 +33,10 @@ import ua.com.kisit.course_project.Service.RentalOrderService;
 @RequestMapping("/orders")
 public class WebRentalOrderController {
 
+    private static final String REDIRECT_AUTH_LOGIN = "redirect:/auth/login";
+    private static final String REDIRECT_ORDERS = "redirect:/orders";
+    private static final String REDIRECT_PROFILE_COMPLETE = "redirect:/profile/complete";
+
     private final RentalOrderService orderService;
     private final CarService carService;
     private final ClientService clientService;
@@ -57,11 +61,11 @@ public class WebRentalOrderController {
     @GetMapping
     public String listOrders(HttpSession session, Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-            return "redirect:/auth/login";
+        if (auth == null || !auth.isAuthenticated() || WebAuthController.ANONYMOUS_USER.equals(auth.getPrincipal())) {
+            return REDIRECT_AUTH_LOGIN;
         }
         Optional<User> userOpt = userRepository.findByEmail(auth.getName());
-        if (userOpt.isEmpty()) return "redirect:/auth/login";
+        if (userOpt.isEmpty()) return REDIRECT_AUTH_LOGIN;
         
         Long userId = userOpt.get().getUserId();
         UserRole userRole = userOpt.get().getRole();
@@ -79,7 +83,7 @@ public class WebRentalOrderController {
                 model.addAttribute("title", "Мої замовлення");
                 return "orders/list";
             } else {
-                return "redirect:/profile/complete";
+                return REDIRECT_PROFILE_COMPLETE;
             }
         }
     }
@@ -90,17 +94,17 @@ public class WebRentalOrderController {
     @GetMapping("/create")
     public String showCreateForm(@RequestParam Long carId, Model model, HttpSession session) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-            return "redirect:/auth/login";
+        if (auth == null || !auth.isAuthenticated() || WebAuthController.ANONYMOUS_USER.equals(auth.getPrincipal())) {
+            return REDIRECT_AUTH_LOGIN;
         }
         Optional<User> userOpt = userRepository.findByEmail(auth.getName());
-        if (userOpt.isEmpty()) return "redirect:/auth/login";
+        if (userOpt.isEmpty()) return REDIRECT_AUTH_LOGIN;
         Long userId = userOpt.get().getUserId();
         
         Optional<Client> client = clientService.getClientByUserId(userId);
         if (userOpt.get().getRole() != UserRole.ADMIN) {
             if (client.isEmpty() || client.get().getRnokpp() == null || client.get().getPhone() == null || client.get().getFirstName() == null) {
-                return "redirect:/profile/complete";
+                return REDIRECT_PROFILE_COMPLETE;
             }
         }
 
@@ -124,18 +128,18 @@ public class WebRentalOrderController {
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-            return "redirect:/auth/login";
+        if (auth == null || !auth.isAuthenticated() || WebAuthController.ANONYMOUS_USER.equals(auth.getPrincipal())) {
+            return REDIRECT_AUTH_LOGIN;
         }
         Optional<User> userOpt = userRepository.findByEmail(auth.getName());
-        if (userOpt.isEmpty()) return "redirect:/auth/login";
+        if (userOpt.isEmpty()) return REDIRECT_AUTH_LOGIN;
         Long userId = userOpt.get().getUserId();
 
         try {
             Optional<Client> client = clientService.getClientByUserId(userId);
             if (userOpt.get().getRole() != UserRole.ADMIN) {
                 if (client.isEmpty() || client.get().getRnokpp() == null || client.get().getPhone() == null || client.get().getFirstName() == null) {
-                    return "redirect:/profile/complete";
+                    return REDIRECT_PROFILE_COMPLETE;
                 }
             }
 
@@ -146,10 +150,10 @@ public class WebRentalOrderController {
                     LocalDate.parse(endDate)
             );
 
-            redirectAttributes.addFlashAttribute("success", "Замовлення створено успішно!");
-            return "redirect:/orders";
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Замовлення створено успішно!");
+            return REDIRECT_ORDERS;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, e.getMessage());
             return "redirect:/cars/" + carId;
         }
     }
@@ -168,12 +172,12 @@ public class WebRentalOrderController {
 
         try {
             orderService.approveOrder(id);
-            redirectAttributes.addFlashAttribute("success", "Замовлення затверджено!");
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Замовлення затверджено!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, e.getMessage());
         }
 
-        return "redirect:/orders";
+        return REDIRECT_ORDERS;
     }
 
     /**
@@ -191,12 +195,12 @@ public class WebRentalOrderController {
 
         try {
             orderService.rejectOrder(id, reason);
-            redirectAttributes.addFlashAttribute("success", "Замовлення відхилено!");
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Замовлення відхилено!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, e.getMessage());
         }
 
-        return "redirect:/orders";
+        return REDIRECT_ORDERS;
     }
 
     /**
@@ -214,12 +218,12 @@ public class WebRentalOrderController {
 
         try {
             orderService.completeOrder(id, LocalDate.parse(actualReturnDate));
-            redirectAttributes.addFlashAttribute("success", "Замовлення завершено!");
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Замовлення завершено!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, e.getMessage());
         }
 
-        return "redirect:/orders";
+        return REDIRECT_ORDERS;
     }
 
     /**
@@ -228,12 +232,12 @@ public class WebRentalOrderController {
     @GetMapping("/{id}")
     public String orderDetails(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) return "redirect:/auth/login";
+        if (auth == null || !auth.isAuthenticated()) return REDIRECT_AUTH_LOGIN;
         
         Optional<RentalOrder> orderOpt = orderService.getOrderById(id);
         if (orderOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Замовлення не знайдено");
-            return "redirect:/orders";
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Замовлення не знайдено");
+            return REDIRECT_ORDERS;
         }
         
         RentalOrder order = orderOpt.get();
@@ -241,8 +245,8 @@ public class WebRentalOrderController {
         if (userOpt.isPresent() && userOpt.get().getRole() != UserRole.ADMIN) {
             Optional<Client> client = clientService.getClientByUserId(userOpt.get().getUserId());
             if (client.isEmpty() || !client.get().getClientId().equals(order.getClientId())) {
-                redirectAttributes.addFlashAttribute("error", "Доступ заборонено");
-                return "redirect:/orders";
+                redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Доступ заборонено");
+                return REDIRECT_ORDERS;
             }
         }
         
@@ -262,7 +266,7 @@ public class WebRentalOrderController {
                                @RequestParam java.math.BigDecimal fineAmount,
                                RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) return "redirect:/auth/login";
+        if (auth == null || !auth.isAuthenticated()) return REDIRECT_AUTH_LOGIN;
         
         Optional<User> adminOpt = userRepository.findByEmail(auth.getName());
         if (adminOpt.isEmpty() || (adminOpt.get().getRole() != UserRole.ADMIN && adminOpt.get().getRole() != UserRole.MANAGER)) {
@@ -281,10 +285,10 @@ public class WebRentalOrderController {
                         fineAmount, 
                         adminOpt.get().getUserId()
                 );
-                redirectAttributes.addFlashAttribute("success", "Звіт про пошкодження додано! Статус авто змінено.");
+                redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Звіт про пошкодження додано! Статус авто змінено.");
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Помилка: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Помилка: " + e.getMessage());
         }
         return "redirect:/orders/" + id;
     }
@@ -298,9 +302,9 @@ public class WebRentalOrderController {
                             RedirectAttributes redirectAttributes) {
         try {
             damageService.payDamage(reportId);
-            redirectAttributes.addFlashAttribute("success", "Оплату за пошкодження успішно проведено! Дякуємо.");
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Оплату за пошкодження успішно проведено! Дякуємо.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Помилка оплати: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Помилка оплати: " + e.getMessage());
         }
         return "redirect:/orders/" + id;
     }
@@ -311,12 +315,12 @@ public class WebRentalOrderController {
     @GetMapping("/{id}/contract")
     public String orderContract(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) return "redirect:/auth/login";
+        if (auth == null || !auth.isAuthenticated()) return REDIRECT_AUTH_LOGIN;
 
         Optional<RentalOrder> orderOpt = orderService.getOrderById(id);
         if (orderOpt.isEmpty() || orderOpt.get().getStatus() == RentalOrder.OrderStatus.PENDING) {
-            redirectAttributes.addFlashAttribute("error", "Договір доступний лише після підтвердження замовлення.");
-            return "redirect:/orders";
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Договір доступний лише після підтвердження замовлення.");
+            return REDIRECT_ORDERS;
         }
 
         RentalOrder order = orderOpt.get();
@@ -326,8 +330,8 @@ public class WebRentalOrderController {
         if (userOpt.isPresent() && userOpt.get().getRole() != UserRole.ADMIN) {
             Optional<Client> client = clientService.getClientByUserId(userOpt.get().getUserId());
             if (client.isEmpty() || !client.get().getClientId().equals(order.getClientId())) {
-                redirectAttributes.addFlashAttribute("error", "Доступ заборонено");
-                return "redirect:/orders";
+                redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Доступ заборонено");
+                return REDIRECT_ORDERS;
             }
         }
 

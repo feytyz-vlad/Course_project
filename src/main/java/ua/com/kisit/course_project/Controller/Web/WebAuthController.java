@@ -21,6 +21,16 @@ import ua.com.kisit.course_project.Service.ClientService;
 @Controller
 public class WebAuthController {
 
+    public static final String ATTR_ERROR = "error";
+    public static final String ATTR_SUCCESS = "success";
+    public static final String ANONYMOUS_USER = "anonymousUser";
+
+    private static final String REDIRECT_AUTH_REGISTER = "redirect:/auth/register";
+    private static final String REDIRECT_AUTH_LOGIN = "redirect:/auth/login";
+    private static final String REDIRECT_PROFILE = "redirect:/profile";
+    private static final String REDIRECT_PROFILE_COMPLETE = "redirect:/profile/complete";
+    private static final String REDIRECT_PROFILE_CHANGE_PASSWORD = "redirect:/profile/change-password";
+
     private final AuthenticationService authService;
     private final UserRepository userRepository;
     private final ClientService clientService;
@@ -35,7 +45,7 @@ public class WebAuthController {
     @GetMapping({"/login", "/auth/login"})
     public String showLoginPage(@RequestParam(required = false) String error, Model model) {
         if (error != null) {
-            model.addAttribute("error", "Невірний email або пароль");
+            model.addAttribute(ATTR_ERROR, "Невірний email або пароль");
         }
         return "auth/login";
     }
@@ -53,31 +63,31 @@ public class WebAuthController {
                            RedirectAttributes redirectAttributes) {
         try {
             if (!password.equals(confirmPassword)) {
-                redirectAttributes.addFlashAttribute("error", "Паролі не співпадають");
-                return "redirect:/auth/register";
+                redirectAttributes.addFlashAttribute(ATTR_ERROR, "Паролі не співпадають");
+                return REDIRECT_AUTH_REGISTER;
             }
             if (password.length() < 6) {
-                redirectAttributes.addFlashAttribute("error", "Пароль мінімум 6 символів");
-                return "redirect:/auth/register";
+                redirectAttributes.addFlashAttribute(ATTR_ERROR, "Пароль мінімум 6 символів");
+                return REDIRECT_AUTH_REGISTER;
             }
             authService.register(email, password, UserRole.CLIENT);
-            redirectAttributes.addFlashAttribute("success", "Реєстрація успішна! Тепер увійдіть.");
-            return "redirect:/auth/login";
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Реєстрація успішна! Тепер увійдіть.");
+            return REDIRECT_AUTH_LOGIN;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/auth/register";
+            redirectAttributes.addFlashAttribute(ATTR_ERROR, e.getMessage());
+            return REDIRECT_AUTH_REGISTER;
         }
     }
 
     @GetMapping("/profile")
     public String showProfile(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-            return "redirect:/auth/login";
+        if (auth == null || !auth.isAuthenticated() || ANONYMOUS_USER.equals(auth.getPrincipal())) {
+            return REDIRECT_AUTH_LOGIN;
         }
         Optional<User> userOpt = userRepository.findByEmail(auth.getName());
         if (userOpt.isEmpty()) {
-            return "redirect:/auth/login";
+            return REDIRECT_AUTH_LOGIN;
         }
         model.addAttribute("user", userOpt.get());
         Optional<ua.com.kisit.course_project.Entity.Client> clientOpt = clientService.getClientByUserId(userOpt.get().getUserId());
@@ -98,25 +108,25 @@ public class WebAuthController {
                                  RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
-            return "redirect:/auth/login";
+            return REDIRECT_AUTH_LOGIN;
         }
 
         try {
             if (!newPassword.equals(confirmPassword)) {
-                redirectAttributes.addFlashAttribute("error", "Нові паролі не співпадають");
-                return "redirect:/profile/change-password";
+                redirectAttributes.addFlashAttribute(ATTR_ERROR, "Нові паролі не співпадають");
+                return REDIRECT_PROFILE_CHANGE_PASSWORD;
             }
             Optional<User> userOpt = userRepository.findByEmail(auth.getName());
-            if (userOpt.isEmpty()) return "redirect:/auth/login";
+            if (userOpt.isEmpty()) return REDIRECT_AUTH_LOGIN;
             
             authService.changePassword(userOpt.get().getUserId(), oldPassword, newPassword);
             
-            redirectAttributes.addFlashAttribute("success", "Пароль змінено успішно!");
-            return "redirect:/profile";
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Пароль змінено успішно!");
+            return REDIRECT_PROFILE;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute(ATTR_ERROR, e.getMessage());
         }
-        return "redirect:/profile/change-password";
+        return REDIRECT_PROFILE_CHANGE_PASSWORD;
     }
 
     @GetMapping("/profile/complete")
@@ -132,33 +142,33 @@ public class WebAuthController {
                                   @RequestParam String rnokpp,
                                   RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-            return "redirect:/auth/login";
+        if (auth == null || !auth.isAuthenticated() || ANONYMOUS_USER.equals(auth.getPrincipal())) {
+            return REDIRECT_AUTH_LOGIN;
         }
         try {
             Optional<User> userOpt = userRepository.findByEmail(auth.getName());
-            if (userOpt.isEmpty()) return "redirect:/auth/login";
+            if (userOpt.isEmpty()) return REDIRECT_AUTH_LOGIN;
             
             // Validation
             if (fio.length() > 255) {
-                redirectAttributes.addFlashAttribute("error", "ПІБ не може перевищувати 255 символів");
-                return "redirect:/profile/complete";
+                redirectAttributes.addFlashAttribute(ATTR_ERROR, "ПІБ не може перевищувати 255 символів");
+                return REDIRECT_PROFILE_COMPLETE;
             }
             if (!phone.matches("^\\+380(-?\\d){9}$")) {
-                redirectAttributes.addFlashAttribute("error", "Телефон має бути у форматі +380XXXXXXXXX або +380-XX-XXX-XX-XX");
-                return "redirect:/profile/complete";
+                redirectAttributes.addFlashAttribute(ATTR_ERROR, "Телефон має бути у форматі +380XXXXXXXXX або +380-XX-XXX-XX-XX");
+                return REDIRECT_PROFILE_COMPLETE;
             }
             if (!rnokpp.matches("^\\d{10}$")) {
-                redirectAttributes.addFlashAttribute("error", "РНОКПП має містити рівно 10 цифр");
-                return "redirect:/profile/complete";
+                redirectAttributes.addFlashAttribute(ATTR_ERROR, "РНОКПП має містити рівно 10 цифр");
+                return REDIRECT_PROFILE_COMPLETE;
             }
 
             clientService.createClientProfile(userOpt.get().getUserId(), fio, "", phone, driverLicense, rnokpp);
-            redirectAttributes.addFlashAttribute("success", "Профіль успішно збережено!");
-            return "redirect:/profile";
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Профіль успішно збережено!");
+            return REDIRECT_PROFILE;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/profile/complete";
+            redirectAttributes.addFlashAttribute(ATTR_ERROR, e.getMessage());
+            return REDIRECT_PROFILE_COMPLETE;
         }
     }
 
@@ -170,33 +180,33 @@ public class WebAuthController {
                                 @RequestParam String rnokpp,
                                 RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-            return "redirect:/auth/login";
+        if (auth == null || !auth.isAuthenticated() || ANONYMOUS_USER.equals(auth.getPrincipal())) {
+            return REDIRECT_AUTH_LOGIN;
         }
         try {
             Optional<User> userOpt = userRepository.findByEmail(auth.getName());
-            if (userOpt.isEmpty()) return "redirect:/auth/login";
+            if (userOpt.isEmpty()) return REDIRECT_AUTH_LOGIN;
             
             Optional<ua.com.kisit.course_project.Entity.Client> clientOpt = clientService.getClientByUserId(userOpt.get().getUserId());
             if (clientOpt.isEmpty()) {
                 // If the profile doesn't exist yet, simply call completeProfile logic
                 clientService.createClientProfile(userOpt.get().getUserId(), fio, "", phone, driverLicense, rnokpp);
-                redirectAttributes.addFlashAttribute("success", "Профіль успішно збережено!");
-                return "redirect:/profile";
+                redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Профіль успішно збережено!");
+                return REDIRECT_PROFILE;
             }
             
             // Validation
             if (fio.length() > 255) {
-                redirectAttributes.addFlashAttribute("error", "ПІБ не може перевищувати 255 символів");
-                return "redirect:/profile";
+                redirectAttributes.addFlashAttribute(ATTR_ERROR, "ПІБ не може перевищувати 255 символів");
+                return REDIRECT_PROFILE;
             }
             if (!phone.matches("^\\+380(-?\\d){9}$")) {
-                redirectAttributes.addFlashAttribute("error", "Телефон має бути у форматі +380XXXXXXXXX або +380-XX-XXX-XX-XX");
-                return "redirect:/profile";
+                redirectAttributes.addFlashAttribute(ATTR_ERROR, "Телефон має бути у форматі +380XXXXXXXXX або +380-XX-XXX-XX-XX");
+                return REDIRECT_PROFILE;
             }
             if (!rnokpp.matches("^\\d{10}$")) {
-                redirectAttributes.addFlashAttribute("error", "РНОКПП має містити рівно 10 цифр");
-                return "redirect:/profile";
+                redirectAttributes.addFlashAttribute(ATTR_ERROR, "РНОКПП має містити рівно 10 цифр");
+                return REDIRECT_PROFILE;
             }
 
             ua.com.kisit.course_project.Entity.Client client = clientOpt.get();
@@ -207,11 +217,11 @@ public class WebAuthController {
             
             clientService.updateClient(client);
             
-            redirectAttributes.addFlashAttribute("success", "Профіль успішно оновлено!");
-            return "redirect:/profile";
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Профіль успішно оновлено!");
+            return REDIRECT_PROFILE;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/profile";
+            redirectAttributes.addFlashAttribute(ATTR_ERROR, e.getMessage());
+            return REDIRECT_PROFILE;
         }
     }
 }

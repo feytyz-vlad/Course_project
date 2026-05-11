@@ -28,6 +28,15 @@ import ua.com.kisit.course_project.Service.CarService;
 @RequestMapping("/cars")
 public class WebCarController {
 
+    public static final String ATTR_TITLE = "title";
+    private static final String ATTR_CARS = "cars";
+    
+    private static final String REDIRECT_CARS_AVAILABLE = "redirect:/cars/available";
+    
+    private static final String VIEW_CAR_LIST = "cars/list";
+    private static final String VIEW_CAR_DETAILS = "cars/details";
+    private static final String VIEW_CAR_FORM = "cars/form";
+
     private final CarService carService;
 
     public WebCarController(CarService carService) {
@@ -44,25 +53,25 @@ public class WebCarController {
     @GetMapping
     public String listCars(@RequestParam(defaultValue = "0") int page, Model model) {
         int size = 9;
-        model.addAttribute("cars", carService.getAllCarsPaginated(page, size));
-        model.addAttribute("title", "Всі автомобілі");
+        model.addAttribute(ATTR_CARS, carService.getAllCarsPaginated(page, size));
+        model.addAttribute(ATTR_TITLE, "Всі автомобілі");
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", (int) Math.ceil((double) carService.getTotalCarsCount() / size));
         model.addAttribute("baseUrl", "/cars");
         addEnumsToModel(model);
-        return "cars/list";
+        return VIEW_CAR_LIST;
     }
 
     @GetMapping("/available")
     public String availableCars(@RequestParam(defaultValue = "0") int page, Model model) {
         int size = 9;
-        model.addAttribute("cars", carService.getAvailableCarsPaginated(page, size));
-        model.addAttribute("title", "Доступні автомобілі");
+        model.addAttribute(ATTR_CARS, carService.getAvailableCarsPaginated(page, size));
+        model.addAttribute(ATTR_TITLE, "Доступні автомобілі");
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", (int) Math.ceil((double) carService.getAvailableCarsCount() / size));
         model.addAttribute("baseUrl", "/cars/available");
         addEnumsToModel(model);
-        return "cars/list";
+        return VIEW_CAR_LIST;
     }
 
     @GetMapping("/search")
@@ -82,8 +91,8 @@ public class WebCarController {
 
         List<Car> cars = carService.searchCars(query, classEnum, fuelEnum, seats, year, minPrice, maxPrice, sortOrder);
 
-        model.addAttribute("cars", cars);
-        model.addAttribute("title", "Результати пошуку");
+        model.addAttribute(ATTR_CARS, cars);
+        model.addAttribute(ATTR_TITLE, "Результати пошуку");
         model.addAttribute("searchQuery", query);
         model.addAttribute("searchClass", classEnum);
         model.addAttribute("searchFuel", fuelEnum);
@@ -94,38 +103,38 @@ public class WebCarController {
         model.addAttribute("searchSortOrder", sortOrder);
         addEnumsToModel(model);
 
-        return "cars/list";
+        return VIEW_CAR_LIST;
     }
 
     @GetMapping("/{id}")
     public String carDetails(@PathVariable Long id, Model model) {
         Optional<Car> carOpt = carService.getCarById(id);
-        if (carOpt.isEmpty()) return "redirect:/cars/available";
+        if (carOpt.isEmpty()) return REDIRECT_CARS_AVAILABLE;
         model.addAttribute("car", carOpt.get());
-        return "cars/details";
+        return VIEW_CAR_DETAILS;
     }
 
     @GetMapping("/add")
     public String showAddForm(Model model) {
-        if (!canManageCars()) return "redirect:/cars/available";
+        if (!canManageCars()) return REDIRECT_CARS_AVAILABLE;
         model.addAttribute("car", new Car());
         addEnumsToModel(model);
-        return "cars/form";
+        return VIEW_CAR_FORM;
     }
 
     @PostMapping("/add")
     public String addCar(@ModelAttribute Car car,
                          RedirectAttributes redirectAttributes) {
         if (!canManageCars()) {
-            redirectAttributes.addFlashAttribute("error", "Доступ заборонено!");
-            return "redirect:/cars/available";
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Доступ заборонено!");
+            return REDIRECT_CARS_AVAILABLE;
         }
         try {
             Car saved = carService.addCar(car);
-            redirectAttributes.addFlashAttribute("success", "Автомобіль успішно додано!");
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Автомобіль успішно додано!");
             return "redirect:/cars/" + saved.getCarId();
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, e.getMessage());
             return "redirect:/cars/add";
         }
     }
@@ -134,10 +143,10 @@ public class WebCarController {
     public String showEditForm(@PathVariable Long id, Model model) {
         if (!canManageCars()) return "redirect:/cars/" + id;
         Optional<Car> carOpt = carService.getCarById(id);
-        if (carOpt.isEmpty()) return "redirect:/cars/available";
+        if (carOpt.isEmpty()) return REDIRECT_CARS_AVAILABLE;
         model.addAttribute("car", carOpt.get());
         addEnumsToModel(model);
-        return "cars/form";
+        return VIEW_CAR_FORM;
     }
 
     @PostMapping("/{id}/edit")
@@ -147,10 +156,10 @@ public class WebCarController {
         try {
             car.setCarId(id);
             carService.updateCar(car);
-            redirectAttributes.addFlashAttribute("success", "Автомобіль оновлено!");
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Автомобіль оновлено!");
             return "redirect:/cars/" + id;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, e.getMessage());
             return "redirect:/cars/" + id + "/edit";
         }
     }
@@ -160,9 +169,9 @@ public class WebCarController {
         if (!isAdmin()) return "redirect:/cars/" + id;
         try {
             carService.deleteCar(id);
-            redirectAttributes.addFlashAttribute("success", "Автомобіль видалено!");
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Автомобіль видалено!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, e.getMessage());
             return "redirect:/cars/" + id;
         }
         return "redirect:/cars";
@@ -174,9 +183,9 @@ public class WebCarController {
         if (!canManageCars()) return "redirect:/cars/" + id;
         try {
             carService.updateCarStatus(id, CarStatus.valueOf(status));
-            redirectAttributes.addFlashAttribute("success", "Статус оновлено!");
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Статус оновлено!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, e.getMessage());
         }
         return "redirect:/cars/" + id;
     }
