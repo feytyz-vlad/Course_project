@@ -73,6 +73,12 @@ public class WebHomeController {
                                     .forEach(unpaidDamages::add);
                         }
                         model.addAttribute("unpaidDamages", unpaidDamages);
+                        
+                        // Check for rejected but paid orders (refund notification)
+                        List<ua.com.kisit.course_project.Entity.RentalOrder> rejectedPaidOrders = clientOrders.stream()
+                                .filter(o -> o.getStatus() == ua.com.kisit.course_project.Entity.RentalOrder.OrderStatus.REJECTED && o.isPaid())
+                                .collect(java.util.stream.Collectors.toList());
+                        model.addAttribute("rejectedPaidOrders", rejectedPaidOrders);
                     });
                 }
             }

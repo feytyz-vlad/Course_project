@@ -42,17 +42,20 @@ public class WebRentalOrderController {
     private final ClientService clientService;
     private final UserRepository userRepository;
     private final ua.com.kisit.course_project.Service.DamageReportService damageService;
+    private final ua.com.kisit.course_project.Service.PaymentService paymentService;
 
     public WebRentalOrderController(RentalOrderService orderService,
                                     CarService carService,
                                     ClientService clientService,
                                     UserRepository userRepository,
-                                    ua.com.kisit.course_project.Service.DamageReportService damageService) {
+                                    ua.com.kisit.course_project.Service.DamageReportService damageService,
+                                    ua.com.kisit.course_project.Service.PaymentService paymentService) {
         this.orderService = orderService;
         this.carService = carService;
         this.clientService = clientService;
         this.userRepository = userRepository;
         this.damageService = damageService;
+        this.paymentService = paymentService;
     }
 
     /**
@@ -150,8 +153,8 @@ public class WebRentalOrderController {
                     LocalDate.parse(endDate)
             );
 
-            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Замовлення створено успішно!");
-            return REDIRECT_ORDERS;
+            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Замовлення створено! Будь ласка, оплатіть оренду.");
+            return "redirect:/payment/checkout/" + order.getOrderId();
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, e.getMessage());
             return "redirect:/cars/" + carId;
@@ -252,6 +255,7 @@ public class WebRentalOrderController {
         
         model.addAttribute("order", order);
         model.addAttribute("damageReports", damageService.getReportsByOrderId(id));
+        model.addAttribute("payments", paymentService.getPaymentsByOrder(id));
         model.addAttribute("ukLocale", new java.util.Locale("uk", "UA"));
         return "orders/details";
     }
@@ -300,13 +304,7 @@ public class WebRentalOrderController {
     public String payDamage(@PathVariable Long id,
                             @PathVariable Long reportId,
                             RedirectAttributes redirectAttributes) {
-        try {
-            damageService.payDamage(reportId);
-            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_SUCCESS, "Оплату за пошкодження успішно проведено! Дякуємо.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute(WebAuthController.ATTR_ERROR, "Помилка оплати: " + e.getMessage());
-        }
-        return "redirect:/orders/" + id;
+        return "redirect:/payment/checkout/damage/" + reportId;
     }
 
     /**

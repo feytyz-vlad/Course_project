@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@Service  // FIXED: додана анотація — без неї Spring не бачить цей клас як bean
+@Service
 public class DamageReportService {
 
     private final DamageReportRepository damageReportRepository;
@@ -66,10 +66,6 @@ public class DamageReportService {
         boolean updated = damageReportRepository.updateStatus(reportId, RepairStatus.PAID);
         
         if (updated) {
-            // Якщо оплачено, зазвичай машина ще має пройти ремонт або вже готова
-            // Для спрощення, якщо статус PAID, ми можемо перевести авто в AVAILABLE або MAINTENANCE
-            // Користувач просив: "по завершению аренды... уведомление... пользователь проводит оплату"
-            // Якщо оплата пройшла, ставимо статус авто назад в AVAILABLE (або адмін потім сам змінить якщо треба ремонт)
             carRepository.updateStatus(report.getCarId(), ua.com.kisit.course_project.Entity.Car.CarStatus.AVAILABLE);
         }
         return updated;
@@ -102,5 +98,9 @@ public class DamageReportService {
 
     public List<DamageReport> getAllReports() {
         return damageReportRepository.findAll();
+    }
+
+    public Optional<DamageReport> getReportById(Long id) {
+        return damageReportRepository.findById(id);
     }
 }

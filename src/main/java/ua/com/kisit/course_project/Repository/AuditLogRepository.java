@@ -8,5 +8,5 @@ import ua.com.kisit.course_project.Entity.AuditLog;
 
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
-    List<AuditLog> findTop10ByOrderByTimestampDesc();
+    List<AuditLog> findTop10ByOrderByCreatedAtDesc();
 }

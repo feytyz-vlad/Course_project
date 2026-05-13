@@ -51,6 +51,7 @@ public class RentalOrderService {
 
         RentalOrder order = new RentalOrder(clientId, carId, startDate, endDate,
                 totalDays, car.getDailyRate(), totalCost);
+        order.setStatus(OrderStatus.WAITING_FOR_PAYMENT);
         return orderRepository.save(order);
     }
 

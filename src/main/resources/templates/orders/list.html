@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uk" xmlns:th="http://www.thymeleaf.org" th:replace="~{Layout :: layout}">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{Layout :: layout}">
 <body>
 <main th:fragment="content">
     <div th:replace="~{fragments/hero :: hero(title=${title != null ? title : 'Замовлення'}, subtitle='Ваші замовлення', bg='/vendor/logistcwr/assets/images/slider/slider-2.jpg')}"></div>
@@ -9,17 +9,20 @@
                 <h2 th:text="${title != null ? title : 'Замовлення'}">Замовлення</h2>
             </div>
 
-            <div th:if="${orders == null or orders.isEmpty()}" class="alert alert-info">Замовлень не знайдено</div>
+            <div th:if="${orders == null or orders.isEmpty()}" class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>Замовлень не знайдено
+            </div>
 
-            <div th:if="${orders != null and !orders.isEmpty()}">
+            <!-- Desktop Table (hidden on mobile) -->
+            <div th:if="${orders != null and !orders.isEmpty()}" class="d-none d-lg-block">
                 <div class="table-responsive">
-                    <table class="table table-hover shadow-sm">
-                        <thead class="table-primary">
+                    <table class="table table-hover shadow-sm rounded-3 overflow-hidden">
+                        <thead style="background-color: #003366; color: white;">
                         <tr>
                             <th>#</th>
                             <th>Автомобіль</th>
-                            <th>Дата початку</th>
-                            <th>Дата кінця</th>
+                            <th>Початок</th>
+                            <th>Кінець</th>
                             <th>Днів</th>
                             <th>Сума</th>
                             <th>Статус</th>
@@ -31,11 +34,11 @@
                             <td th:text="${order.orderId}">1</td>
                             <td>
                                 <a th:if="${order.car != null}" th:href="@{/cars/{id}(id=${order.carId})}" 
-                                   th:text="${order.car.brand + ' ' + order.car.model}">Brand Model</a>
+                                   th:text="${order.car.brand + ' ' + order.car.model}" class="fw-bold text-decoration-none">Brand Model</a>
                                 <span th:if="${order.car == null}" th:text="${'Авто #' + order.carId}">Авто #</span>
                             </td>
-                            <td th:text="${#temporals.format(order.startDate, 'd MMMM yyyy року', new java.util.Locale('uk'))}">5 травня 2026 року</td>
-                            <td th:text="${#temporals.format(order.endDate, 'd MMMM yyyy року', new java.util.Locale('uk'))}">6 травня 2026 року</td>
+                            <td th:text="${#temporals.format(order.startDate, 'dd.MM.yyyy')}">05.05.2026</td>
+                            <td th:text="${#temporals.format(order.endDate, 'dd.MM.yyyy')}">06.05.2026</td>
                             <td th:text="${order.totalDays}">7</td>
                             <td><strong th:text="${(order.totalCost != null ? order.totalCost : 0) + ' грн'}">7000 грн</strong></td>
                             <td>
@@ -43,7 +46,7 @@
                                       th:classappend="${order.status?.name() == 'ACTIVE'} ? 'bg-success' :
                                                      (${order.status?.name() == 'PENDING'} ? 'bg-warning text-dark' :
                                                      (${order.status?.name() == 'COMPLETED'} ? 'bg-secondary' :
-                                                     (${order.status?.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-info')))"
+                                                     (${order.status?.name() == 'CANCELLED' || order.status?.name() == 'REJECTED'} ? 'bg-danger' : 'bg-info')))"
                                       th:text="${order.status?.displayName ?: 'Невідомо'}">Статус</span>
                             </td>
                             <td>
@@ -57,6 +60,89 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Mobile Cards (hidden on desktop) -->
+            <div th:if="${orders != null and !orders.isEmpty()}" class="d-lg-none">
+                <div class="row g-3">
+                    <div class="col-12" th:each="order : ${orders}">
+                        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                            <div class="card-body p-0">
+                                <!-- Header with status -->
+                                <div class="d-flex justify-content-between align-items-center px-3 pt-3 pb-2">
+                                    <div>
+                                        <span class="text-muted small">Замовлення</span>
+                                        <span class="fw-bold" th:text="'#' + ${order.orderId}">#1</span>
+                                    </div>
+                                    <span class="badge rounded-pill px-3 py-2"
+                                          th:classappend="${order.status?.name() == 'ACTIVE'} ? 'bg-success' :
+                                                         (${order.status?.name() == 'PENDING'} ? 'bg-warning text-dark' :
+                                                         (${order.status?.name() == 'COMPLETED'} ? 'bg-secondary' :
+                                                         (${order.status?.name() == 'CANCELLED' || order.status?.name() == 'REJECTED'} ? 'bg-danger' : 'bg-info')))"
+                                          th:text="${order.status?.displayName ?: 'Невідомо'}">Статус</span>
+                                </div>
+                                
+                                <!-- Car info -->
+                                <div class="px-3 pb-2">
+                                    <div class="fw-bold fs-5">
+                                        <i class="fas fa-car me-2" style="color: #003366;"></i>
+                                        <a th:if="${order.car != null}" th:href="@{/cars/{id}(id=${order.carId})}" 
+                                           th:text="${order.car.brand + ' ' + order.car.model}" class="text-decoration-none" style="color: #003366;">Brand Model</a>
+                                        <span th:if="${order.car == null}" th:text="${'Авто #' + order.carId}">Авто #</span>
+                                    </div>
+                                </div>
+
+                                <!-- Details grid -->
+                                <div class="px-3 pb-3">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <div class="bg-light rounded-3 p-2 text-center">
+                                                <div class="text-muted small">Початок</div>
+                                                <div class="fw-bold" th:text="${#temporals.format(order.startDate, 'dd.MM.yyyy')}">05.05.2026</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="bg-light rounded-3 p-2 text-center">
+                                                <div class="text-muted small">Кінець</div>
+                                                <div class="fw-bold" th:text="${#temporals.format(order.endDate, 'dd.MM.yyyy')}">06.05.2026</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="bg-light rounded-3 p-2 text-center">
+                                                <div class="text-muted small">Днів</div>
+                                                <div class="fw-bold" th:text="${order.totalDays}">7</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="bg-light rounded-3 p-2 text-center">
+                                                <div class="text-muted small">Сума</div>
+                                                <div class="fw-bold fs-5" style="color: #003366;" th:text="${(order.totalCost != null ? order.totalCost : 0) + ' грн'}">7000 грн</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Actions footer -->
+                                <div class="d-flex gap-2 p-3 border-top" style="background: #f8f9fa;">
+                                    <a th:href="@{/orders/{id}(id=${order.orderId})}" class="btn btn-primary btn-sm flex-grow-1 rounded-3" style="background: #003366; border: none;">
+                                        <i class="fas fa-eye me-1"></i>Деталі
+                                    </a>
+                                    <a th:if="${order.status?.name() == 'WAITING_FOR_PAYMENT'}" 
+                                       th:href="@{/payment/checkout/{id}(id=${order.orderId})}" 
+                                       class="btn btn-success btn-sm flex-grow-1 rounded-3">
+                                        <i class="fas fa-credit-card me-1"></i>Оплатити
+                                    </a>
+                                    <form th:if="${order.status?.name() == 'PENDING'}" th:action="@{/orders/{id}/cancel(id=${order.orderId})}" method="post" class="flex-grow-0" onsubmit="return confirm('Скасувати замовлення?')">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-3">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 </main>

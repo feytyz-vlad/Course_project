@@ -187,6 +187,17 @@
         }
         
         @media (max-width: 768px) {
+            .hero-section {
+                min-height: 40vh;
+                margin-bottom: 2rem;
+            }
+            .hero-content h1 {
+                font-size: 2.5rem !important;
+            }
+            .hero-content p {
+                font-size: 1.1rem !important;
+            }
+            
             .comparison-table, .comparison-table thead, .comparison-table tbody, .comparison-table th, .comparison-table td, .comparison-table tr { 
                 display: block !important; 
             }
@@ -244,6 +255,50 @@
         .step-item:hover {
             background: rgba(0, 51, 102, 0.05);
         }
+
+        /* Mobile Navbar Improvements */
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                background: rgba(33, 37, 41, 0.98);
+                padding: 1.5rem;
+                border-radius: 1rem;
+                margin-top: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            .navbar-nav {
+                text-align: center;
+            }
+            .nav-item {
+                margin: 8px 0;
+            }
+            .navbar-nav.ms-auto {
+                padding-top: 1rem;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                margin-top: 1rem;
+            }
+            .navbar-nav.ms-auto .nav-item {
+                width: 100%;
+            }
+            .navbar-nav.ms-auto .btn, 
+            .navbar-nav.ms-auto .nav-link:not(.dropdown-toggle) {
+                display: block;
+                width: 100%;
+                padding: 10px;
+            }
+            .dropdown-menu {
+                background: rgba(255,255,255,0.05);
+                border: none;
+                text-align: center;
+            }
+            .dropdown-item {
+                color: rgba(255,255,255,0.8) !important;
+            }
+            .navbar-nav.ms-auto .dropdown-toggle {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -281,6 +336,17 @@
                         <a class="nav-link" th:href="@{/admin/damages}">Пошкодження</a>
                     </li>
                 </th:block>
+                <th:block sec:authorize="hasRole('MANAGER')">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/manager/dashboard}">Панель менеджера</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/cars}">Всі автомобілі</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/manager/damages}">Пошкодження</a>
+                    </li>
+                </th:block>
             </ul>
             <ul class="navbar-nav ms-auto align-items-center">
                 <!-- Logged in user -->
@@ -291,16 +357,11 @@
                             <i class="fas fa-user-shield me-1"></i>Адмін
                         </span>
                     </li>
-                    <!-- Manager dropdown remains for other specific tasks -->
-                    <li class="nav-item dropdown me-2" sec:authorize="hasRole('MANAGER')">
-                        <a class="nav-link dropdown-toggle btn btn-outline-info text-white px-3" href="#" data-bs-toggle="dropdown">
+                    <!-- Manager Label -->
+                    <li class="nav-item me-2" sec:authorize="hasRole('MANAGER')">
+                        <span class="badge bg-info text-white px-3 py-2">
                             <i class="fas fa-user-tie me-1"></i>Менеджер
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" th:href="@{/manager/dashboard}">Панель менеджера</a></li>
-                            <li><a class="dropdown-item" th:href="@{/cars}">Всі автомобілі</a></li>
-                            <li><a class="dropdown-item" th:href="@{/manager/damages}">Пошкодження</a></li>
-                        </ul>
+                        </span>
                     </li>
 
                     <li class="nav-item me-2" sec:authorize="hasRole('CLIENT')">

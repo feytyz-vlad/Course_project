@@ -32,4 +32,6 @@ public interface RentalOrderRepository {
     boolean deleteById(Long orderId);
 
     List<RentalOrder> findLatestOrders(int limit);
+
+    boolean updatePaymentInfo(Long orderId, boolean isPaid, String card, String email, String phone);
 }

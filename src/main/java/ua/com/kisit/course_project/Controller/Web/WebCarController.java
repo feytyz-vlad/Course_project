@@ -54,6 +54,7 @@ public class WebCarController {
     public String listCars(@RequestParam(defaultValue = "0") int page, Model model) {
         int size = 9;
         model.addAttribute(ATTR_CARS, carService.getAllCarsPaginated(page, size));
+        model.addAttribute("allCarsForMap", carService.getAllCars());
         model.addAttribute(ATTR_TITLE, "Всі автомобілі");
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", (int) Math.ceil((double) carService.getTotalCarsCount() / size));
@@ -66,6 +67,7 @@ public class WebCarController {
     public String availableCars(@RequestParam(defaultValue = "0") int page, Model model) {
         int size = 9;
         model.addAttribute(ATTR_CARS, carService.getAvailableCarsPaginated(page, size));
+        model.addAttribute("allCarsForMap", carService.getAvailableCars());
         model.addAttribute(ATTR_TITLE, "Доступні автомобілі");
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", (int) Math.ceil((double) carService.getAvailableCarsCount() / size));
@@ -84,12 +86,15 @@ public class WebCarController {
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) String sortOrder,
+            @RequestParam(required = false) Double userLat,
+            @RequestParam(required = false) Double userLng,
+            @RequestParam(required = false) Double maxDistance,
             Model model) {
 
         Car.CarClass classEnum = parseEnum(Car.CarClass.class, carClass);
         FuelType fuelEnum = parseEnum(FuelType.class, fuel);
 
-        List<Car> cars = carService.searchCars(query, classEnum, fuelEnum, seats, year, minPrice, maxPrice, sortOrder);
+        List<Car> cars = carService.searchCars(query, classEnum, fuelEnum, seats, year, minPrice, maxPrice, sortOrder, userLat, userLng, maxDistance);
 
         model.addAttribute(ATTR_CARS, cars);
         model.addAttribute(ATTR_TITLE, "Результати пошуку");
@@ -101,6 +106,9 @@ public class WebCarController {
         model.addAttribute("searchMinPrice", minPrice);
         model.addAttribute("searchMaxPrice", maxPrice);
         model.addAttribute("searchSortOrder", sortOrder);
+        model.addAttribute("userLat", userLat);
+        model.addAttribute("userLng", userLng);
+        model.addAttribute("maxDistance", maxDistance);
         addEnumsToModel(model);
 
         return VIEW_CAR_LIST;

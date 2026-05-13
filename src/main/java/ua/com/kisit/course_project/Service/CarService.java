@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import ua.com.kisit.course_project.Annotation.Auditable;
@@ -89,8 +90,10 @@ public class CarService {
         return carRepository.findAvailablePaginated(size, offset);
     }
 
-    public List<Car> searchCars(String query, Car.CarClass carClass, FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice, String sortOrder) {
-        return carRepository.searchCars(query, carClass, fuel, seats, year, minPrice, maxPrice, sortOrder);
+    public List<Car> searchCars(String query, Car.CarClass carClass, FuelType fuel, Integer seats, Integer year, 
+                                BigDecimal minPrice, BigDecimal maxPrice, String sortOrder,
+                                Double userLat, Double userLng, Double maxDistance) {
+        return carRepository.searchCars(query, carClass, fuel, seats, year, minPrice, maxPrice, sortOrder, userLat, userLng, maxDistance);
     }
 
     public boolean updateCarStatus(Long carId, CarStatus newStatus) {
@@ -140,4 +143,22 @@ public class CarService {
     public List<Car> getPopularCars(int limit) {
         return carRepository.getPopularCars(limit);
     }
-}
+
+    /**
+     * Initializes all cars without coordinates with random locations in Kyiv
+     */
+    @PostConstruct
+    public void initializeRandomLocations() {
+        List<Car> cars = carRepository.findAll();
+        for (Car car : cars) {
+            if (car.getLatitude() == null || car.getLongitude() == null) {
+                // Kyiv bounds
+                double lat = 50.3500 + (Math.random() * (50.5500 - 50.3500));
+                double lng = 30.3500 + (Math.random() * (30.7500 - 30.3500));
+                car.setLatitude(lat);
+                car.setLongitude(lng);
+                carRepository.update(car);
+            }
+        }
+    }
+}

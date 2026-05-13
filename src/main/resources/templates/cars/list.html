@@ -90,6 +90,8 @@
                                             <option value="">За замовчуванням</option>
                                             <option value="price_asc" th:selected="${searchSortOrder == 'price_asc'}">Від найдешевших</option>
                                             <option value="price_desc" th:selected="${searchSortOrder == 'price_desc'}">Від найдорожчих</option>
+                                            <option value="dist_asc" th:selected="${searchSortOrder == 'dist_asc'}">Найближчі</option>
+                                            <option value="dist_desc" th:selected="${searchSortOrder == 'dist_desc'}">Найвіддаленіші</option>
                                         </select>
                                     </div>
                                 </div>
@@ -121,13 +123,38 @@
                                             <input type="number" name="maxPrice" th:value="${searchMaxPrice}" class="form-control form-control-sm" placeholder="До">
                                         </div>
                                     </div>
+
+                                    <hr class="my-4">
+
+                                    <label class="form-label small fw-bold text-uppercase text-muted d-block mb-3">Відстань від вас</label>
+                                    <div class="d-flex justify-content-between mb-2 align-items-center">
+                                        <span class="badge bg-light text-dark border p-2" id="distVal" th:text="${maxDistance ?: 'Вся область'} + (maxDistance != null ? ' км' : '')">Вся область</span>
+                                        <span id="locStatus" class="small text-muted">
+                                            <i th:if="${userLat == null}" class="fas fa-location-arrow me-1"></i>
+                                            <i th:if="${userLat != null}" class="fas fa-check-circle text-success me-1"></i>
+                                            <span th:text="${userLat == null ? 'Геопозиція не визначена' : 'Геопозиція отримана'}">Статус</span>
+                                        </span>
+                                    </div>
+                                    <input type="range" name="maxDistance" class="form-range custom-range" min="0" max="100" step="1" 
+                                           th:value="${maxDistance ?: 100}" id="distRange" oninput="updateDist(this.value)">
+                                    <input type="hidden" name="userLat" id="userLat" th:value="${userLat}">
+                                    <input type="hidden" name="userLng" id="userLng" th:value="${userLng}">
+                                    
+                                    <div class="d-grid gap-2 mt-4">
+                                        <button type="button" class="btn btn-outline-info fw-bold py-2" onclick="toggleMapMode()">
+                                            <i class="fas fa-map-marked-alt me-2"></i>Показати машини на карті
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold py-2" onclick="enableManualLocation()">
+                                            <i class="fas fa-mouse-pointer me-2"></i>Вказати моє місце на карті
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="col-12 mt-5">
                                 <div class="d-flex flex-column flex-md-row gap-3 justify-content-end">
                                     <a th:href="@{/cars/available}" class="btn btn-light px-5 py-3 fw-bold text-muted border order-2 order-md-1">Очистити все</a>
-                                    <button type="submit" class="btn btn-primary px-5 py-3 fw-bold shadow order-1 order-md-2" style="background-color: #003366; border: none;">
+                                    <button type="submit" id="submitSearch" class="btn btn-primary px-5 py-3 fw-bold shadow order-1 order-md-2" style="background-color: #003366; border: none;">
                                         Показати результати
                                     </button>
                                 </div>
@@ -137,111 +164,6 @@
                 </div>
             </div>
         </div>
-
-        <script>
-            function updateRange() {
-                const min = document.getElementById('rangeMin');
-                const max = document.getElementById('rangeMax');
-                const minInput = document.getElementsByName('minPrice')[0];
-                const maxInput = document.getElementsByName('maxPrice')[0];
-                const minVal = document.getElementById('minPriceVal');
-                const maxVal = document.getElementById('maxPriceVal');
-                
-                if (parseInt(min.value) > parseInt(max.value)) {
-                    let tmp = min.value;
-                    min.value = max.value;
-                    max.value = tmp;
-                }
-                
-                minInput.value = min.value;
-                maxInput.value = max.value;
-                minVal.innerText = min.value + ' грн';
-                maxVal.innerText = max.value + ' грн';
-                
-                updateTrack();
-            }
-
-            function updateTrack() {
-                const min = document.getElementById('rangeMin');
-                const max = document.getElementById('rangeMax');
-                const track = document.querySelector('.slider-track');
-                const percent1 = (min.value / min.max) * 100;
-                const percent2 = (max.value / max.max) * 100;
-                track.style.background = `linear-gradient(to right, #495057 ${percent1}%, #003366 ${percent1}%, #003366 ${percent2}%, #495057 ${percent2}%)`;
-            }
-            
-            window.onload = updateTrack;
-        </script>
-
-        <style>
-            .price-slider-container {
-                position: relative;
-                width: 100%;
-                height: 30px;
-                display: flex;
-                align-items: center;
-            }
-            .slider-track {
-                position: absolute;
-                width: 100%;
-                height: 6px;
-                background: #495057; /* Dark gray track */
-                border-radius: 5px;
-                z-index: 1;
-            }
-            .range-input {
-                position: absolute;
-                width: 100%;
-                height: 6px;
-                background: none;
-                pointer-events: none;
-                -webkit-appearance: none;
-                appearance: none;
-                z-index: 2;
-                margin: 0;
-            }
-            .range-input::-webkit-slider-thumb {
-                height: 24px;
-                width: 24px;
-                border-radius: 50%;
-                background: #003366;
-                pointer-events: auto;
-                -webkit-appearance: none;
-                cursor: pointer;
-                border: 3px solid #fff;
-                box-shadow: 0 0 8px rgba(0,0,0,0.3);
-                margin-top: -2px; /* Centering fix */
-            }
-            .range-input::-moz-range-thumb {
-                height: 20px;
-                width: 20px;
-                border-radius: 50%;
-                background: #003366;
-                pointer-events: auto;
-                cursor: pointer;
-                border: 3px solid #fff;
-                box-shadow: 0 0 8px rgba(0,0,0,0.3);
-            }
-            
-            .form-control:focus {
-                box-shadow: none !important;
-                border-color: transparent !important;
-                outline: none !important;
-            }
-            .search-container .input-group-text, 
-            .search-container .form-control {
-                border: none !important;
-                background-color: white !important;
-            }
-            
-            @media (max-width: 768px) {
-                .container { padding-left: 15px; padding-right: 15px; }
-                .modal-body { padding: 1.5rem !important; }
-                .price-slider-container { margin-top: 10px; }
-                .badge { font-size: 0.8rem; }
-                .search-container .btn { width: 100%; }
-            }
-        </style>
 
         <!-- No Results Message -->
         <div th:if="${cars.isEmpty() and (
@@ -330,6 +252,14 @@
             </div>
         </div>
 
+        <!-- Map View (Hidden by default) -->
+        <div id="mapContainer" class="rounded-4 overflow-hidden shadow-lg mb-5" style="height: 600px; display: none; position: relative; z-index: 1000;">
+            <div id="leafletMap" style="width: 100%; height: 100%;"></div>
+            <button class="btn btn-dark position-absolute top-0 end-0 m-3 shadow" onclick="toggleMapMode()" style="z-index: 1001;">
+                <i class="fas fa-th me-2"></i>Повернутися до списку
+            </button>
+        </div>
+
         <!-- Pagination -->
         <nav th:if="${totalPages > 1}" class="mt-5 mb-4" aria-label="Page navigation">
             <ul class="pagination justify-content-center">
@@ -353,13 +283,247 @@
         </nav>
     </div>
     
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script th:inline="javascript">
+        function updateRange() {
+            const min = document.getElementById('rangeMin');
+            const max = document.getElementById('rangeMax');
+            const minInput = document.getElementsByName('minPrice')[0];
+            const maxInput = document.getElementsByName('maxPrice')[0];
+            const minVal = document.getElementById('minPriceVal');
+            const maxVal = document.getElementById('maxPriceVal');
+            
+            if (parseInt(min.value) > parseInt(max.value)) {
+                let tmp = min.value;
+                min.value = max.value;
+                max.value = tmp;
+            }
+            
+            minInput.value = min.value;
+            maxInput.value = max.value;
+            minVal.innerText = min.value + ' грн';
+            maxVal.innerText = max.value + ' грн';
+            
+            updateTrack();
+        }
+
+        function updateTrack() {
+            const min = document.getElementById('rangeMin');
+            const max = document.getElementById('rangeMax');
+            const track = document.querySelector('.slider-track');
+            if (track) {
+                const percent1 = (min.value / min.max) * 100;
+                const percent2 = (max.value / max.max) * 100;
+                track.style.background = `linear-gradient(to right, #495057 ${percent1}%, #003366 ${percent1}%, #003366 ${percent2}%, #495057 ${percent2}%)`;
+            }
+        }
+        
+        window.onload = updateTrack;
+
+        let isRequestingLocation = false;
+
+        function updateDist(val) {
+            const distVal = document.getElementById('distVal');
+            distVal.innerText = val == 100 ? 'Вся область' : val + ' км';
+            
+            if (val < 100 && !isRequestingLocation && (!document.getElementById('userLat').value || !document.getElementById('userLng').value)) {
+                requestLocation();
+            }
+        }
+
+        function requestLocation() {
+            if (navigator.geolocation) {
+                const statusEl = document.getElementById('locStatus');
+                statusEl.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Визначаємо...';
+                statusEl.classList.remove('text-success', 'text-danger');
+                statusEl.classList.add('text-muted');
+                
+                isRequestingLocation = true;
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    setCoords(position.coords.latitude, position.coords.longitude, "Браузер");
+                }, function(error) {
+                    console.warn("Native geolocation failed, trying IP fallback...", error.message);
+                    tryIpFallback();
+                }, { 
+                    timeout: 8000,
+                    enableHighAccuracy: false
+                });
+            } else {
+                tryIpFallback();
+            }
+        }
+
+        function tryIpFallback() {
+            const statusEl = document.getElementById('locStatus');
+            statusEl.innerHTML = '<i class="fas fa-network-wired fa-spin me-1"></i>IP-локація...';
+            
+            fetch('https://ipapi.co/json/')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.latitude && data.longitude) {
+                        setCoords(data.latitude, data.longitude, "IP-адреса");
+                    } else {
+                        throw new Error("Invalid data");
+                    }
+                })
+                .catch(err => {
+                    console.error("IP fallback failed:", err);
+                    isRequestingLocation = false;
+                    statusEl.innerHTML = '<i class="fas fa-exclamation-triangle text-danger me-1"></i>Позиція недоступна';
+                });
+        }
+
+        function setCoords(lat, lng, method) {
+            document.getElementById('userLat').value = lat;
+            document.getElementById('userLng').value = lng;
+            isRequestingLocation = false;
+            
+            const statusEl = document.getElementById('locStatus');
+            statusEl.innerHTML = `<i class="fas fa-check-circle text-success me-1"></i>Готово (${method})`;
+            statusEl.classList.remove('text-muted');
+            statusEl.classList.add('text-success');
+        }
+
+        document.getElementById('submitSearch').addEventListener('click', function(e) {
+            const dist = document.getElementById('distRange').value;
+            const lat = document.getElementById('userLat').value;
+            
+            if (dist < 100 && !lat) {
+                if (isRequestingLocation) {
+                    e.preventDefault();
+                    alert("Зачекайте, ми ще визначаємо вашу геопозицію...");
+                } else {
+                    // Try to request again if it failed before but user wants to filter by distance
+                    requestLocation();
+                    e.preventDefault();
+                    alert("Для фільтрації за відстанню потрібен доступ до геопозиції. Дозвольте доступ та спробуйте ще раз.");
+                }
+            }
+        });
+
+        let map;
+        let markers = [];
+        
+        let userMarker;
+        let isManualMode = false;
+
+        function enableManualLocation() {
+            isManualMode = true;
+            toggleMapMode();
+            alert("Клацніть на карті у тому місці, де ви знаходитесь, щоб встановити свою точку відліку.");
+        }
+
+        function toggleMapMode() {
+            const list = document.querySelector('.row.row-cols-1');
+            const mapCont = document.getElementById('mapContainer');
+            const pagination = document.querySelector('nav[aria-label="Page navigation"]');
+            
+            if (mapCont.style.display === 'none') {
+                list.style.display = 'none';
+                if (pagination) pagination.style.display = 'none';
+                mapCont.style.display = 'block';
+                setTimeout(initLeafletMap, 100);
+            } else {
+                list.style.display = 'flex';
+                if (pagination) pagination.style.display = 'block';
+                mapCont.style.display = 'none';
+                isManualMode = false;
+            }
+            
+            const modalEl = document.getElementById('filterModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        }
+
+        function initLeafletMap() {
+            if (!map) {
+                map = L.map('leafletMap').setView([50.4501, 30.5234], 11);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                map.on('click', function(e) {
+                    if (isManualMode) {
+                        setCoords(e.latlng.lat, e.latlng.lng, "Вказано вручну");
+                        updateUserMarker(e.latlng.lat, e.latlng.lng);
+                        isManualMode = false;
+                        
+                        setTimeout(() => {
+                            if (confirm("Точку встановлено! Повернутися до фільтрів для пошуку?")) {
+                                toggleMapMode();
+                                const modal = new bootstrap.Modal(document.getElementById('filterModal'));
+                                modal.show();
+                            }
+                        }, 500);
+                    }
+                });
+            } else {
+                map.invalidateSize();
+            }
+            
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            // Use allCarsForMap if available, otherwise fallback to current page cars
+            const carsData = /*[[${allCarsForMap}]]*/ null;
+            const cars = carsData || JSON.parse(document.getElementById('carsJson').textContent);
+            
+            cars.forEach(car => {
+                if (car.latitude && car.longitude) {
+                    const marker = L.marker([car.latitude, car.longitude]).addTo(map);
+                    // ... popup logic ...
+                    const popupContent = `
+                        <div style="width: 180px;">
+                            <img src="${car.imageUrl || ''}" style="width: 100%; border-radius: 4px; margin-bottom: 5px;">
+                            <h6 style="margin: 0 0 5px 0;">${car.brand} ${car.model}</h6>
+                            <p style="color: #003366; font-weight: bold; margin: 0 0 5px 0;">${car.dailyRate} грн/доба</p>
+                            <a href="/cars/${car.carId}" class="btn btn-primary btn-sm w-100" style="color: white; font-size: 11px;">Переглянути</a>
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
+                    markers.push(marker);
+                }
+            });
+
+            // Re-draw user marker if exists
+            const lat = document.getElementById('userLat').value;
+            const lng = document.getElementById('userLng').value;
+            if (lat && lng) updateUserMarker(lat, lng);
+        }
+
+        function updateUserMarker(lat, lng) {
+            if (userMarker) map.removeLayer(userMarker);
+            
+            const userIcon = L.divIcon({
+                html: '<i class="fas fa-street-view fa-2x" style="color: #d9534f;"></i>',
+                iconSize: [30, 30],
+                className: 'user-location-icon'
+            });
+            
+            userMarker = L.marker([lat, lng], { icon: userIcon, zIndexOffset: 1000 }).addTo(map);
+        }
+    </script>
+    
+    <script id="carsJson" type="application/json" th:inline="javascript">
+        /*[# th:if="${cars != null}"]*/
+        [[${cars}]]
+        /*[/]*/
+        /*[# th:if="${cars == null}"]*/
+        []
+        /*[/]*/
+    </script>
+
     <style>
-        .car-card {
-            transition: transform 0.2s;
-        }
-        .car-card:hover {
-            transform: translateY(-5px);
-        }
+        .car-card { transition: transform 0.2s; }
+        .car-card:hover { transform: translateY(-5px); }
+        .price-slider-container { position: relative; width: 100%; height: 30px; display: flex; align-items: center; }
+        .slider-track { position: absolute; width: 100%; height: 66px; background: #495057; border-radius: 5px; z-index: 1; }
+        .range-input { position: absolute; width: 100%; height: 6px; background: none; pointer-events: none; -webkit-appearance: none; z-index: 2; margin: 0; }
+        .range-input::-webkit-slider-thumb { height: 24px; width: 24px; border-radius: 50%; background: #003366; pointer-events: auto; -webkit-appearance: none; cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 8px rgba(0,0,0,0.3); }
     </style>
 </main>
 </body>

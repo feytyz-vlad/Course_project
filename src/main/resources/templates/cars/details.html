@@ -2,7 +2,26 @@
 <html lang="uk" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{Layout :: layout}">
 <body>
 <main th:fragment="content">
-    <!-- Removed hero section as per user request -->
+    <style>
+        .car-detail-img {
+            width: 100%;
+            height: 420px;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+        @media (max-width: 768px) {
+            .car-detail-img {
+                height: 250px;
+                object-fit: contain;
+                background-color: #f8f9fa;
+            }
+        }
+        .breadcrumb-item a {
+            color: #003366;
+            text-decoration: none;
+        }
+    </style>
+
     <section class="pt-5 pb-5">
         <div class="container">
             <!-- Breadcrumb -->
@@ -16,8 +35,8 @@
 
             <div class="row gx-4 gy-4">
                 <div class="col-lg-6">
-                    <div class="st__project__thumb mb-3">
-                        <img th:src="${car.imageUrl != null ? car.imageUrl : '/vendor/logistcwr/assets/images/project/p1.jpg'}" class="img-fluid rounded shadow" alt="Car" style="width:100%; height:420px; object-fit:cover;">
+                    <div class="position-relative mb-3">
+                        <img th:src="${car.imageUrl != null ? car.imageUrl : '/vendor/logistcwr/assets/images/project/p1.jpg'}" class="car-detail-img shadow" alt="Car">
                         <span class="badge position-absolute top-0 start-0 m-3 fs-6" th:classappend="${car.status.name() == 'AVAILABLE'} ? 'bg-success' : 'bg-secondary'">
                             <span th:text="${car.status.displayName}">Статус</span>
                         </span>

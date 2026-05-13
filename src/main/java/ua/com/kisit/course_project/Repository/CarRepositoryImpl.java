@@ -81,6 +81,9 @@ public class CarRepositoryImpl implements CarRepository {
             car.setCarClass(CarClass.STANDARD);
         }
 
+        car.setLatitude(rs.getObject("latitude", Double.class));
+        car.setLongitude(rs.getObject("longitude", Double.class));
+
         Timestamp createdAt = rs.getTimestamp("created_at");
         if (createdAt != null) car.setCreatedAt(createdAt.toLocalDateTime());
         Timestamp updatedAt = rs.getTimestamp("updated_at");
@@ -112,8 +115,8 @@ public class CarRepositoryImpl implements CarRepository {
     @Override
     public Car save(Car car) {
         String sql = "INSERT INTO cars (brand, model, year, color, registration_number, vin_code, " +
-                "transmission_type, fuel_type, seats_count, daily_rate, status, mileage, image_url, description, car_class) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "transmission_type, fuel_type, seats_count, daily_rate, status, mileage, image_url, description, car_class, latitude, longitude) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(conn -> {
@@ -133,6 +136,8 @@ public class CarRepositoryImpl implements CarRepository {
             ps.setString(13, car.getImageUrl());
             ps.setString(14, car.getDescription());
             ps.setString(15, car.getCarClass() != null ? car.getCarClass().name() : CarClass.STANDARD.name());
+            ps.setObject(16, car.getLatitude());
+            ps.setObject(17, car.getLongitude());
             return ps;
         }, keyHolder);
 
@@ -146,7 +151,7 @@ public class CarRepositoryImpl implements CarRepository {
     public Car update(Car car) {
         String sql = "UPDATE cars SET brand=?, model=?, year=?, color=?, registration_number=?, " +
                 "vin_code=?, transmission_type=?, fuel_type=?, seats_count=?, daily_rate=?, " +
-                "status=?, mileage=?, image_url=?, description=?, car_class=? WHERE car_id=?";
+                "status=?, mileage=?, image_url=?, description=?, car_class=?, latitude=?, longitude=? WHERE car_id=?";
 
         jdbcTemplate.update(sql,
                 car.getBrand(), car.getModel(), car.getYear(), car.getColor(),
@@ -157,6 +162,7 @@ public class CarRepositoryImpl implements CarRepository {
                 car.getSeatsCount(), car.getDailyRate(), car.getStatus().name(),
                 car.getMileage(), car.getImageUrl(), car.getDescription(),
                 car.getCarClass() != null ? car.getCarClass().name() : CarClass.STANDARD.name(),
+                car.getLatitude(), car.getLongitude(),
                 car.getCarId());
         return car;
     }
@@ -219,10 +225,21 @@ public class CarRepositoryImpl implements CarRepository {
     }
 
     @Override
-    public List<Car> searchCars(String query, CarClass carClass, FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice, String sortOrder) {
-        // Додаємо фільтр status = 'AVAILABLE', щоб клієнти не бачили орендовані авто в пошуку
-        StringBuilder sql = new StringBuilder("SELECT * FROM cars WHERE status = 'AVAILABLE'");
+    public List<Car> searchCars(String query, CarClass carClass, FuelType fuel, Integer seats, Integer year, 
+                                BigDecimal minPrice, BigDecimal maxPrice, String sortOrder,
+                                Double userLat, Double userLng, Double maxDistance) {
+        
+        StringBuilder sql = new StringBuilder();
         List<Object> params = new ArrayList<>();
+
+        if (userLat != null && userLng != null) {
+            sql.append("SELECT * FROM (SELECT c.*, (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(c.latitude)) * COS(RADIANS(c.longitude) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(c.latitude)))) AS distance FROM cars c) t WHERE status = 'AVAILABLE'");
+            params.add(userLat);
+            params.add(userLng);
+            params.add(userLat);
+        } else {
+            sql.append("SELECT * FROM cars WHERE status = 'AVAILABLE'");
+        }
 
         if (query != null && !query.isBlank()) {
             sql.append(" AND (LOWER(brand) LIKE ? OR LOWER(model) LIKE ? OR LOWER(CONCAT(brand, ' ', model)) LIKE ?)");
@@ -256,11 +273,20 @@ public class CarRepositoryImpl implements CarRepository {
             params.add(maxPrice);
         }
         
+        if (maxDistance != null && userLat != null && userLng != null) {
+            sql.append(" AND distance <= ?");
+            params.add(maxDistance);
+        }
         
+        // Sorting
         if ("price_asc".equals(sortOrder)) {
             sql.append(" ORDER BY daily_rate ASC, brand, model");
         } else if ("price_desc".equals(sortOrder)) {
             sql.append(" ORDER BY daily_rate DESC, brand, model");
+        } else if ("dist_asc".equals(sortOrder) && userLat != null && userLng != null) {
+            sql.append(" ORDER BY distance ASC");
+        } else if ("dist_desc".equals(sortOrder) && userLat != null && userLng != null) {
+            sql.append(" ORDER BY distance DESC");
         } else {
             sql.append(" ORDER BY brand, model");
         }

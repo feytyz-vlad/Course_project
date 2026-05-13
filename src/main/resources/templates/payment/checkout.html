@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Redirecting to WayForPay...</title>
+</head>
+<body onload="document.getElementById('wfp_form').submit();">
+    <div style="text-align: center; margin-top: 100px; font-family: sans-serif;">
+        <h2>Зачекайте, ми перенаправляємо вас на захищену сторінку оплати WayForPay...</h2>
+        <div class="spinner"></div>
+    </div>
+
+    <form id="wfp_form" method="post" action="https://secure.wayforpay.com/pay" accept-charset="utf-8">
+        <input type="hidden" name="merchantAccount" th:value="${merchantAccount}">
+        <input type="hidden" name="merchantAuthType" value="SimpleSignature">
+        <input type="hidden" name="merchantDomainName" th:value="${merchantDomainName}">
+        <input type="hidden" name="orderReference" th:value="${orderReference}">
+        <input type="hidden" name="orderDate" th:value="${orderDate}">
+        <input type="hidden" name="amount" th:value="${amount}">
+        <input type="hidden" name="currency" th:value="${currency}">
+        <input type="hidden" name="productName[]" th:value="${productName}">
+        <input type="hidden" name="productPrice[]" th:value="${productPrice}">
+        <input type="hidden" name="productCount[]" th:value="${productCount}">
+        <input type="hidden" name="merchantSignature" th:value="${merchantSignature}">
+        <input type="hidden" name="language" value="UA">
+        <input type="hidden" name="returnUrl" th:value="${returnUrl}">
+        <input type="hidden" name="serviceUrl" th:value="${serviceUrl}">
+    </form>
+</body>
+</html>

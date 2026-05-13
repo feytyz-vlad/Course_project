@@ -4,9 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * Entity class representing a rental order
- */
 public class RentalOrder {
     private Long orderId;
     private Long clientId;
@@ -22,7 +19,11 @@ public class RentalOrder {
     private String additionalNotes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Car car; // Added for display purposes
+    private boolean isPaid;
+    private String paymentCard;
+    private String paymentEmail;
+    private String paymentPhone;
+    private Car car;
 
     public Car getCar() {
         return car;
@@ -39,7 +40,8 @@ public class RentalOrder {
         REJECTED("Відхилено"),
         ACTIVE("Активний"),
         COMPLETED("Завершено"),
-        CANCELLED("Скасовано");
+        CANCELLED("Скасовано"),
+        WAITING_FOR_PAYMENT("Очікує оплати");
 
         private final String displayName;
 
@@ -57,7 +59,7 @@ public class RentalOrder {
     }
 
     public RentalOrder(Long clientId, Long carId, LocalDate startDate, LocalDate endDate,
-                       Integer totalDays, BigDecimal dailyRate, BigDecimal totalCost) {
+            Integer totalDays, BigDecimal dailyRate, BigDecimal totalCost) {
         this.clientId = clientId;
         this.carId = carId;
         this.startDate = startDate;
@@ -179,6 +181,38 @@ public class RentalOrder {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean isPaid() {
+        return isPaid;
+    }
+
+    public void setPaid(boolean paid) {
+        isPaid = paid;
+    }
+
+    public String getPaymentCard() {
+        return paymentCard;
+    }
+
+    public void setPaymentCard(String paymentCard) {
+        this.paymentCard = paymentCard;
+    }
+
+    public String getPaymentEmail() {
+        return paymentEmail;
+    }
+
+    public void setPaymentEmail(String paymentEmail) {
+        this.paymentEmail = paymentEmail;
+    }
+
+    public String getPaymentPhone() {
+        return paymentPhone;
+    }
+
+    public void setPaymentPhone(String paymentPhone) {
+        this.paymentPhone = paymentPhone;
     }
 
     // Helper methods

@@ -90,9 +90,11 @@ public interface CarRepository {
     List<Car> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice);
 
     /**
-     * Search cars by multiple criteria
+     * Search cars by multiple criteria including distance
      */
-    List<Car> searchCars(String query, Car.CarClass carClass, Car.FuelType fuel, Integer seats, Integer year, BigDecimal minPrice, BigDecimal maxPrice, String sortOrder);
+    List<Car> searchCars(String query, Car.CarClass carClass, Car.FuelType fuel, Integer seats, Integer year, 
+                        BigDecimal minPrice, BigDecimal maxPrice, String sortOrder,
+                        Double userLat, Double userLng, Double maxDistance);
 
     /**
      * Update car status

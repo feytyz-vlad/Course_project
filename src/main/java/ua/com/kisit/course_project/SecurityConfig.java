@@ -40,7 +40,8 @@ public class SecurityConfig {
                     "/", "/cars/available", "/cars/**",
                     "/auth/login", "/auth/register",
                     "/migrate-passwords", "/setup-user",
-                    "/css/**", "/js/**", "/images/**", "/vendor/**", "/media/**"
+                    "/css/**", "/js/**", "/images/**", "/vendor/**", "/media/**",
+                    "/payment/**"
                 ).permitAll()
                 .requestMatchers("/orders/**", "/profile/**").authenticated()
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")

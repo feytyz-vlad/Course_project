@@ -61,6 +61,13 @@ public class RentalOrderRepositoryImpl implements RentalOrderRepository {
             if (updatedAt != null) order.setUpdatedAt(updatedAt.toLocalDateTime());
         } catch (Exception e) { /* Column might not exist */ }
         
+        try {
+            order.setPaid(rs.getBoolean("is_paid"));
+            order.setPaymentCard(rs.getString("payment_card"));
+            order.setPaymentEmail(rs.getString("payment_email"));
+            order.setPaymentPhone(rs.getString("payment_phone"));
+        } catch (Exception e) { /* Columns might not exist yet */ }
+        
         return order;
     };
 
@@ -163,5 +170,12 @@ public class RentalOrderRepositoryImpl implements RentalOrderRepository {
         return jdbcTemplate.query(
                 "SELECT * FROM rental_orders ORDER BY order_id DESC LIMIT ?",
                 orderRowMapper, limit);
+    }
+
+    @Override
+    public boolean updatePaymentInfo(Long orderId, boolean isPaid, String card, String email, String phone) {
+        return jdbcTemplate.update(
+                "UPDATE rental_orders SET is_paid=?, payment_card=?, payment_email=?, payment_phone=? WHERE order_id=?",
+                isPaid, card, email, phone, orderId) > 0;
     }
 }

@@ -58,6 +58,23 @@
                                 <td class="text-muted fw-bold">Загальна сума</td>
                                 <td><strong class="text-primary fs-5"><span th:text="${order.totalCost}">7000</span> грн</strong></td>
                             </tr>
+                            <tr th:if="${order.isPaid()}">
+                                <td class="text-muted fw-bold">Платіжні дані</td>
+                                <td>
+                                    <div class="small fw-bold text-success mb-1">
+                                        <i class="fas fa-check-circle me-1"></i>ОПЛАЧЕНО ЧЕРЕЗ WAYFORPAY
+                                    </div>
+                                    <div class="small text-muted" th:if="${order.paymentCard}">
+                                        <i class="fas fa-credit-card me-1"></i> Картка: <span th:text="${order.paymentCard}">**** **** **** 1234</span>
+                                    </div>
+                                    <div class="small text-muted" th:if="${order.paymentEmail}">
+                                        <i class="fas fa-envelope me-1"></i> Email: <span th:text="${order.paymentEmail}">user@test.com</span>
+                                    </div>
+                                    <div class="small text-muted" th:if="${order.paymentPhone}">
+                                        <i class="fas fa-phone me-1"></i> Тел: <span th:text="${order.paymentPhone}">+380...</span>
+                                    </div>
+                                </td>
+                            </tr>
                             <tr th:if="${order.rejectionReason != null}">
                                 <td class="text-muted fw-bold">Причина відмови</td>
                                 <td class="text-danger" th:text="${order.rejectionReason}"></td>
@@ -90,12 +107,27 @@
                             <hr class="my-2">
                         </div>
 
+                        <!-- Оплата для клієнта -->
+                        <div th:if="${order.status.name() == 'WAITING_FOR_PAYMENT'}">
+                            <a th:href="@{/payment/checkout/{id}(id=${order.orderId})}" class="btn btn-primary w-100 py-3 fw-bold shadow-sm mb-2" style="background: #003366; border: none;">
+                                <i class="fas fa-credit-card me-2"></i>Оплатити WayForPay
+                            </a>
+                            <div class="text-center mb-2">
+                                <img src="https://wayforpay.com/img/footer_img.png" alt="WayForPay" style="height: 15px; opacity: 0.6;">
+                            </div>
+                        </div>
+
+                        <!-- Статус після оплати -->
+                        <div th:if="${order.status.name() == 'PENDING' and order.isPaid()}" class="alert alert-info py-2 px-3 mb-2 small shadow-sm border-0">
+                            <i class="fas fa-clock me-2"></i>Оплачено. Очікуйте на підтвердження менеджером.
+                        </div>
+
                         <!-- Скасування для клієнта -->
                         <form th:if="${order.status.name() == 'PENDING'}"
                               th:action="@{/orders/{id}/cancel(id=${order.orderId})}"
                               method="post" onsubmit="return confirm('Скасувати замовлення?')">
-                            <button type="submit" class="btn btn-danger w-100">
-                                <i class="fas fa-times me-2"></i>Скасувати
+                            <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
+                                <i class="fas fa-times me-2"></i>Скасувати замовлення
                             </button>
                         </form>
 

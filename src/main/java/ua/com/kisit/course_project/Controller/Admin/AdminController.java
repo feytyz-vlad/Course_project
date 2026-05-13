@@ -16,9 +16,11 @@ import ua.com.kisit.course_project.Entity.UserRole;
 import ua.com.kisit.course_project.Repository.AuditLogRepository;
 import ua.com.kisit.course_project.Repository.CarRepository;
 import ua.com.kisit.course_project.Repository.UserRepository;
-import ua.com.kisit.course_project.Service.RentalOrderService;
 import ua.com.kisit.course_project.Controller.Web.WebAuthController;
 import ua.com.kisit.course_project.Controller.Web.WebCarController;
+import ua.com.kisit.course_project.Entity.Car;
+import ua.com.kisit.course_project.Service.DamageReportService;
+import ua.com.kisit.course_project.Service.RentalOrderService;
 
 @Controller
 @RequestMapping("/admin")
@@ -32,22 +34,30 @@ public class AdminController {
     private static final String ATTR_TOTAL_CARS = "totalCars";
     private static final String ATTR_TOTAL_USERS = "totalUsers";
     private static final String ATTR_RECENT_LOGS = "recentLogs";
+    private static final String ATTR_LATEST_ORDERS = "latestOrders";
+    private static final String ATTR_AVAILABLE_CARS = "availableCars";
+    private static final String ATTR_TOTAL_ORDERS = "totalOrders";
+    private static final String ATTR_TOTAL_DAMAGES = "totalDamages";
     private static final String ATTR_USERS = "users";
     private static final String ATTR_ROLES = "roles";
+    private static final String ATTR_REPORTS = "reports";
 
     private final RentalOrderService orderService;
     private final CarRepository carRepository;
     private final UserRepository userRepository;
     private final AuditLogRepository auditLogRepository;
+    private final DamageReportService damageService;
 
     public AdminController(RentalOrderService orderService,
                            CarRepository carRepository,
                            UserRepository userRepository,
-                           AuditLogRepository auditLogRepository) {
+                           AuditLogRepository auditLogRepository,
+                           DamageReportService damageService) {
         this.orderService = orderService;
         this.carRepository = carRepository;
         this.userRepository = userRepository;
         this.auditLogRepository = auditLogRepository;
+        this.damageService = damageService;
     }
 
     @GetMapping("/dashboard")
@@ -55,9 +65,22 @@ public class AdminController {
         model.addAttribute(WebCarController.ATTR_TITLE, "Панель адміністратора");
         model.addAttribute(ATTR_PENDING_ORDERS, orderService.getPendingOrders().size());
         model.addAttribute(ATTR_TOTAL_CARS, carRepository.countAll());
+        model.addAttribute(ATTR_AVAILABLE_CARS, carRepository.countAvailable());
+        model.addAttribute(ATTR_TOTAL_ORDERS, orderService.getAllOrders().size());
         model.addAttribute(ATTR_TOTAL_USERS, userRepository.count());
-        model.addAttribute(ATTR_RECENT_LOGS, auditLogRepository.findTop10ByOrderByTimestampDesc());
+        model.addAttribute(ATTR_TOTAL_DAMAGES, damageService.getAllReports().size());
+        model.addAttribute(ATTR_RECENT_LOGS, auditLogRepository.findTop10ByOrderByCreatedAtDesc());
+        model.addAttribute(ATTR_LATEST_ORDERS, orderService.getLatestOrders(5));
+        model.addAttribute("ukLocale", new java.util.Locale("uk", "UA"));
         return VIEW_DASHBOARD;
+    }
+
+    @GetMapping("/damages")
+    public String manageDamages(Model model) {
+        model.addAttribute(WebCarController.ATTR_TITLE, "Контроль пошкоджень");
+        model.addAttribute(ATTR_REPORTS, damageService.getAllReports());
+        model.addAttribute("ukLocale", new java.util.Locale("uk", "UA"));
+        return "admin/damages";
     }
 
     @GetMapping("/users")
