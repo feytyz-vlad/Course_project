@@ -5,7 +5,6 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <!-- FIXED: 4.0.2 не існує, остання стабільна версія — 3.4.3 -->
         <version>3.4.3</version>
         <relativePath/>
     </parent>
@@ -13,7 +12,6 @@
     <groupId>ua.com.kisit</groupId>
     <artifactId>Course_project</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <!-- FIXED: <n> → <name> -->
     <name>Course_project</name>
     <description>Course_project</description>
 
@@ -122,6 +120,7 @@
                     <useModulePath>false</useModulePath>
                     <includes>
                         <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
                     </includes>
                 </configuration>
             </plugin>

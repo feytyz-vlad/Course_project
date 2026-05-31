@@ -136,10 +136,19 @@ public class WebAuthController {
 
     @Auditable(action = "COMPLETE_PROFILE")
     @PostMapping("/register/complete")
-    public String completeProfile(@RequestParam String fio,
+    public String completeProfile(@RequestParam String lastName,
+                                  @RequestParam String firstName,
+                                  @RequestParam(required = false, defaultValue = "") String middleName,
                                   @RequestParam String phone,
                                   @RequestParam String driverLicense,
                                   @RequestParam String rnokpp,
+                                  @RequestParam(required = false) String passportSeries,
+                                  @RequestParam(required = false) String passportNumber,
+                                  @RequestParam(required = false) String passportIssuedBy,
+                                  @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate passportIssueDate,
+                                  @RequestParam(required = false) String address,
+                                  @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dateOfBirth,
+                                  @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate driverLicenseIssueDate,
                                   RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || ANONYMOUS_USER.equals(auth.getPrincipal())) {
@@ -150,7 +159,8 @@ public class WebAuthController {
             if (userOpt.isEmpty()) return REDIRECT_AUTH_LOGIN;
             
             // Validation
-            if (fio.length() > 255) {
+            String combinedFirstName = firstName.trim() + (middleName.isBlank() ? "" : " " + middleName.trim());
+            if (lastName.length() + combinedFirstName.length() > 255) {
                 redirectAttributes.addFlashAttribute(ATTR_ERROR, "ПІБ не може перевищувати 255 символів");
                 return REDIRECT_PROFILE_COMPLETE;
             }
@@ -163,7 +173,22 @@ public class WebAuthController {
                 return REDIRECT_PROFILE_COMPLETE;
             }
 
-            clientService.createClientProfile(userOpt.get().getUserId(), fio, "", phone, driverLicense, rnokpp);
+            ua.com.kisit.course_project.Entity.Client newClient = new ua.com.kisit.course_project.Entity.Client();
+            newClient.setUserId(userOpt.get().getUserId());
+            newClient.setFirstName(combinedFirstName);
+            newClient.setLastName(lastName.trim());
+            newClient.setPhone(phone);
+            newClient.setDriverLicenseNumber(driverLicense);
+            newClient.setRnokpp(rnokpp);
+            newClient.setPassportSeries(passportSeries);
+            newClient.setPassportNumber(passportNumber);
+            newClient.setPassportIssuedBy(passportIssuedBy);
+            newClient.setPassportIssueDate(passportIssueDate);
+            newClient.setAddress(address);
+            newClient.setDateOfBirth(dateOfBirth);
+            newClient.setDriverLicenseIssueDate(driverLicenseIssueDate);
+
+            clientService.createClientProfile(newClient);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Профіль успішно збережено!");
             return REDIRECT_PROFILE;
         } catch (Exception e) {
@@ -174,10 +199,19 @@ public class WebAuthController {
 
     @Auditable(action = "UPDATE_PROFILE")
     @PostMapping("/profile/update")
-    public String updateProfile(@RequestParam String fio,
+    public String updateProfile(@RequestParam String lastName,
+                                @RequestParam String firstName,
+                                @RequestParam(required = false, defaultValue = "") String middleName,
                                 @RequestParam String phone,
                                 @RequestParam String driverLicense,
                                 @RequestParam String rnokpp,
+                                @RequestParam(required = false) String passportSeries,
+                                @RequestParam(required = false) String passportNumber,
+                                @RequestParam(required = false) String passportIssuedBy,
+                                @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate passportIssueDate,
+                                @RequestParam(required = false) String address,
+                                @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dateOfBirth,
+                                @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate driverLicenseIssueDate,
                                 RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || ANONYMOUS_USER.equals(auth.getPrincipal())) {
@@ -187,16 +221,33 @@ public class WebAuthController {
             Optional<User> userOpt = userRepository.findByEmail(auth.getName());
             if (userOpt.isEmpty()) return REDIRECT_AUTH_LOGIN;
             
+            String combinedFirstName = firstName.trim() + (middleName.isBlank() ? "" : " " + middleName.trim());
+
             Optional<ua.com.kisit.course_project.Entity.Client> clientOpt = clientService.getClientByUserId(userOpt.get().getUserId());
             if (clientOpt.isEmpty()) {
                 // If the profile doesn't exist yet, simply call completeProfile logic
-                clientService.createClientProfile(userOpt.get().getUserId(), fio, "", phone, driverLicense, rnokpp);
+                ua.com.kisit.course_project.Entity.Client newClient = new ua.com.kisit.course_project.Entity.Client();
+                newClient.setUserId(userOpt.get().getUserId());
+                newClient.setFirstName(combinedFirstName);
+                newClient.setLastName(lastName.trim());
+                newClient.setPhone(phone);
+                newClient.setDriverLicenseNumber(driverLicense);
+                newClient.setRnokpp(rnokpp);
+                newClient.setPassportSeries(passportSeries);
+                newClient.setPassportNumber(passportNumber);
+                newClient.setPassportIssuedBy(passportIssuedBy);
+                newClient.setPassportIssueDate(passportIssueDate);
+                newClient.setAddress(address);
+                newClient.setDateOfBirth(dateOfBirth);
+                newClient.setDriverLicenseIssueDate(driverLicenseIssueDate);
+
+                clientService.createClientProfile(newClient);
                 redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Профіль успішно збережено!");
                 return REDIRECT_PROFILE;
             }
             
             // Validation
-            if (fio.length() > 255) {
+            if (lastName.length() + combinedFirstName.length() > 255) {
                 redirectAttributes.addFlashAttribute(ATTR_ERROR, "ПІБ не може перевищувати 255 символів");
                 return REDIRECT_PROFILE;
             }
@@ -210,11 +261,19 @@ public class WebAuthController {
             }
 
             ua.com.kisit.course_project.Entity.Client client = clientOpt.get();
-            client.setFirstName(fio);
+            client.setFirstName(combinedFirstName);
+            client.setLastName(lastName.trim());
             client.setPhone(phone);
             client.setDriverLicenseNumber(driverLicense);
             client.setRnokpp(rnokpp);
-            
+            client.setPassportSeries(passportSeries);
+            client.setPassportNumber(passportNumber);
+            client.setPassportIssuedBy(passportIssuedBy);
+            client.setPassportIssueDate(passportIssueDate);
+            client.setAddress(address);
+            client.setDateOfBirth(dateOfBirth);
+            client.setDriverLicenseIssueDate(driverLicenseIssueDate);
+
             clientService.updateClient(client);
             
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS, "Профіль успішно оновлено!");

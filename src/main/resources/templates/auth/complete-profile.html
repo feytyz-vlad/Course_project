@@ -14,10 +14,19 @@
                         </div>
 
                         <form th:action="@{/register/complete}" method="post">
-                            <div class="mb-3">
-                                <label class="form-label">ФІО</label>
-                                <input type="text" class="form-control" name="fio"
-                                       required placeholder="Прізвище Ім'я По батькові" maxlength="255">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Прізвище</label>
+                                    <input type="text" class="form-control" name="lastName" required maxlength="100">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Ім'я</label>
+                                    <input type="text" class="form-control" name="firstName" required maxlength="100">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">По батькові</label>
+                                    <input type="text" class="form-control" name="middleName" maxlength="100">
+                                </div>
                             </div>
 
                             <div class="mb-3">
@@ -40,6 +49,39 @@
                                 <div class="form-text">Має містити 10 цифр</div>
                             </div>
 
+                            <div class="mb-3">
+                                <label class="form-label">Дата народження (необов'язково)</label>
+                                <input type="date" class="form-control" name="dateOfBirth">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Адреса проживання (необов'язково)</label>
+                                <input type="text" class="form-control" name="address" placeholder="Місто, вулиця, будинок">
+                            </div>
+
+                            <hr>
+                            <h6 class="mb-3">Паспортні дані (необов'язково)</h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Серія</label>
+                                    <input type="text" class="form-control" name="passportSeries" maxlength="10">
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label class="form-label">Номер</label>
+                                    <input type="text" class="form-control" name="passportNumber" maxlength="20">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Ким виданий</label>
+                                <input type="text" class="form-control" name="passportIssuedBy">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Дата видачі паспорта</label>
+                                <input type="date" class="form-control" name="passportIssueDate">
+                            </div>
+
+                            <hr>
+                            <h6 class="mb-3">Водійське посвідчення</h6>
                             <div class="mb-4">
                                 <label class="form-label">Номер водійського посвідчення</label>
                                 <div class="input-group">
@@ -47,6 +89,10 @@
                                     <input type="text" class="form-control" name="driverLicense"
                                            required placeholder="XXX000000">
                                 </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Дата видачі посвідчення (необов'язково)</label>
+                                <input type="date" class="form-control" name="driverLicenseIssueDate">
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100">

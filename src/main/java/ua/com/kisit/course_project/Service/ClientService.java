@@ -33,35 +33,26 @@ public class ClientService {
      * FIXED: Доданий метод для створення профілю після реєстрації.
      * Викликається з WebHomeController після заповнення форми профілю.
      */
-    public Client createClientProfile(Long userId, String firstName, String lastName,
-                                      String phone, String driverLicense, String rnokpp) {
+    public Client createClientProfile(Client client) {
         // Перевірка чи профіль вже існує
-        if (clientRepository.findByUserId(userId).isPresent()) {
+        if (clientRepository.findByUserId(client.getUserId()).isPresent()) {
             throw new IllegalStateException("Профіль для цього користувача вже існує");
         }
 
-        if (clientRepository.existsByPhone(phone)) {
+        if (clientRepository.existsByPhone(client.getPhone())) {
             throw new IllegalArgumentException("Клієнт з таким телефоном вже зареєстрований");
         }
 
-        if (driverLicense != null && !driverLicense.isBlank()
-                && clientRepository.existsByDriverLicense(driverLicense)) {
+        if (client.getDriverLicenseNumber() != null && !client.getDriverLicenseNumber().isBlank()
+                && clientRepository.existsByDriverLicense(client.getDriverLicenseNumber())) {
             throw new IllegalArgumentException("Клієнт з таким водійським посвідченням вже зареєстрований");
         }
 
-        Client client = new Client();
-        client.setUserId(userId);
-        client.setFirstName(firstName);
-        client.setLastName(lastName);
-        client.setPhone(phone);
-        client.setDriverLicenseNumber(driverLicense);
-        client.setRnokpp(rnokpp);
-        
-        // Prevent NOT NULL constraint violations for fields we no longer collect
-        client.setPassportSeries("");
-        client.setPassportNumber("");
-        client.setPassportIssuedBy("");
-        client.setAddress("");
+        // Prevent NOT NULL constraint violations for missing fields
+        if (client.getPassportSeries() == null) client.setPassportSeries("");
+        if (client.getPassportNumber() == null) client.setPassportNumber("");
+        if (client.getPassportIssuedBy() == null) client.setPassportIssuedBy("");
+        if (client.getAddress() == null) client.setAddress("");
 
         return clientRepository.save(client);
     }

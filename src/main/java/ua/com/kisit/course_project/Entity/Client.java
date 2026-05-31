@@ -65,6 +65,18 @@ public class Client {
         this.firstName = firstName;
     }
 
+    public String getOnlyFirstName() {
+        if (firstName == null) return "";
+        int spaceIdx = firstName.indexOf(' ');
+        return spaceIdx > 0 ? firstName.substring(0, spaceIdx) : firstName;
+    }
+
+    public String getMiddleName() {
+        if (firstName == null) return "";
+        int spaceIdx = firstName.indexOf(' ');
+        return spaceIdx > 0 ? firstName.substring(spaceIdx + 1) : "";
+    }
+
     public String getLastName() {
         return lastName;
     }
